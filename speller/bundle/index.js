@@ -14,7 +14,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -35,10 +35,10 @@ async function run() {
     const version = core.getInput("version", { required: true });
     const spellerType = core.getInput("speller-type", { required: true });
     const manifest = toml_1.default.parse(fs_1.default.readFileSync(core.getInput("speller-manifest-path", { required: true }), "utf8"));
-    const spellerPaths = shared_1.nonUndefinedProxy(JSON.parse(core.getInput("speller-paths", { required: true })), true);
+    const spellerPaths = (0, shared_1.nonUndefinedProxy)(JSON.parse(core.getInput("speller-paths", { required: true })), true);
     let { name } = manifest;
-    const packageId = manifest_1.derivePackageId(spellerType);
-    const langTag = manifest_1.deriveLangTag(false);
+    const packageId = (0, manifest_1.derivePackageId)(spellerType);
+    const langTag = (0, manifest_1.deriveLangTag)(false);
     if (spellerType == manifest_1.SpellerType.Mobile) {
         const bhfstPaths = [];
         for (const [langTag, zhfstPath] of Object.entries(spellerPaths.mobile)) {
@@ -105,7 +105,7 @@ async function run() {
             .write("./install.iss");
         core.debug("generated install.iss:");
         core.debug(builder.build());
-        const payloadPath = await lib_1.makeInstaller("./install.iss");
+        const payloadPath = await (0, lib_1.makeInstaller)("./install.iss");
         core.setOutput("payload-path", payloadPath);
     }
     else if (spellerType == manifest_1.SpellerType.MacOS) {

@@ -14,7 +14,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -30,7 +30,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(() => resolve(), ms));
 async function run() {
     const filePath = path_1.default.resolve(core.getInput('path', { required: true }));
     const fileName = filePath.split(path_1.default.sep).pop();
-    const sec = shared_1.secrets();
+    const sec = (0, shared_1.secrets)();
     if (process.platform == "win32") {
         await exec.exec("signtool.exe", [
             "sign", "/t", shared_1.RFC3161_URL,

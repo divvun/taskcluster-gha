@@ -14,7 +14,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -31,7 +31,7 @@ const shared_2 = require("../../shared");
 const manifest_1 = require("../manifest");
 function loadManifest(manifestPath) {
     const manifestString = fs_1.default.readFileSync(manifestPath, "utf8");
-    return shared_1.nonUndefinedProxy(toml_1.default.parse(manifestString), true);
+    return (0, shared_1.nonUndefinedProxy)(toml_1.default.parse(manifestString), true);
 }
 function releaseReq(version, platform, dependencies, channel) {
     const req = {
@@ -54,7 +54,7 @@ async function run() {
         const version = core.getInput('version', { required: true });
         const channel = core.getInput('channel') || null;
         const pahkatRepo = core.getInput('repo', { required: true });
-        const packageId = manifest_1.derivePackageId(spellerType);
+        const packageId = (0, manifest_1.derivePackageId)(spellerType);
         const repoPackageUrl = `${pahkatRepo}packages/${packageId}`;
         let payloadMetadata = null;
         let platform = null;
@@ -62,7 +62,7 @@ async function run() {
         let artifactUrl = null;
         if (spellerType === manifest_1.SpellerType.Windows) {
             platform = "windows";
-            const productCode = shared_1.validateProductCode(shared_2.WindowsExecutableKind.Inno, manifest.windows.system_product_code);
+            const productCode = (0, shared_1.validateProductCode)(shared_2.WindowsExecutableKind.Inno, manifest.windows.system_product_code);
             const ext = path_1.default.extname(payloadPath);
             const pathItems = [packageId, version, platform];
             artifactPath = path_1.default.join(path_1.default.dirname(payloadPath), `${pathItems.join("_")}${ext}`);

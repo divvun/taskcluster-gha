@@ -14,7 +14,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -29,7 +29,7 @@ const path_1 = __importDefault(require("path"));
 const shared_1 = require("../shared");
 const ISCC_PATH = `"C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe"`;
 async function makeInstaller(issPath, defines = []) {
-    const sec = shared_1.secrets();
+    const sec = (0, shared_1.secrets)();
     const signCmd = `/S"signtool=signtool.exe sign ` +
         `/t ${shared_1.RFC3161_URL} ` +
         `/f ${shared_1.DIVVUN_PFX} ` +
