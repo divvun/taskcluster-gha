@@ -690,39 +690,19 @@ export class Kbdgen {
 
     static async buildWindows(bundlePath: string): Promise<string> {
         const abs = path.resolve(bundlePath)
-        const cwd = path.dirname(abs)
-        const sec = await secrets()
-
-        const msklcZip = await tc.downloadTool("https://pahkat.uit.no/artifacts/msklc.zip")
-        const msklcPath = await tc.extractZip(msklcZip)
-
-        // Export MSKLC_PATH
-        core.exportVariable("MSKLC_PATH", path.join(msklcPath, "msklc1.4"))
 
         await Powershell.runScript(
-            `kbdgen --logging trace build win -R --ci -o output ${abs}`,
-            {
-                env: {
-                    "CODESIGN_PW": sec.windows.pfxPassword,
-                    "CODESIGN_PFX": DIVVUN_PFX,
-                }
-            }
+            `C:\\kbdgen.exe windows generate -o output ${abs}`,
         )
 
-        const globber = await glob.create(path.join(cwd, "output", `*.exe`), {
-            followSymbolicLinks: false
-        })
-        const files = await globber.glob()
+        await Powershell.runScript(
+            `C:\\kbdgen.exe windows build -o output ${abs}`,
+        )
 
-        for (const file of files) {
-            if (file.includes("win7") || file.includes("kbdi")) {
-                continue
-            }
+        return await Kbdgen.makeWindowsInstaller(`${abs}/output`)
+    }
 
-            core.debug("Got file for bundle: " + file)
-            return file
-        }
-
+    static async makeWindowsInstaller(outputDir: string): Promise<string> {
         throw new Error("No output found for build.")
     }
 }
