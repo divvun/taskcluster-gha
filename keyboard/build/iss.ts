@@ -1,9 +1,8 @@
 import path from "path"
 import fs from "fs"
 import { InnoSetupBuilder } from '../../inno'
-import { Kbdgen } from '../../shared'
+import { Kbdgen  } from '../../shared'
 import { v5 as uuidv5 } from 'uuid'
-import * as core from "@actions/core"
 
 
 const KBDGEN_NAMESPACE = uuidv5("divvun.no", uuidv5.DNS)
@@ -20,7 +19,7 @@ function getKbdId(locale: string, layout: {[key: string]: any}) {
     return "kbd" + locale.replace(/[^A-Za-z0-9-]/g, "").substr(0, 5)
 }
 
-async function generateInnoFromBundle(bundlePath: string, buildDir: string) {
+export async function generateKbdInnoFromBundle(bundlePath: string, buildDir: string): Promise<string> {
     var bundle = Kbdgen.loadTarget(bundlePath, "win")
     var project = Kbdgen.loadProjectBundle(bundlePath)
     var layouts = await Kbdgen.loadLayouts(bundlePath)
@@ -37,7 +36,7 @@ async function generateInnoFromBundle(bundlePath: string, buildDir: string) {
             builder.add(`${buildDir}\\kbdi.exe`, "{app}", ["restartreplace", "uninsrestartdelete", "ignoreversion"])
             builder.add(`${buildDir}\\i386\\*`, "{sys}", ["restartreplace", "uninsrestartdelete", "ignoreversion"], "not Is64BitInstallMode")
             builder.add(`${buildDir}\\amd64\\*`, "{sys}", ["restartreplace", "uninsrestartdelete", "ignoreversion"], "Is64BitInstallMode")
-            builder.add(`${buildDir}\\wow64\\*`, "{wow64}", ["restartreplace", "uninsrestartdelete", "ignoreversion"], "Is64BitInstallMode")
+            builder.add(`${buildDir}\\wow64\\*`, "{syswow64}", ["restartreplace", "uninsrestartdelete", "ignoreversion"], "Is64BitInstallMode")
 
             return builder
         })
@@ -48,7 +47,9 @@ async function generateInnoFromBundle(bundlePath: string, buildDir: string) {
         }
     }
     const fileName = path.join(buildDir, `install.all.iss`)
+    console.log(builder.build())
     fs.writeFileSync(fileName, builder.build())
+    return fileName
 }
 
 function addLayoutToInstaller(builder: InnoSetupBuilder, locale: string, layout: {[key: string]: any}) {
@@ -70,7 +71,7 @@ function addLayoutToInstaller(builder: InnoSetupBuilder, locale: string, layout:
             if(languageName) {
                 builder.withParameter(`-l ""${languageName}""`)
             }
-            builder.withParameter(`-g ""{${guidStr}""`)
+            builder.withParameter(`-g ""{{${guidStr}""`)
                    .withParameter(`-d ${dllName}`)
                    .withParameter(`-n ${layoutDisplayName}`)
                    .withParameter("-e")
@@ -86,10 +87,10 @@ function addLayoutToInstaller(builder: InnoSetupBuilder, locale: string, layout:
             return builder
         })
         .icons((builder) => {
-            builder.withName(`{group}\\{cm:Enable,${layoutDisplayName}}`)
+            builder.withName(`{group}\\Enable`)
                 .withFilename("{app}\\kbdi.exe")
                 .withParameter("keyboard_enable")
-                .withParameter(`-g ""{${guidStr}""`)
+                .withParameter(`-g ""{{${guidStr}""`)
                 .withParameter(`-t ${languageCode}`)
                 .withFlags(["runminimized", "preventpinning", "excludefromshowinnewinstall"])
 
@@ -97,12 +98,3 @@ function addLayoutToInstaller(builder: InnoSetupBuilder, locale: string, layout:
         })
 
 }
-
-async function run() {
-    await generateInnoFromBundle(core.getInput('bundle-dir', {'required': true}), core.getInput('build-dir', {'required': true}))
-}
-
-run().catch(err => {
-    console.error(err.stack)
-    process.exit(1)
-})

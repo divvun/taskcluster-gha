@@ -567,12 +567,10 @@ class Kbdgen {
     }
     static async buildWindows(bundlePath) {
         const abs = path_1.default.resolve(bundlePath);
+        const cwd = process.cwd();
         await Powershell.runScript(`C:\\kbdgen.exe windows generate -o output ${abs}`);
         await Powershell.runScript(`C:\\kbdgen.exe windows build -o output ${abs}`);
-        return await Kbdgen.makeWindowsInstaller(`${abs}/output`);
-    }
-    static async makeWindowsInstaller(outputDir) {
-        throw new Error("No output found for build.");
+        return `${cwd}/output`;
     }
 }
 exports.Kbdgen = Kbdgen;

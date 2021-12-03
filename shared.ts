@@ -707,6 +707,7 @@ export class Kbdgen {
 
     static async buildWindows(bundlePath: string): Promise<string> {
         const abs = path.resolve(bundlePath)
+        const cwd = process.cwd()
 
         await Powershell.runScript(
             `C:\\kbdgen.exe windows generate -o output ${abs}`,
@@ -716,11 +717,7 @@ export class Kbdgen {
             `C:\\kbdgen.exe windows build -o output ${abs}`,
         )
 
-        return await Kbdgen.makeWindowsInstaller(`${abs}/output`)
-    }
-
-    static async makeWindowsInstaller(outputDir: string): Promise<string> {
-        throw new Error("No output found for build.")
+        return `${cwd}/output`
     }
 }
 

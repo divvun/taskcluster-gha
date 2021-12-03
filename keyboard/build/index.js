@@ -18,10 +18,18 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(require("@actions/core"));
 const shared_1 = require("../../shared");
 const types_1 = require("../types");
+const iss_1 = require("./iss");
+const lib_1 = require("../../inno-setup/lib");
+const shared_2 = require("../../shared");
+const path_1 = __importDefault(require("path"));
+const io = __importStar(require("@actions/io"));
 const SEMVER_TAG_RE = /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
 async function run() {
     const keyboardType = core.getInput("keyboard-type", { required: true });
@@ -50,7 +58,12 @@ async function run() {
             core.debug("Setting current version to nightly version");
             await shared_1.Kbdgen.setNightlyVersion(bundlePath, "win");
         }
-        payloadPath = await shared_1.Kbdgen.buildWindows(bundlePath);
+        await shared_2.PahkatPrefix.install(["kbdi"]);
+        const kbdi_path = path_1.default.join(shared_2.PahkatPrefix.path, "pkg", "kbdi", "bin", "kbdi.exe");
+        const outputPath = await shared_1.Kbdgen.buildWindows(bundlePath);
+        await io.cp(kbdi_path, outputPath);
+        const issPath = await (0, iss_1.generateKbdInnoFromBundle)(bundlePath, outputPath);
+        payloadPath = await (0, lib_1.makeInstaller)(issPath);
     }
     else {
         throw new Error(`Unhandled keyboard type: ${keyboardType}`);

@@ -84,7 +84,7 @@ class InnoSetupBuilder {
         }
         const { name, version, publisher, url, productCode, defaultDirName } = this.data;
         const setup = Object.entries({
-            AppId: `{${productCode}`,
+            AppId: `{{${productCode}`,
             AppName: name,
             AppVersion: version,
             AppPublisher: publisher,
@@ -419,7 +419,7 @@ class InnoCommandBuilder {
         if (this.name) {
             ret += `Name: ${this.name}; `;
         }
-        ret += `Filename: ${this.executableName}; Parameters: ${parameters}`;
+        ret += `Filename: ${this.executableName}; Parameters: "${parameters}"`;
         if (this.flags) {
             var flags = this.flags.join(" ");
             ret += `; Flags: ${flags}`;
