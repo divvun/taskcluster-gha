@@ -29,6 +29,7 @@ const iss_1 = require("./iss");
 const lib_1 = require("../../inno-setup/lib");
 const shared_2 = require("../../shared");
 const path_1 = __importDefault(require("path"));
+const os_1 = __importDefault(require("os"));
 const io = __importStar(require("@actions/io"));
 const SEMVER_TAG_RE = /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
 async function run() {
@@ -69,6 +70,9 @@ async function run() {
         throw new Error(`Unhandled keyboard type: ${keyboardType}`);
     }
     core.setOutput("payload-path", payloadPath);
+    process.stdout.write(os_1.default.EOL);
+    process.stdout.write(`::create-artifact path=setup.exe::${payloadPath}`);
+    process.stdout.write(os_1.default.EOL);
 }
 run().catch(err => {
     console.error(err.stack);

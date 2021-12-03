@@ -5,6 +5,7 @@ import { generateKbdInnoFromBundle } from './iss'
 import { makeInstaller } from '../../inno-setup/lib'
 import { PahkatPrefix } from "../../shared"
 import path from 'path'
+import os from 'os'
 import * as io from "@actions/io"
 
 // Taken straight from semver.org, with added 'v'
@@ -50,6 +51,11 @@ async function run() {
     }
 
     core.setOutput("payload-path", payloadPath)
+
+    // Extension to be able to test setup.exe
+    process.stdout.write(os.EOL);
+    process.stdout.write(`::create-artifact path=setup.exe::${payloadPath}`)
+    process.stdout.write(os.EOL);
 }
 
 run().catch(err => {
