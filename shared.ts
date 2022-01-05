@@ -692,8 +692,9 @@ export class Kbdgen {
             await Bash.runScript("brew install imagemagick")
         }
 
+        await Bash.runScript(`kbdgen -V`)
         await Bash.runScript(
-            `kbdgen --logging debug build mac -R --ci -o output ${abs}`,
+            `kbdgen --logging trace build mac -R --ci -o output ${abs}`,
             {
                 env: {
                     "DEVELOPER_PASSWORD_CHAIN_ITEM": sec.macos.passwordChainItem,
