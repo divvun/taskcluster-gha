@@ -42,6 +42,7 @@ class Security {
         return await Security.run("create-keychain", ["-p", `"${password}"`, `${name}.keychain`]);
     }
     static async defaultKeychain(name) {
+        await Security.run("list-keychains", ["-s", "/Users/admin/Library/Keychains/login.keychain-db", `${name}.keychain`]);
         return await Security.run("default-keychain", ["-s", `${name}.keychain`]);
     }
     static async unlockKeychain(name, password) {
@@ -94,7 +95,8 @@ async function setupMacOSKeychain() {
     debug(await Security.import(name, path_1.default.resolve((0, shared_1.divvunConfigDir)(), sec.macos.installerP12), sec.macos.installerP12Password));
     debug(await Security.import(name, path_1.default.resolve((0, shared_1.divvunConfigDir)(), sec.macos.appP12), sec.macos.appP12Password));
     debug(await Security.setKeyPartitionList(name, password, ["apple-tool:", "apple:", "codesign:"]));
-    debug(await shared_1.Bash.runScript(`security add-generic-password -a "${sec.macos.passwordChainItem}" -s "${sec.macos.developerAccount}" -w "${sec.macos.appPassword}"`));
+    debug(await shared_1.Bash.runScript(`security add-generic-password -A -s "${sec.macos.passwordChainItem}" -a "${sec.macos.developerAccount}" -w "${sec.macos.appPassword}" "${name}"`));
+    debug(await shared_1.Bash.runScript(`security set-generic-password-partition-list -S "apple-tool:,apple:,codesign:,security:" -a "${sec.macos.developerAccount}" -k "${password}" ${name}.keychain`));
     debug(await shared_1.Bash.runScript(`bash ${(0, shared_1.divvunConfigDir)()}/enc/install.sh`));
 }
 async function cloneConfigRepo(password) {
