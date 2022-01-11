@@ -30,7 +30,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(() => resolve(), ms));
 async function run() {
     const filePath = path_1.default.resolve(core.getInput('path', { required: true }));
     const fileName = filePath.split(path_1.default.sep).pop();
-    const sec = (0, shared_1.secrets)();
+    const sec = await (0, shared_1.secrets)();
     if (process.platform == "win32") {
         await exec.exec("signtool.exe", [
             "sign", "/t", shared_1.RFC3161_URL,

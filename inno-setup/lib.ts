@@ -7,7 +7,7 @@ import { DIVVUN_PFX, RFC3161_URL, secrets } from "../shared"
 const ISCC_PATH = `"C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe"`
 
 export async function makeInstaller(issPath: string, defines: string[] = []): Promise<string> {
-    const sec = secrets()
+    const sec = await secrets()
 
     const signCmd = `/S"signtool=signtool.exe sign ` + 
         `/t ${RFC3161_URL} ` +

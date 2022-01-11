@@ -72,7 +72,7 @@ function debug(input: string[]) {
 }
 
 async function setupMacOSKeychain() {
-  const sec = secrets()
+  const sec = await secrets()
 
   const name = `divvun-build-${randomHexBytes(6)}`
   const password = randomString64()

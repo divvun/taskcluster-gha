@@ -29,7 +29,7 @@ const path_1 = __importDefault(require("path"));
 const shared_1 = require("../shared");
 const ISCC_PATH = `"C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe"`;
 async function makeInstaller(issPath, defines = []) {
-    const sec = (0, shared_1.secrets)();
+    const sec = await (0, shared_1.secrets)();
     const signCmd = `/S"signtool=signtool.exe sign ` +
         `/t ${shared_1.RFC3161_URL} ` +
         `/f ${shared_1.DIVVUN_PFX} ` +

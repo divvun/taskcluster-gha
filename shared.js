@@ -31,9 +31,9 @@ const io = __importStar(require("@actions/io"));
 const glob = __importStar(require("@actions/glob"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
+const taskcluster = __importStar(require("taskcluster-client"));
 const yaml_1 = __importDefault(require("yaml"));
 const tmp = __importStar(require("tmp"));
-const action_1 = require("@octokit/action");
 const crypto_1 = __importDefault(require("crypto"));
 exports.RFC3161_URL = "http://timestamp.sectigo.com";
 function tmpDir() {
@@ -62,25 +62,15 @@ function randomHexBytes(count) {
 exports.randomHexBytes = randomHexBytes;
 exports.DIVVUN_PFX = `${divvunConfigDir()}\\enc\\creds\\windows\\divvun.pfx`;
 let loadedSecrets = null;
-function secrets() {
+async function secrets() {
     if (loadedSecrets != null) {
         return loadedSecrets;
     }
-    const p = path_1.default.resolve(divvunConfigDir(), "enc", "env.json");
-    const s = fs_1.default.readFileSync(p, "utf8");
-    const secrets = JSON.parse(s);
-    function walk(obj) {
-        if (obj !== null && typeof obj == "object") {
-            for (const value of Object.values(obj)) {
-                walk(value);
-            }
-        }
-        else {
-            core.setSecret(obj);
-        }
-    }
-    walk(secrets);
-    loadedSecrets = nonUndefinedProxy(secrets, true);
+    const secretService = new taskcluster.Secrets({
+        rootUrl: process.env.TASKCLUSTER_PROXY_URL
+    });
+    const secrets = await secretService.get("divvun");
+    loadedSecrets = secrets.secret;
     return loadedSecrets;
 }
 exports.secrets = secrets;
@@ -317,7 +307,7 @@ var MacOSPackageTarget;
 })(MacOSPackageTarget = exports.MacOSPackageTarget || (exports.MacOSPackageTarget = {}));
 class PahkatUploader {
     static async run(args) {
-        const sec = secrets();
+        const sec = await secrets();
         let output = "";
         core.debug("PATH:");
         core.debug(process.env.PATH);
@@ -498,7 +488,7 @@ class Kbdgen {
     static async build_iOS(bundlePath) {
         const abs = path_1.default.resolve(bundlePath);
         const cwd = path_1.default.dirname(abs);
-        const sec = secrets();
+        const sec = await secrets();
         const env = {
             "GITHUB_USERNAME": sec.github.username,
             "GITHUB_TOKEN": sec.github.token,
@@ -528,7 +518,7 @@ class Kbdgen {
     static async buildAndroid(bundlePath, githubRepo) {
         const abs = path_1.default.resolve(bundlePath);
         const cwd = path_1.default.dirname(abs);
-        const sec = secrets();
+        const sec = await secrets();
         await Bash.runScript(`kbdgen --logging debug build android -R --ci -o output ${abs}`, {
             cwd,
             env: {
@@ -548,7 +538,7 @@ class Kbdgen {
     static async buildMacOS(bundlePath) {
         const abs = path_1.default.resolve(bundlePath);
         const cwd = path_1.default.dirname(abs);
-        const sec = secrets();
+        const sec = await secrets();
         if (process.env["ImageOS"] != null) {
             await Bash.runScript("brew install imagemagick");
         }
@@ -563,7 +553,7 @@ class Kbdgen {
     static async buildWindows(bundlePath) {
         const abs = path_1.default.resolve(bundlePath);
         const cwd = path_1.default.dirname(abs);
-        const sec = secrets();
+        const sec = await secrets();
         const msklcZip = await tc.downloadTool("https://pahkat.uit.no/artifacts/msklc.zip");
         const msklcPath = await tc.extractZip(msklcZip);
         core.exportVariable("MSKLC_PATH", path_1.default.join(msklcPath, "msklc1.4"));
@@ -592,7 +582,7 @@ class Subversion {
     static async import(payloadPath, remotePath) {
         core.debug("Payload path: " + payloadPath);
         core.debug("Remote path: " + remotePath);
-        const sec = secrets();
+        const sec = await secrets();
         const msg = `[CI: Artifact] ${path_1.default.basename(payloadPath)}`;
         return await DefaultShell.runScript(`svn import ${payloadPath} ${remotePath} -m "${msg}" --username="${sec.svn.username}" --password="${sec.svn.password}"`);
     }
@@ -612,14 +602,11 @@ async function versionAsNightly(version) {
     if (verChunks == null) {
         throw new Error(`Provided version '${version}' is not semantic.`);
     }
-    const octokit = new action_1.Octokit();
-    const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
-    const { data } = await octokit.request("GET /repos/:owner/:repo/actions/runs/:run_id", {
-        owner,
-        repo,
-        run_id: parseInt(process.env.GITHUB_RUN_ID, 10)
+    const queueService = new taskcluster.Queue({
+        rootUrl: process.env.TASKCLUSTER_PROXY_URL
     });
-    const nightlyTs = data.created_at.replace(/[-:\.]/g, "");
+    const task = await queueService.task(process.env.TASK_ID);
+    const nightlyTs = task.created.replace(/[-:\.]/g, "");
     return `${verChunks.join(".")}-nightly.${nightlyTs}`;
 }
 exports.versionAsNightly = versionAsNightly;
@@ -637,7 +624,7 @@ function deriveBundlerArgs(spellerPaths, withZhfst = true) {
 }
 class DivvunBundler {
     static async bundleMacOS(name, version, packageId, langTag, spellerPaths) {
-        const sec = secrets();
+        const sec = await secrets();
         const args = [
             "-R", "-o", "output", "-t", "osx",
             "-H", name,

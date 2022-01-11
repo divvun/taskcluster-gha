@@ -10,7 +10,7 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(() => resolve(
 async function run() {
     const filePath = path.resolve(core.getInput('path', { required: true }))
     const fileName = filePath.split(path.sep).pop()
-    const sec = secrets()
+    const sec = await secrets()
 
     if (process.platform == "win32") {
         await exec.exec("signtool.exe", [

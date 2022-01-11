@@ -6,6 +6,7 @@ import * as io from "@actions/io"
 import * as glob from "@actions/glob"
 import path from 'path'
 import fs from 'fs'
+import * as taskcluster from "taskcluster-client"
 import YAML from 'yaml'
 import * as tmp from 'tmp'
 import { Octokit } from "@octokit/action"
@@ -43,28 +44,19 @@ export const DIVVUN_PFX = `${divvunConfigDir()}\\enc\\creds\\windows\\divvun.pfx
 
 let loadedSecrets: any = null
 
-export function secrets() {
+export async function secrets() {
     if (loadedSecrets != null) {
         return loadedSecrets
     }
 
-    const p = path.resolve(divvunConfigDir(), "enc", "env.json")
-    const s = fs.readFileSync(p, "utf8")
-    const secrets = JSON.parse(s)
 
-    // Mask ALL secrets
-    function walk(obj: any) {
-        if (obj !== null && typeof obj == "object") {
-            for (const value of Object.values(obj)) {
-                walk(value)
-            }
-        } else {
-            core.setSecret(obj)
-        }
-    }
-    walk(secrets)
+    const secretService = new taskcluster.Secrets({
+        rootUrl: process.env.TASKCLUSTER_PROXY_URL
+    });
 
-    loadedSecrets = nonUndefinedProxy(secrets, true)
+    const secrets = await secretService.get("divvun");
+
+    loadedSecrets = secrets.secret
     return loadedSecrets
 }
 
@@ -346,7 +338,7 @@ export class PahkatUploader {
     static ARTIFACTS_URL: string = "https://pahkat.uit.no/artifacts/"
 
     private static async run(args: string[]): Promise<string> {
-        const sec = secrets()
+        const sec = await secrets()
         let output: string = ""
 
         core.debug("PATH:")
@@ -597,7 +589,7 @@ export class Kbdgen {
     static async build_iOS(bundlePath: string): Promise<string> {
         const abs = path.resolve(bundlePath)
         const cwd = path.dirname(abs)
-        const sec = secrets()
+        const sec = await secrets()
 
         // await Bash.runScript("brew install imagemagick")
 
@@ -648,7 +640,7 @@ export class Kbdgen {
     static async buildAndroid(bundlePath: string, githubRepo: string): Promise<string> {
         const abs = path.resolve(bundlePath)
         const cwd = path.dirname(abs)
-        const sec = secrets()
+        const sec = await secrets()
         
         // await Bash.runScript("brew install imagemagick")
 
@@ -676,7 +668,7 @@ export class Kbdgen {
     static async buildMacOS(bundlePath: string): Promise<string> {
         const abs = path.resolve(bundlePath)
         const cwd = path.dirname(abs)
-        const sec = secrets()
+        const sec = await secrets()
 
         // Install imagemagick if we're not using the self-hosted runner
         if (process.env["ImageOS"] != null) {
@@ -699,7 +691,7 @@ export class Kbdgen {
     static async buildWindows(bundlePath: string): Promise<string> {
         const abs = path.resolve(bundlePath)
         const cwd = path.dirname(abs)
-        const sec = secrets()
+        const sec = await secrets()
 
         const msklcZip = await tc.downloadTool("https://pahkat.uit.no/artifacts/msklc.zip")
         const msklcPath = await tc.extractZip(msklcZip)
@@ -740,7 +732,7 @@ export class Subversion {
         core.debug("Payload path: " + payloadPath)
         core.debug("Remote path: " + remotePath)
 
-        const sec = secrets()
+        const sec = await secrets()
         const msg = `[CI: Artifact] ${path.basename(payloadPath)}`
 
         return await DefaultShell.runScript(`svn import ${payloadPath} ${remotePath} -m "${msg}" --username="${sec.svn.username}" --password="${sec.svn.password}"`)
@@ -762,15 +754,13 @@ export async function versionAsNightly(version: string): Promise<string> {
         throw new Error(`Provided version '${version}' is not semantic.`)
     }
 
-    const octokit = new Octokit();
-    const [owner, repo] = process.env.GITHUB_REPOSITORY!.split("/")
-    const { data } = await octokit.request("GET /repos/:owner/:repo/actions/runs/:run_id", {
-        owner,
-        repo,
-        run_id: parseInt(process.env.GITHUB_RUN_ID!, 10)
-    })
-    
-    const nightlyTs = data.created_at.replace(/[-:\.]/g, "")
+    const queueService = new taskcluster.Queue({
+        rootUrl: process.env.TASKCLUSTER_PROXY_URL
+    });
+
+    const task = await queueService.task(process.env.TASK_ID)
+
+    const nightlyTs = task.created.replace(/[-:\.]/g, "")
 
     return `${verChunks.join(".")}-nightly.${nightlyTs}`
 }
@@ -802,7 +792,7 @@ export class DivvunBundler {
         langTag: string,
         spellerPaths: SpellerPaths
     ): Promise<string> {
-        const sec = secrets();
+        const sec = await secrets();
 
         const args = [
             "-R", "-o", "output", "-t", "osx",

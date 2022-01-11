@@ -1,5 +1,5 @@
 import * as core from "@actions/core"
-import { Apt, Pip, ProjectJJ, Ssh } from "../../shared"
+import { Apt, Pip, ProjectJJ, Ssh, secrets } from "../../shared"
 
 function getSudo() {
     const x = core.getInput("sudo")
