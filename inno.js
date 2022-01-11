@@ -84,7 +84,7 @@ class InnoSetupBuilder {
         }
         const { name, version, publisher, url, productCode, defaultDirName } = this.data;
         const setup = Object.entries({
-            AppId: `{{${productCode}`,
+            AppId: `{${productCode}`,
             AppName: name,
             AppVersion: version,
             AppPublisher: publisher,

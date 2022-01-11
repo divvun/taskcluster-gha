@@ -29,7 +29,7 @@ async function generateKbdInnoFromBundle(bundlePath, buildDir) {
         .publisher(project.organisation)
         .version(bundle.version)
         .url(bundle.url)
-        .productCode(bundle.uuid)
+        .productCode(`{${bundle.uuid}`)
         .defaultDirName("{pf}\\" + bundle.appName)
         .files((builder) => {
         builder.add(`${buildDir}\\kbdi.exe`, "{app}", ["restartreplace", "uninsrestartdelete", "ignoreversion"]);
