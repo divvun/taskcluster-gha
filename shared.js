@@ -343,7 +343,7 @@ class PahkatUploader {
         });
         const fileName = path_1.default.parse(artifactPath).base;
         const fileContent = fs_1.default.readFileSync(artifactPath);
-        const bucketParams = { Bucket: "divvun", Key: path_1.default.join('pahkat/', fileName), Body: fileContent };
+        const bucketParams = { Bucket: "divvun", Key: path_1.default.join('pahkat/', fileName), Body: fileContent, ACL: 'public-read' };
         console.log(`Uploading ${artifactPath} to S3`);
         var res = await client.send(new client_s3_1.PutObjectCommand(bucketParams));
         console.log(res);
