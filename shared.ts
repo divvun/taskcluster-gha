@@ -4,12 +4,12 @@ import * as github from '@actions/github'
 import * as tc from '@actions/tool-cache'
 import * as io from "@actions/io"
 import * as glob from "@actions/glob"
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import path from 'path'
 import fs from 'fs'
 import * as taskcluster from "taskcluster-client"
 import YAML from 'yaml'
 import * as tmp from 'tmp'
-import { Octokit } from "@octokit/action"
 import crypto from "crypto"
 
 export const RFC3161_URL = "http://timestamp.sectigo.com"
@@ -335,7 +335,7 @@ export type ReleaseRequest = {
 }
 
 export class PahkatUploader {
-    static ARTIFACTS_URL: string = "https://pahkat.uit.no/artifacts/"
+    static ARTIFACTS_URL: string = "https://divvun.ams3.cdn.digitaloceanspaces.com/pahkat/artifacts/"
 
     private static async run(args: string[]): Promise<string> {
         const sec = await secrets()
@@ -368,9 +368,22 @@ export class PahkatUploader {
         if (!fs.existsSync(releaseManifestPath)) {
             throw new Error(`Missing required payload manifest at path ${releaseManifestPath}`)
         }
+        const sec = await secrets()
 
         // Step 1: Use SVN to do the crimes.
-        await Subversion.import(artifactPath, artifactUrl)
+        var client = new S3Client({
+            endpoint: "https://ams3.digitaloceanspaces.com",
+            region: "ams3",
+            credentials: {accessKeyId: sec.aws.accessKeyId, secretAccessKey: sec.aws.secretAccessKey},
+        });
+
+        const fileName = path.parse(artifactPath).base
+
+        const fileContent = fs.readFileSync(artifactPath)
+        const bucketParams = { Bucket: "divvun", Key: path.join('pahkat/', fileName), Body: fileContent }
+        console.log(`Uploading ${artifactPath} to S3`)
+        var res = await client.send(new PutObjectCommand(bucketParams))
+        console.log(res)
 
         // Step 2: Push the manifest to the server.
         const args = ["upload",
@@ -719,18 +732,6 @@ export class Kbdgen {
         )
 
         return `${cwd}/output`
-    }
-}
-
-export class Subversion {
-    static async import(payloadPath: string, remotePath: string) {
-        core.debug("Payload path: " + payloadPath)
-        core.debug("Remote path: " + remotePath)
-
-        const sec = await secrets()
-        const msg = `[CI: Artifact] ${path.basename(payloadPath)}`
-
-        return await DefaultShell.runScript(`svn import ${payloadPath} ${remotePath} -m "${msg}" --username="${sec.svn.username}" --password="${sec.svn.password}"`)
     }
 }
 

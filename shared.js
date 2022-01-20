@@ -22,13 +22,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isMatchingTag = exports.isCurrentBranch = exports.validateProductCode = exports.nonUndefinedProxy = exports.DivvunBundler = exports.versionAsNightly = exports.ThfstTools = exports.Subversion = exports.Kbdgen = exports.ProjectJJ = exports.Ssh = exports.PahkatUploader = exports.MacOSPackageTarget = exports.PahkatPrefix = exports.WindowsExecutableKind = exports.RebootSpec = exports.Tar = exports.Bash = exports.DefaultShell = exports.Powershell = exports.Pip = exports.Apt = exports.secrets = exports.DIVVUN_PFX = exports.randomHexBytes = exports.randomString64 = exports.shouldDeploy = exports.divvunConfigDir = exports.tmpDir = exports.RFC3161_URL = void 0;
+exports.isMatchingTag = exports.isCurrentBranch = exports.validateProductCode = exports.nonUndefinedProxy = exports.DivvunBundler = exports.versionAsNightly = exports.ThfstTools = exports.Kbdgen = exports.ProjectJJ = exports.Ssh = exports.PahkatUploader = exports.MacOSPackageTarget = exports.PahkatPrefix = exports.WindowsExecutableKind = exports.RebootSpec = exports.Tar = exports.Bash = exports.DefaultShell = exports.Powershell = exports.Pip = exports.Apt = exports.secrets = exports.DIVVUN_PFX = exports.randomHexBytes = exports.randomString64 = exports.shouldDeploy = exports.divvunConfigDir = exports.tmpDir = exports.RFC3161_URL = void 0;
 const exec_1 = require("@actions/exec");
 const core = __importStar(require("@actions/core"));
 const github = __importStar(require("@actions/github"));
 const tc = __importStar(require("@actions/tool-cache"));
 const io = __importStar(require("@actions/io"));
 const glob = __importStar(require("@actions/glob"));
+const client_s3_1 = require("@aws-sdk/client-s3");
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const taskcluster = __importStar(require("taskcluster-client"));
@@ -334,7 +335,18 @@ class PahkatUploader {
         if (!fs_1.default.existsSync(releaseManifestPath)) {
             throw new Error(`Missing required payload manifest at path ${releaseManifestPath}`);
         }
-        await Subversion.import(artifactPath, artifactUrl);
+        const sec = await secrets();
+        var client = new client_s3_1.S3Client({
+            endpoint: "https://ams3.digitaloceanspaces.com",
+            region: "ams3",
+            credentials: { accessKeyId: sec.aws.accessKeyId, secretAccessKey: sec.aws.secretAccessKey },
+        });
+        const fileName = path_1.default.parse(artifactPath).base;
+        const fileContent = fs_1.default.readFileSync(artifactPath);
+        const bucketParams = { Bucket: "divvun", Key: path_1.default.join('pahkat/', fileName), Body: fileContent };
+        console.log(`Uploading ${artifactPath} to S3`);
+        var res = await client.send(new client_s3_1.PutObjectCommand(bucketParams));
+        console.log(res);
         const args = ["upload",
             "-u", repoUrl,
             "-P", releaseManifestPath,
@@ -382,7 +394,7 @@ class PahkatUploader {
     }
 }
 exports.PahkatUploader = PahkatUploader;
-PahkatUploader.ARTIFACTS_URL = "https://pahkat.uit.no/artifacts/";
+PahkatUploader.ARTIFACTS_URL = "https://divvun.ams3.cdn.digitaloceanspaces.com/pahkat/artifacts/";
 PahkatUploader.release = {
     async windowsExecutable(release, artifactUrl, installSize, size, kind, productCode, requiresReboot) {
         const payloadArgs = [
@@ -575,16 +587,6 @@ class Kbdgen {
     }
 }
 exports.Kbdgen = Kbdgen;
-class Subversion {
-    static async import(payloadPath, remotePath) {
-        core.debug("Payload path: " + payloadPath);
-        core.debug("Remote path: " + remotePath);
-        const sec = await secrets();
-        const msg = `[CI: Artifact] ${path_1.default.basename(payloadPath)}`;
-        return await DefaultShell.runScript(`svn import ${payloadPath} ${remotePath} -m "${msg}" --username="${sec.svn.username}" --password="${sec.svn.password}"`);
-    }
-}
-exports.Subversion = Subversion;
 class ThfstTools {
     static async zhfstToBhfst(zhfstPath) {
         await DefaultShell.runScript(`thfst-tools zhfst-to-bhfst ${zhfstPath}`);
