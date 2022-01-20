@@ -4,7 +4,8 @@ import * as github from '@actions/github'
 import * as tc from '@actions/tool-cache'
 import * as io from "@actions/io"
 import * as glob from "@actions/glob"
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
 import path from 'path'
 import fs from 'fs'
 import * as taskcluster from "taskcluster-client"
@@ -382,8 +383,12 @@ export class PahkatUploader {
         const fileContent = fs.readFileSync(artifactPath)
         const bucketParams = { Bucket: "divvun", Key: path.join('pahkat/', fileName), Body: fileContent, ACL: 'public-read' }
         console.log(`Uploading ${artifactPath} to S3`)
-        var res = await client.send(new PutObjectCommand(bucketParams))
-        console.log(res)
+
+        const upload = new Upload({
+            client: client,
+            params: bucketParams,
+        });
+        await upload.done()
 
         // Step 2: Push the manifest to the server.
         const args = ["upload",
