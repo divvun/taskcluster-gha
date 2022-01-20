@@ -16,15 +16,16 @@
         "@actions/glob": "^0.1.0",
         "@actions/io": "^1.0.2",
         "@actions/tool-cache": "^1.6.0",
+        "@aws-sdk/client-s3": "^3.47.0",
         "@iarna/toml": "^2.2.5",
         "@octokit/action": "^2.9.0",
         "@types/tmp": "^0.2.0",
         "@types/uuid": "^8.3.2",
-        "uuid": "^8.3.2",
+        "taskcluster-client": "^44.2.2",
         "tmp": "^0.2.1",
         "toml": "^3.0.0",
-        "yaml": "^1.10.0",
-        "taskcluster-client": "^44.2.2"
+        "uuid": "^8.3.2",
+        "yaml": "^1.10.0"
     },
     "devDependencies": {
         "typescript": "^3.9.7"
