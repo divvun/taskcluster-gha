@@ -14,6 +14,7 @@ import * as tmp from 'tmp'
 import crypto from "crypto"
 
 export const RFC3161_URL = "http://timestamp.sectigo.com"
+const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(() => resolve(), ms));
 
 export function tmpDir() {
     const dir = process.env["RUNNER_TEMP"]
@@ -384,11 +385,25 @@ export class PahkatUploader {
         const bucketParams = { Bucket: "divvun", Key: `pahkat/artifacts/${fileName}`, Body: fileContent, ACL: 'public-read' }
         console.log(`Uploading ${artifactPath} to S3`)
 
-        const upload = new Upload({
-            client: client,
-            params: bucketParams,
-        });
-        await upload.done()
+        var retries = 0;
+        while (true) {
+            try {
+                const upload = new Upload({
+                    client: client,
+                    params: bucketParams,
+                });
+                await upload.done()
+                break;
+            } catch (err) {
+                if (retries >= 5) {
+                    throw err;
+                }
+                console.log(err);
+                await delay(10000 * retries * retries)
+                console.log("Retrying");
+                retries += 1
+            }
+        }
 
         // Step 2: Push the manifest to the server.
         const args = ["upload",

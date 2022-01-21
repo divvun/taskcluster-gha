@@ -38,6 +38,7 @@ const yaml_1 = __importDefault(require("yaml"));
 const tmp = __importStar(require("tmp"));
 const crypto_1 = __importDefault(require("crypto"));
 exports.RFC3161_URL = "http://timestamp.sectigo.com";
+const delay = (ms) => new Promise((resolve) => setTimeout(() => resolve(), ms));
 function tmpDir() {
     const dir = process.env["RUNNER_TEMP"];
     if (dir == null || dir.trim() == '') {
@@ -346,11 +347,26 @@ class PahkatUploader {
         const fileContent = fs_1.default.readFileSync(artifactPath);
         const bucketParams = { Bucket: "divvun", Key: `pahkat/artifacts/${fileName}`, Body: fileContent, ACL: 'public-read' };
         console.log(`Uploading ${artifactPath} to S3`);
-        const upload = new lib_storage_1.Upload({
-            client: client,
-            params: bucketParams,
-        });
-        await upload.done();
+        var retries = 0;
+        while (true) {
+            try {
+                const upload = new lib_storage_1.Upload({
+                    client: client,
+                    params: bucketParams,
+                });
+                await upload.done();
+                break;
+            }
+            catch (err) {
+                if (retries >= 5) {
+                    throw err;
+                }
+                console.log(err);
+                await delay(10000 * retries * retries);
+                console.log("Retrying");
+                retries += 1;
+            }
+        }
         const args = ["upload",
             "-u", repoUrl,
             "-P", releaseManifestPath,
