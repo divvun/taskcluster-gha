@@ -381,7 +381,7 @@ export class PahkatUploader {
         const fileName = path.parse(artifactPath).base
 
         const fileContent = fs.readFileSync(artifactPath)
-        const bucketParams = { Bucket: "divvun", Key: path.join('pahkat/', fileName), Body: fileContent, ACL: 'public-read' }
+        const bucketParams = { Bucket: "divvun", Key: `pahkat/artifacts/${fileName}`, Body: fileContent, ACL: 'public-read' }
         console.log(`Uploading ${artifactPath} to S3`)
 
         const upload = new Upload({

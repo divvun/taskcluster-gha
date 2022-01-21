@@ -139,7 +139,7 @@ async function run() {
         const data = await PahkatUploader.release.macosPackage(
             releaseReq,
             artifactUrl,
-            1, 1, 
+            1, 1,
             pkgId, requiresReboot, targets)
         fs.writeFileSync("./metadata.toml", data, "utf8")
     } else if (packageType === PackageType.WindowsExecutable) {

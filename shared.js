@@ -30,6 +30,7 @@ const tc = __importStar(require("@actions/tool-cache"));
 const io = __importStar(require("@actions/io"));
 const glob = __importStar(require("@actions/glob"));
 const client_s3_1 = require("@aws-sdk/client-s3");
+const lib_storage_1 = require("@aws-sdk/lib-storage");
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const taskcluster = __importStar(require("taskcluster-client"));
@@ -343,10 +344,13 @@ class PahkatUploader {
         });
         const fileName = path_1.default.parse(artifactPath).base;
         const fileContent = fs_1.default.readFileSync(artifactPath);
-        const bucketParams = { Bucket: "divvun", Key: path_1.default.join('pahkat/', fileName), Body: fileContent, ACL: 'public-read' };
+        const bucketParams = { Bucket: "divvun", Key: `pahkat/artifacts/${fileName}`, Body: fileContent, ACL: 'public-read' };
         console.log(`Uploading ${artifactPath} to S3`);
-        var res = await client.send(new client_s3_1.PutObjectCommand(bucketParams));
-        console.log(res);
+        const upload = new lib_storage_1.Upload({
+            client: client,
+            params: bucketParams,
+        });
+        await upload.done();
         const args = ["upload",
             "-u", repoUrl,
             "-P", releaseManifestPath,
