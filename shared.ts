@@ -4,8 +4,7 @@ import * as github from '@actions/github'
 import * as tc from '@actions/tool-cache'
 import * as io from "@actions/io"
 import * as glob from "@actions/glob"
-import { S3Client } from "@aws-sdk/client-s3";
-import { Upload } from "@aws-sdk/lib-storage";
+import * as minio from "minio";
 import path from 'path'
 import fs from 'fs'
 import * as taskcluster from "taskcluster-client"
@@ -373,34 +372,22 @@ export class PahkatUploader {
         const sec = await secrets()
 
         // Step 1: Use SVN to do the crimes.
-        var client = new S3Client({
-            endpoint: "https://ams3.digitaloceanspaces.com",
-            region: "ams3",
-            credentials: {accessKeyId: sec.aws.accessKeyId, secretAccessKey: sec.aws.secretAccessKey},
+        var client = new minio.Client({
+            endPoint: "ams3.digitaloceanspaces.com",
+            accessKey: sec.aws.accessKeyId,
+            secretKey: sec.aws.secretAccessKey,
         });
 
         const fileName = path.parse(artifactPath).base
 
-        const fileContent = fs.readFileSync(artifactPath)
-        const bucketParams = { Bucket: "divvun", Key: `pahkat/artifacts/${fileName}`, Body: fileContent, ACL: 'public-read' }
         console.log(`Uploading ${artifactPath} to S3`)
 
         var retries = 0;
         while (true) {
             try {
                 console.log("Try")
-                const upload = new Upload({
-                    client: client,
-                    params: bucketParams,
-                });
-                console.log("Starting")
-                upload.on("httpUploadProgress", (progress) => {
-                    console.log(progress);
-                });
-                console.log("Awaiting")
-
-                await upload.done()
-                console.log("Done")
+                client.fPutObject("divvun", `pahkat/artifacts/${fileName}`, artifactPath, { 'x-amz-acl': 'public-read' })
+                console.log("Upload successful")
                 break;
             } catch (err) {
                 console.log(err);

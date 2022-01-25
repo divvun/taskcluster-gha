@@ -29,8 +29,7 @@ const github = __importStar(require("@actions/github"));
 const tc = __importStar(require("@actions/tool-cache"));
 const io = __importStar(require("@actions/io"));
 const glob = __importStar(require("@actions/glob"));
-const client_s3_1 = require("@aws-sdk/client-s3");
-const lib_storage_1 = require("@aws-sdk/lib-storage");
+const minio = __importStar(require("minio"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const taskcluster = __importStar(require("taskcluster-client"));
@@ -338,30 +337,19 @@ class PahkatUploader {
             throw new Error(`Missing required payload manifest at path ${releaseManifestPath}`);
         }
         const sec = await secrets();
-        var client = new client_s3_1.S3Client({
-            endpoint: "https://ams3.digitaloceanspaces.com",
-            region: "ams3",
-            credentials: { accessKeyId: sec.aws.accessKeyId, secretAccessKey: sec.aws.secretAccessKey },
+        var client = new minio.Client({
+            endPoint: "ams3.digitaloceanspaces.com",
+            accessKey: sec.aws.accessKeyId,
+            secretKey: sec.aws.secretAccessKey,
         });
         const fileName = path_1.default.parse(artifactPath).base;
-        const fileContent = fs_1.default.readFileSync(artifactPath);
-        const bucketParams = { Bucket: "divvun", Key: `pahkat/artifacts/${fileName}`, Body: fileContent, ACL: 'public-read' };
         console.log(`Uploading ${artifactPath} to S3`);
         var retries = 0;
         while (true) {
             try {
                 console.log("Try");
-                const upload = new lib_storage_1.Upload({
-                    client: client,
-                    params: bucketParams,
-                });
-                console.log("Starting");
-                upload.on("httpUploadProgress", (progress) => {
-                    console.log(progress);
-                });
-                console.log("Awaiting");
-                await upload.done();
-                console.log("Done");
+                client.fPutObject("divvun", `pahkat/artifacts/${fileName}`, artifactPath, { 'x-amz-acl': 'public-read' });
+                console.log("Upload successful");
                 break;
             }
             catch (err) {
