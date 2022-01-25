@@ -388,17 +388,25 @@ export class PahkatUploader {
         var retries = 0;
         while (true) {
             try {
+                console.log("Try")
                 const upload = new Upload({
                     client: client,
                     params: bucketParams,
                 });
+                console.log("Starting")
+                upload.on("httpUploadProgress", (progress) => {
+                    console.log(progress);
+                });
+                console.log("Awaiting")
+
                 await upload.done()
+                console.log("Done")
                 break;
             } catch (err) {
+                console.log(err);
                 if (retries >= 5) {
                     throw err;
                 }
-                console.log(err);
                 await delay(10000 * retries * retries)
                 console.log("Retrying");
                 retries += 1
