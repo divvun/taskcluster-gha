@@ -377,7 +377,6 @@ export class PahkatUploader {
         var retries = 0;
         while (true) {
             try {
-                console.log("Try")
                 await exec("aws", ["s3", "cp", "--endpoint", "https://ams3.digitaloceanspaces.com", "--acl", "public-read", artifactPath, `s3://divvun/pahkat/artifacts/${fileName}`], {
                     env: Object.assign({}, env(), {
                         AWS_ACCESS_KEY_ID: sec.aws.accessKeyId,
@@ -392,7 +391,7 @@ export class PahkatUploader {
                 if (retries >= 5) {
                     throw err;
                 }
-                await delay(10000 * retries * retries)
+                await delay(10000)
                 console.log("Retrying");
                 retries += 1
             }
