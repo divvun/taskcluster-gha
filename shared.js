@@ -348,7 +348,7 @@ class PahkatUploader {
         while (true) {
             try {
                 console.log("Try");
-                client.fPutObject("divvun", `pahkat/artifacts/${fileName}`, artifactPath, { 'x-amz-acl': 'public-read' });
+                await client.fPutObject("divvun", `pahkat/artifacts/${fileName}`, artifactPath, { 'x-amz-acl': 'public-read' });
                 console.log("Upload successful");
                 break;
             }
