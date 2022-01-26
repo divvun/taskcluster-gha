@@ -24,6 +24,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(require("@actions/core"));
 const exec = __importStar(require("@actions/exec"));
+const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const shared_1 = require("../shared");
 const delay = (ms) => new Promise((resolve) => setTimeout(() => resolve(), ms));
@@ -67,6 +68,7 @@ async function run() {
             const status = response["notarization-info"].Status;
             if (status === "success") {
                 console.log("Success!");
+                fs_1.default.unlinkSync(zipPath);
                 break;
             }
             else if (status === "in progress") {

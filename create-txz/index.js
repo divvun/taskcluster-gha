@@ -30,7 +30,8 @@ const shared_1 = require("../shared");
 async function run() {
     const filesPath = core.getInput('path', { required: true });
     const globber = await glob.create(path_1.default.join(filesPath, "*"), {
-        followSymbolicLinks: false
+        followSymbolicLinks: false,
+        implicitDescendants: false
     });
     const files = await globber.glob();
     await shared_1.Tar.bootstrap();

@@ -7,9 +7,10 @@ import { Tar } from "../shared"
 
 async function run() {
     const filesPath = core.getInput('path', { required: true })
-    
+
     const globber = await glob.create(path.join(filesPath, "*"), {
-        followSymbolicLinks: false
+        followSymbolicLinks: false,
+        implicitDescendants: false
     })
     const files = await globber.glob()
 

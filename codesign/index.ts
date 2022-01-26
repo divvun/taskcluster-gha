@@ -1,6 +1,7 @@
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 
+import fs from "fs"
 import path from "path"
 
 import { secrets, DIVVUN_PFX, Bash, RFC3161_URL } from "../shared"
@@ -43,7 +44,7 @@ async function run() {
         console.log(JSON.stringify(response, null, 2))
 
         const requestUuid = response["notarization-upload"].RequestUUID
-        
+
         // Poll API endpoint for response
         for (;;) {
             console.log("Waiting 10 seconds...")
@@ -56,11 +57,12 @@ async function run() {
  -p "${appPassword}"\
  --output-format json`)).join("\n"))
             console.log(JSON.stringify(response, null, 2))
-            
+
             const status = response["notarization-info"].Status
 
             if (status === "success") {
                 console.log("Success!")
+                fs.unlinkSync(zipPath)
                 break
             } else if (status === "in progress") {
                 console.log("In progress...")
