@@ -4,7 +4,6 @@ import * as github from '@actions/github'
 import * as tc from '@actions/tool-cache'
 import * as io from "@actions/io"
 import * as glob from "@actions/glob"
-import * as minio from "minio";
 import path from 'path'
 import fs from 'fs'
 import * as taskcluster from "taskcluster-client"
@@ -371,13 +370,6 @@ export class PahkatUploader {
         }
         const sec = await secrets()
 
-        // Step 1: Use SVN to do the crimes.
-        var client = new minio.Client({
-            endPoint: "ams3.digitaloceanspaces.com",
-            accessKey: sec.aws.accessKeyId,
-            secretKey: sec.aws.secretAccessKey,
-        });
-
         const fileName = path.parse(artifactPath).base
 
         console.log(`Uploading ${artifactPath} to S3`)
@@ -386,7 +378,13 @@ export class PahkatUploader {
         while (true) {
             try {
                 console.log("Try")
-                await client.fPutObject("divvun", `pahkat/artifacts/${fileName}`, artifactPath, { 'x-amz-acl': 'public-read' })
+                await exec("aws", ["s3", "cp", "--endpoint", "https://ams3.digitaloceanspaces.com", "--acl", "public-read", artifactPath, `s3://divvun/pahkat/artifacts/${fileName}`], {
+                    env: Object.assign({}, env(), {
+                        AWS_ACCESS_KEY_ID: sec.aws.accessKeyId,
+                        AWS_SECRET_ACCESS_KEY: sec.aws.secretAccessKey,
+                        AWS_DEFAULT_REGION: "ams3"
+                    })
+                })
                 console.log("Upload successful")
                 break;
             } catch (err) {

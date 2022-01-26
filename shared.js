@@ -29,7 +29,6 @@ const github = __importStar(require("@actions/github"));
 const tc = __importStar(require("@actions/tool-cache"));
 const io = __importStar(require("@actions/io"));
 const glob = __importStar(require("@actions/glob"));
-const minio = __importStar(require("minio"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const taskcluster = __importStar(require("taskcluster-client"));
@@ -337,18 +336,19 @@ class PahkatUploader {
             throw new Error(`Missing required payload manifest at path ${releaseManifestPath}`);
         }
         const sec = await secrets();
-        var client = new minio.Client({
-            endPoint: "ams3.digitaloceanspaces.com",
-            accessKey: sec.aws.accessKeyId,
-            secretKey: sec.aws.secretAccessKey,
-        });
         const fileName = path_1.default.parse(artifactPath).base;
         console.log(`Uploading ${artifactPath} to S3`);
         var retries = 0;
         while (true) {
             try {
                 console.log("Try");
-                await client.fPutObject("divvun", `pahkat/artifacts/${fileName}`, artifactPath, { 'x-amz-acl': 'public-read' });
+                await (0, exec_1.exec)("aws", ["s3", "cp", "--endpoint", "https://ams3.digitaloceanspaces.com", "--acl", "public-read", artifactPath, `s3://divvun/pahkat/artifacts/${fileName}`], {
+                    env: Object.assign({}, env(), {
+                        AWS_ACCESS_KEY_ID: sec.aws.accessKeyId,
+                        AWS_SECRET_ACCESS_KEY: sec.aws.secretAccessKey,
+                        AWS_DEFAULT_REGION: "ams3"
+                    })
+                });
                 console.log("Upload successful");
                 break;
             }
