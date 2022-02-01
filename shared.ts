@@ -375,6 +375,7 @@ export class PahkatUploader {
         console.log(`Uploading ${artifactPath} to S3`)
 
         var retries = 0;
+        await exec("aws", ["configure", "set", "default.s3.multipart_threshold", "500MB"])
         while (true) {
             try {
                 await exec("aws", ["s3", "cp", "--cli-connect-timeout", "6000", "--endpoint", "https://ams3.digitaloceanspaces.com", "--acl", "public-read", artifactPath, `s3://divvun/pahkat/artifacts/${fileName}`], {
