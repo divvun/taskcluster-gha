@@ -341,7 +341,7 @@ class PahkatUploader {
         var retries = 0;
         while (true) {
             try {
-                await (0, exec_1.exec)("aws", ["s3", "cp", "--endpoint", "https://ams3.digitaloceanspaces.com", "--acl", "public-read", artifactPath, `s3://divvun/pahkat/artifacts/${fileName}`], {
+                await (0, exec_1.exec)("aws", ["s3", "cp", "--cli-connect-timeout", "6000", "--endpoint", "https://ams3.digitaloceanspaces.com", "--acl", "public-read", artifactPath, `s3://divvun/pahkat/artifacts/${fileName}`], {
                     env: Object.assign({}, env(), {
                         AWS_ACCESS_KEY_ID: sec.aws.accessKeyId,
                         AWS_SECRET_ACCESS_KEY: sec.aws.secretAccessKey,
