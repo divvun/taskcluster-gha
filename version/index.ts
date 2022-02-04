@@ -70,7 +70,7 @@ function getVersionFromFile() {
         return null
     }
 
-    const version = fs.readFileSync(path.resolve(filePath))
+    const version = fs.readFileSync(path.resolve(filePath), "utf-8")
     return version
 }
 
