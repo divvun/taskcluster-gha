@@ -72,7 +72,7 @@ function getVersionFromFile() {
     if (filePath == null) {
         return null;
     }
-    const version = fs_1.default.readFileSync(path_1.default.resolve(filePath), "utf-8");
+    const version = fs_1.default.readFileSync(path_1.default.resolve(filePath), "utf-8").trimEnd();
     return version;
 }
 async function run() {
