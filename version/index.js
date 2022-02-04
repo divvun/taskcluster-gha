@@ -67,6 +67,14 @@ function getPlistPath() {
     }
     return path_1.default.resolve(plistPath);
 }
+function getVersionFromFile() {
+    const filePath = core.getInput("filepath") || null;
+    if (filePath == null) {
+        return null;
+    }
+    const version = fs_1.default.readFileSync(path_1.default.resolve(filePath));
+    return version;
+}
 async function run() {
     const isXcode = core.getInput("xcode") || null;
     const isNightly = deriveNightly();
@@ -75,6 +83,7 @@ async function run() {
     const plistPath = getPlistPath();
     const csharp = core.getInput("csharp") || null;
     const stableChannel = core.getInput("stable-channel") || null;
+    const versionFromFile = getVersionFromFile();
     let version;
     if (cargoToml != null) {
         core.debug("Getting version from TOML");
@@ -98,6 +107,9 @@ async function run() {
     }
     else if (isXcode) {
         version = await getXcodeMarketingVersion();
+    }
+    else if (versionFromFile != null) {
+        version = versionFromFile;
     }
     else {
         throw new Error("Did not find a suitable mechanism to derive the version.");
