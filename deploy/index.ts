@@ -92,7 +92,7 @@ async function run() {
     const dependencies = getDependencies()
     const pahkatRepo = core.getInput('repo', { required: true })
 
-    const repoPackageUrl = `${pahkatRepo}packages/${packageId}`
+    const repoPackageUrl = `${pahkatRepo}/packages/${packageId}`
 
     let version = core.getInput('version', { required: true })
     core.debug("Version: " + version)
