@@ -82,7 +82,6 @@ async function run() {
     const spellerManifest = getSpellerManifestToml();
     const plistPath = getPlistPath();
     const csharp = core.getInput("csharp") || null;
-    const stableChannel = core.getInput("stable-channel") || null;
     const versionFromFile = getVersionFromFile();
     let version;
     if (cargoToml != null) {
@@ -122,8 +121,8 @@ async function run() {
         version = await (0, shared_1.versionAsNightly)(version);
         core.setOutput("channel", "nightly");
     }
-    else if (stableChannel != null) {
-        core.setOutput("channel", stableChannel);
+    else {
+        core.setOutput("channel", "beta");
     }
     core.debug("Setting version to: " + version);
     core.setOutput("version", version);
