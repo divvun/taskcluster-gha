@@ -308,6 +308,10 @@ var MacOSPackageTarget;
 })(MacOSPackageTarget = exports.MacOSPackageTarget || (exports.MacOSPackageTarget = {}));
 class PahkatUploader {
     static async run(args) {
+        if (process.env["PAHKAT_NO_DEPLOY"] === "true") {
+            core.debug("Skipping deploy because `PAHKAT_NO_DEPLOY` is true");
+            return "";
+        }
         const sec = await secrets();
         let output = "";
         core.debug("PATH:");
@@ -332,11 +336,16 @@ class PahkatUploader {
         return output;
     }
     static async upload(artifactPath, artifactUrl, releaseManifestPath, repoUrl) {
+        const fileName = path_1.default.parse(artifactPath).base;
+        if (process.env["PAHKAT_NO_DEPLOY"] === "true") {
+            core.debug("Skipping upload because `PAHKAT_NO_DEPLOY` is true. Creating artifact instead");
+            process.stdout.write(`::create-artifact path=${fileName}::${artifactPath}`);
+            return;
+        }
         if (!fs_1.default.existsSync(releaseManifestPath)) {
             throw new Error(`Missing required payload manifest at path ${releaseManifestPath}`);
         }
         const sec = await secrets();
-        const fileName = path_1.default.parse(artifactPath).base;
         console.log(`Uploading ${artifactPath} to S3`);
         var retries = 0;
         await (0, exec_1.exec)("aws", ["configure", "set", "default.s3.multipart_threshold", "500MB"]);

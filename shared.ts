@@ -338,6 +338,10 @@ export class PahkatUploader {
     static ARTIFACTS_URL: string = "https://divvun.ams3.cdn.digitaloceanspaces.com/pahkat/artifacts/"
 
     private static async run(args: string[]): Promise<string> {
+        if (process.env["PAHKAT_NO_DEPLOY"] === "true") {
+            core.debug("Skipping deploy because `PAHKAT_NO_DEPLOY` is true")
+            return ""
+        }
         const sec = await secrets()
         let output: string = ""
 
@@ -365,12 +369,20 @@ export class PahkatUploader {
     }
 
     static async upload(artifactPath: string, artifactUrl: string, releaseManifestPath: string, repoUrl: string) {
+        const fileName = path.parse(artifactPath).base
+
+        if (process.env["PAHKAT_NO_DEPLOY"] === "true") {
+            core.debug("Skipping upload because `PAHKAT_NO_DEPLOY` is true. Creating artifact instead")
+            process.stdout.write(`::create-artifact path=${fileName}::${artifactPath}`)
+            return
+        }
+
         if (!fs.existsSync(releaseManifestPath)) {
             throw new Error(`Missing required payload manifest at path ${releaseManifestPath}`)
         }
+
         const sec = await secrets()
 
-        const fileName = path.parse(artifactPath).base
 
         console.log(`Uploading ${artifactPath} to S3`)
 

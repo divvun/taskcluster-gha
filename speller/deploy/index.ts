@@ -37,10 +37,10 @@ async function run() {
         const payloadPath = core.getInput('payload-path', { required: true })
         const version = core.getInput('version', { required: true });
         const channel = core.getInput('channel') || null;
-        
+
         const pahkatRepo = core.getInput('repo', { required: true });
         const packageId = derivePackageId(spellerType)
-        
+
         const repoPackageUrl = `${pahkatRepo}packages/${packageId}`
 
         let payloadMetadata: string | null = null
@@ -53,7 +53,7 @@ async function run() {
             platform = "windows"
             const productCode = validateProductCode(
                 WindowsExecutableKind.Inno, manifest.windows.system_product_code)
-            
+
             const ext = path.extname(payloadPath)
             const pathItems = [packageId, version, platform]
             artifactPath = path.join(path.dirname(payloadPath), `${pathItems.join("_")}${ext}`)
@@ -69,7 +69,7 @@ async function run() {
                 releaseReq(version, platform, deps, channel),
                 artifactUrl,
                 1,
-                1, 
+                1,
                 WindowsExecutableKind.Inno,
                 productCode,
                 [RebootSpec.Install, RebootSpec.Uninstall])
@@ -82,7 +82,7 @@ async function run() {
             artifactPath = path.join(path.dirname(payloadPath), `${pathItems.join("_")}${ext}`)
             artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${path.basename(artifactPath)}`
 
-            
+
             // Make the nightly channel be used if any channel except for the default.
             let deps: any = { "https://pahkat.uit.no/tools/packages/macdivvun": "*" }
             if (channel != null) {
@@ -104,7 +104,7 @@ async function run() {
             const pathItems = [packageId, version, platform]
             artifactPath = path.join(path.dirname(payloadPath), `${pathItems.join("_")}${ext}`)
             artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${path.basename(artifactPath)}`
-            
+
             payloadMetadata = await PahkatUploader.release.tarballPackage(
                 releaseReq(version, platform, {}, channel),
                 artifactUrl,
@@ -127,14 +127,14 @@ async function run() {
         if (artifactPath == null) {
             throw new Error("artifact path is null; this is a logic error.")
         }
-    
+
         if (artifactUrl == null) {
             throw new Error("artifact url is null; this is a logic error.")
         }
 
         core.debug(`Renaming from ${payloadPath} to ${artifactPath}`)
         fs.renameSync(payloadPath, artifactPath)
-    
+
         await PahkatUploader.upload(artifactPath, artifactUrl, "./metadata.toml", repoPackageUrl)
     }
     catch (error) {
