@@ -298,9 +298,9 @@ class PahkatPrefix {
     }
 }
 exports.PahkatPrefix = PahkatPrefix;
-PahkatPrefix.URL_LINUX = "https://divvun.ams3.cdn.digitaloceanspaces.com/pahkat/artifacts/pahkat-prefix-cli_0.1.0-nightly.20220203T091612813Z_linux_x86_64.txz";
-PahkatPrefix.URL_MACOS = "https://divvun.ams3.cdn.digitaloceanspaces.com/pahkat/artifacts/pahkat-prefix-cli_0.1.0-nightly.20220203T091612813Z_macos_x86_64.txz";
-PahkatPrefix.URL_WINDOWS = "https://divvun.ams3.cdn.digitaloceanspaces.com/pahkat/artifacts/pahkat-prefix-cli_0.1.0-nightly.20220203T091612813Z_windows_i686.txz";
+PahkatPrefix.URL_LINUX = "https://pahkat.uit.no/artifacts/pahkat-prefix-cli_0.1.0-nightly.20220203T091612813Z_linux_x86_64.txz";
+PahkatPrefix.URL_MACOS = "https://pahkat.uit.no/artifacts/pahkat-prefix-cli_0.1.0-nightly.20220203T091612813Z_macos_x86_64.txz";
+PahkatPrefix.URL_WINDOWS = "https://pahkat.uit.no/artifacts/pahkat-prefix-cli_0.1.0-nightly.20220203T091612813Z_windows_i686.txz";
 var MacOSPackageTarget;
 (function (MacOSPackageTarget) {
     MacOSPackageTarget["System"] = "system";
@@ -418,7 +418,7 @@ class PahkatUploader {
     }
 }
 exports.PahkatUploader = PahkatUploader;
-PahkatUploader.ARTIFACTS_URL = "https://divvun.ams3.cdn.digitaloceanspaces.com/pahkat/artifacts/";
+PahkatUploader.ARTIFACTS_URL = "https://pahkat.uit.no/artifacts/";
 PahkatUploader.release = {
     async windowsExecutable(release, artifactUrl, installSize, size, kind, productCode, requiresReboot) {
         const payloadArgs = [
