@@ -51,11 +51,6 @@ async function run() {
     }
 
     core.setOutput("payload-path", payloadPath)
-
-    // Extension to be able to test setup.exe
-    process.stdout.write(os.EOL);
-    process.stdout.write(`::create-artifact path=setup.exe::${payloadPath}`)
-    process.stdout.write(os.EOL);
 }
 
 run().catch(err => {
