@@ -7,14 +7,14 @@ inputs:
     description: Get the version from the Cargo.toml file at the given path, or base if value is 'true'
   speller-manifest:
     description: Speller manifest
-  stable-channel:
-    description: Channel to deploy to for a stable build; defaults to empty
   plist:
     description: ... plist
   xcode:
     description: derive from xcodebuild
   nightly:
     description: Add a nightly version suffix if `true`, or if string matches current branch name
+  insta-stable:
+    description: When `true` don't release to the `beta` channel but to stable immediately
 outputs:
   version:
     description: The generated version

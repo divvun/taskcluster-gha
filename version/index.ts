@@ -82,6 +82,7 @@ async function run() {
     const plistPath = getPlistPath()
     const csharp = core.getInput("csharp") || null
     const versionFromFile = getVersionFromFile()
+    const instaStable = core.getInput("insta-stable") || false
 
     let version 
 
@@ -119,7 +120,9 @@ async function run() {
 
         core.setOutput("channel", "nightly")
     } else {
-        core.setOutput("channel", "beta")
+        if (instaStable != "true") {
+            core.setOutput("channel", "beta")
+        }
     }
 
     core.debug("Setting version to: " + version)
