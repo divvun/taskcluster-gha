@@ -25,12 +25,15 @@ function releaseReq(version: string, platform: string, channel: string | null): 
         platform
     }
 
+    console.log("releaseReq", version, channel)
     if (channel) {
         req.channel = channel
     } else {
         if (version.startsWith("0")) {
+            console.log("channel: beta")
             req.channel = "beta"
         } else {
+            console.log("channel: stable")
             // Empty channel means stable
             req.channel = ""
         }

@@ -44,14 +44,17 @@ function releaseReq(version, platform, channel) {
         version,
         platform
     };
+    console.log("releaseReq", version, channel);
     if (channel) {
         req.channel = channel;
     }
     else {
         if (version.startsWith("0")) {
+            console.log("channel: beta");
             req.channel = "beta";
         }
         else {
+            console.log("channel: stable");
             req.channel = "";
         }
     }
