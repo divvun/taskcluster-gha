@@ -47,6 +47,14 @@ function releaseReq(version, platform, channel) {
     if (channel) {
         req.channel = channel;
     }
+    else {
+        if (version.startsWith("0")) {
+            req.channel = "beta";
+        }
+        else {
+            req.channel = "";
+        }
+    }
     return req;
 }
 async function run() {
