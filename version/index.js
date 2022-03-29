@@ -126,6 +126,11 @@ async function run() {
         if (instaStable != "true") {
             core.setOutput("channel", "beta");
         }
+        else {
+            if (version.startsWith("0")) {
+                core.setOutput("channel", "beta");
+            }
+        }
     }
     core.debug("Setting version to: " + version);
     core.setOutput("version", version);

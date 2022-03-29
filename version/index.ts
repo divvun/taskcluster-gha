@@ -122,6 +122,11 @@ async function run() {
     } else {
         if (instaStable != "true") {
             core.setOutput("channel", "beta")
+        } else {
+            // An insta-stable package that is pre-1.0.0 will still be released to beta
+            if (version.startsWith("0")) {
+                core.setOutput("channel", "beta")
+            }
         }
     }
 
