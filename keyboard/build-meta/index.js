@@ -43,11 +43,11 @@ async function run() {
         throw new Error(`Unsupported repository for release builds: ${githubRepo}`);
     }
     if (keyboardType === types_1.KeyboardType.Android) {
-        shared_1.Kbdgen.setBuildNumber(bundlePath, "android", buildStart);
+        await shared_1.Kbdgen.setBuildNumber(bundlePath, "android", buildStart);
         payloadPath = await shared_1.Kbdgen.buildAndroid(bundlePath, githubRepo);
     }
     else if (keyboardType === types_1.KeyboardType.iOS) {
-        shared_1.Kbdgen.setBuildNumber(bundlePath, "ios", buildStart);
+        await shared_1.Kbdgen.setBuildNumber(bundlePath, "ios", buildStart);
         payloadPath = await shared_1.Kbdgen.build_iOS(bundlePath);
     }
 }

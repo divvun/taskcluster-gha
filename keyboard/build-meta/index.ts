@@ -27,10 +27,10 @@ async function run() {
     }
 
     if (keyboardType === KeyboardType.Android) {
-        Kbdgen.setBuildNumber(bundlePath, "android", buildStart)
+        await Kbdgen.setBuildNumber(bundlePath, "android", buildStart)
         payloadPath = await Kbdgen.buildAndroid(bundlePath, githubRepo)
     } else if (keyboardType === KeyboardType.iOS) {
-        Kbdgen.setBuildNumber(bundlePath, "ios", buildStart)
+        await Kbdgen.setBuildNumber(bundlePath, "ios", buildStart)
         payloadPath = await Kbdgen.build_iOS(bundlePath)
     }
 

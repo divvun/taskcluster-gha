@@ -629,11 +629,12 @@ export class Kbdgen {
         return targetData['version']
     }
 
-    static setBuildNumber(bundlePath: string, target: string, start: number = 0) {
+    static async setBuildNumber(bundlePath: string, target: string, start: number = 0) {
         const targetData = Kbdgen.loadTarget(bundlePath, target)
 
         // Set to run number
-        targetData['build'] = start + parseInt(process.env.GITHUB_RUN_NUMBER!, 10)
+        const versionNumber = parseInt((await Bash.runScript("git rev-list --count HEAD"))[0], 10)
+        targetData['build'] = start + versionNumber
         core.debug("Set build number to " + targetData['build'])
 
         fs.writeFileSync(path.resolve(
