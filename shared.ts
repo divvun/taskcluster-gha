@@ -668,7 +668,11 @@ export class Kbdgen {
         core.debug("Gonna import certificates")
         const certPath = await downloadAppleWWDRCA();
         core.debug("Deleting previous keychain for fastlane")
-        await Security.deleteKeychain("fastlane_tmp_keychain")
+        try {
+            await Security.deleteKeychain("fastlane_tmp_keychain")
+        } catch (err) {
+            // Ignore error here, the keychain probably doesn't exist
+        }
         core.debug("Creating keychain for fastlane")
         await Security.createKeychain("fastlane_tmp_keychain", "")
         core.debug("Importing WWDR")
