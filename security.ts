@@ -3,7 +3,7 @@ import * as core from '@actions/core'
 import { Bash } from './shared'
 
 export async function downloadAppleWWDRCA() {
-  return await tc.downloadTool("https://developer.apple.com/certificationauthority/AppleWWDRCA.cer")
+  return await tc.downloadTool("https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer")
 }
 
 export class Security {
