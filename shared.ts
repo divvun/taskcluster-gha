@@ -665,10 +665,15 @@ export class Kbdgen {
             "LANG": "C.UTF-8",
         }
 
+        core.debug("Gonna import certificates")
         const certPath = await downloadAppleWWDRCA();
+        core.debug("Deleting previous keychain for fastlane")
         await Security.deleteKeychain("fastlane_tmp_keychain")
+        core.debug("Creating keychain for fastlane")
         await Security.createKeychain("fastlane_tmp_keychain", "")
+        core.debug("Importing WWDR")
         await Security.import("fastlane_tmp_keychain", certPath, "")
+        core.debug("ok, next")
 
         // Initialise any missing languages first
         // XXX: this no longer works since changes to the API!
