@@ -22,7 +22,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Security = void 0;
+exports.Security = exports.downloadAppleWWDRCA = void 0;
 const core = __importStar(require("@actions/core"));
 const tc = __importStar(require("@actions/tool-cache"));
 const path_1 = __importDefault(require("path"));
@@ -30,6 +30,7 @@ const shared_1 = require("../shared");
 async function downloadAppleWWDRCA() {
     return await tc.downloadTool("https://developer.apple.com/certificationauthority/AppleWWDRCA.cer");
 }
+exports.downloadAppleWWDRCA = downloadAppleWWDRCA;
 class Security {
     constructor() { throw new Error("cannot be instantiated"); }
     static async run(subcommand, args) {

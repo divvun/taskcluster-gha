@@ -555,8 +555,9 @@ class Kbdgen {
             "MATCH_KEYCHAIN_PASSWORD": "",
             "LANG": "C.UTF-8",
         };
-        const certPath = await downloadAppleWWDRCA();
-        await Bash.runScript(`security create-keychain -p "" fastlane_tmp_keychain.keychain`);
+        const certPath = await (0, setup_1.downloadAppleWWDRCA)();
+        await setup_1.Security.deleteKeychain("fastlane_tmp_keychain");
+        await setup_1.Security.createKeychain("fastlane_tmp_keychain", "");
         await setup_1.Security.import("fastlane_tmp_keychain", certPath, "");
         await Bash.runScript(`kbdgen --logging debug build ios -R --ci -o output ${abs}`, {
             cwd,

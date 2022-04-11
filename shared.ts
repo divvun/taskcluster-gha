@@ -10,7 +10,7 @@ import * as taskcluster from "taskcluster-client"
 import YAML from 'yaml'
 import * as tmp from 'tmp'
 import crypto from "crypto"
-import { Security } from './setup'
+import { Security, downloadAppleWWDRCA } from './setup'
 
 export const RFC3161_URL = "http://timestamp.sectigo.com"
 const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(() => resolve(), ms));
@@ -666,7 +666,8 @@ export class Kbdgen {
         }
 
         const certPath = await downloadAppleWWDRCA();
-        await Bash.runScript(`security create-keychain -p "" fastlane_tmp_keychain.keychain`)
+        await Security.deleteKeychain("fastlane_tmp_keychain")
+        await Security.createKeychain("fastlane_tmp_keychain", "")
         await Security.import("fastlane_tmp_keychain", certPath, "")
 
         // Initialise any missing languages first

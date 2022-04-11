@@ -7,7 +7,7 @@ import path from "path"
 
 import { Bash, divvunConfigDir, randomHexBytes, randomString64, secrets, Tar, tmpDir } from '../shared'
 
-async function downloadAppleWWDRCA() {
+export async function downloadAppleWWDRCA() {
   return await tc.downloadTool("https://developer.apple.com/certificationauthority/AppleWWDRCA.cer")
 }
 
