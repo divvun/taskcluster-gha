@@ -565,6 +565,7 @@ class Kbdgen {
         }
         core.debug("Creating keychain for fastlane");
         await security_1.Security.createKeychain("fastlane_tmp_keychain", "");
+        await security_1.Security.unlockKeychain("fastlane_tmp_keychain", "");
         core.debug("Importing WWDR");
         await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
         core.debug("ok, next");
