@@ -10,7 +10,7 @@ import * as taskcluster from "taskcluster-client"
 import YAML from 'yaml'
 import * as tmp from 'tmp'
 import crypto from "crypto"
-import { Security, downloadAppleWWDRCA } from './setup'
+import { Security, downloadAppleWWDRCA } from './security'
 
 export const RFC3161_URL = "http://timestamp.sectigo.com"
 const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(() => resolve(), ms));

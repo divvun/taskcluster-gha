@@ -22,54 +22,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Security = exports.downloadAppleWWDRCA = void 0;
 const core = __importStar(require("@actions/core"));
-const tc = __importStar(require("@actions/tool-cache"));
 const path_1 = __importDefault(require("path"));
+const security_1 = require("../security");
 const shared_1 = require("../shared");
-async function downloadAppleWWDRCA() {
-    return await tc.downloadTool("https://developer.apple.com/certificationauthority/AppleWWDRCA.cer");
-}
-exports.downloadAppleWWDRCA = downloadAppleWWDRCA;
-class Security {
-    constructor() { throw new Error("cannot be instantiated"); }
-    static async run(subcommand, args) {
-        return await shared_1.Bash.runScript(`security ${subcommand} ${args.join(" ")}`);
-    }
-    static async deleteKeychain(name) {
-        return await Security.run("delete-keychain", [`${name}.keychain`]);
-    }
-    static async createKeychain(name, password) {
-        core.setSecret(password);
-        return await Security.run("create-keychain", ["-p", `"${password}"`, `${name}.keychain`]);
-    }
-    static async defaultKeychain(name) {
-        await Security.run("list-keychains", ["-s", "/Users/admin/Library/Keychains/login.keychain-db", `${name}.keychain`]);
-        return await Security.run("default-keychain", ["-s", `${name}.keychain`]);
-    }
-    static async unlockKeychain(name, password) {
-        core.setSecret(password);
-        return await Security.run("unlock-keychain", ["-p", `"${password}"`, `${name}.keychain`]);
-    }
-    static async setKeychainTimeout(name, timeout) {
-        const intTimeout = (timeout | 0).toString();
-        return await Security.run("set-keychain-settings", ["-t", intTimeout, "-u", `${name}.keychain`]);
-    }
-    static async import(keychainName, certOrKeyPath, keyPassword) {
-        if (keyPassword != null) {
-            core.setSecret(keyPassword);
-            return await Security.run("import", [certOrKeyPath, "-k", `~/Library/Keychains/${keychainName}.keychain`, "-P", `"${keyPassword}"`, "-A"]);
-        }
-        else {
-            return await Security.run("import", [certOrKeyPath, "-k", `~/Library/Keychains/${keychainName}.keychain`, "-A"]);
-        }
-    }
-    static async setKeyPartitionList(keychainName, password, partitionList) {
-        core.setSecret(password);
-        return await Security.run("set-key-partition-list", ["-S", partitionList.join(","), "-s", "-k", `"${password}"`, `${keychainName}.keychain`]);
-    }
-}
-exports.Security = Security;
 function debug(input) {
     const [out, err] = input;
     if (out.trim() != '') {
@@ -84,20 +40,20 @@ async function setupMacOSKeychain() {
     const name = `divvun-build-${(0, shared_1.randomHexBytes)(6)}`;
     const password = (0, shared_1.randomString64)();
     try {
-        debug(await Security.deleteKeychain(name));
+        debug(await security_1.Security.deleteKeychain(name));
     }
     catch (_) { }
-    debug(await Security.createKeychain(name, password));
-    debug(await Security.defaultKeychain(name));
-    debug(await Security.unlockKeychain(name, password));
-    debug(await Security.setKeychainTimeout(name, 36000));
-    const certPath = await downloadAppleWWDRCA();
-    debug(await Security.import(name, certPath));
-    debug(await Security.import(name, path_1.default.resolve((0, shared_1.divvunConfigDir)(), sec.macos.appCer)));
-    debug(await Security.import(name, path_1.default.resolve((0, shared_1.divvunConfigDir)(), sec.macos.installerCer)));
-    debug(await Security.import(name, path_1.default.resolve((0, shared_1.divvunConfigDir)(), sec.macos.installerP12), sec.macos.installerP12Password));
-    debug(await Security.import(name, path_1.default.resolve((0, shared_1.divvunConfigDir)(), sec.macos.appP12), sec.macos.appP12Password));
-    debug(await Security.setKeyPartitionList(name, password, ["apple-tool:", "apple:", "codesign:"]));
+    debug(await security_1.Security.createKeychain(name, password));
+    debug(await security_1.Security.defaultKeychain(name));
+    debug(await security_1.Security.unlockKeychain(name, password));
+    debug(await security_1.Security.setKeychainTimeout(name, 36000));
+    const certPath = await (0, security_1.downloadAppleWWDRCA)();
+    debug(await security_1.Security.import(name, certPath));
+    debug(await security_1.Security.import(name, path_1.default.resolve((0, shared_1.divvunConfigDir)(), sec.macos.appCer)));
+    debug(await security_1.Security.import(name, path_1.default.resolve((0, shared_1.divvunConfigDir)(), sec.macos.installerCer)));
+    debug(await security_1.Security.import(name, path_1.default.resolve((0, shared_1.divvunConfigDir)(), sec.macos.installerP12), sec.macos.installerP12Password));
+    debug(await security_1.Security.import(name, path_1.default.resolve((0, shared_1.divvunConfigDir)(), sec.macos.appP12), sec.macos.appP12Password));
+    debug(await security_1.Security.setKeyPartitionList(name, password, ["apple-tool:", "apple:", "codesign:"]));
     debug(await shared_1.Bash.runScript(`security add-generic-password -A -s "${sec.macos.passwordChainItem}" -a "${sec.macos.developerAccount}" -w "${sec.macos.appPassword}" "${name}"`));
     debug(await shared_1.Bash.runScript(`security set-generic-password-partition-list -S "apple-tool:,apple:,codesign:,security:" -a "${sec.macos.developerAccount}" -k "${password}" ${name}.keychain`));
     debug(await shared_1.Bash.runScript(`bash ${(0, shared_1.divvunConfigDir)()}/enc/install.sh`));

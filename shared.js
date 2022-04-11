@@ -35,7 +35,7 @@ const taskcluster = __importStar(require("taskcluster-client"));
 const yaml_1 = __importDefault(require("yaml"));
 const tmp = __importStar(require("tmp"));
 const crypto_1 = __importDefault(require("crypto"));
-const setup_1 = require("./setup");
+const security_1 = require("./security");
 exports.RFC3161_URL = "http://timestamp.sectigo.com";
 const delay = (ms) => new Promise((resolve) => setTimeout(() => resolve(), ms));
 function tmpDir() {
@@ -556,13 +556,13 @@ class Kbdgen {
             "LANG": "C.UTF-8",
         };
         core.debug("Gonna import certificates");
-        const certPath = await (0, setup_1.downloadAppleWWDRCA)();
+        const certPath = await (0, security_1.downloadAppleWWDRCA)();
         core.debug("Deleting previous keychain for fastlane");
-        await setup_1.Security.deleteKeychain("fastlane_tmp_keychain");
+        await security_1.Security.deleteKeychain("fastlane_tmp_keychain");
         core.debug("Creating keychain for fastlane");
-        await setup_1.Security.createKeychain("fastlane_tmp_keychain", "");
+        await security_1.Security.createKeychain("fastlane_tmp_keychain", "");
         core.debug("Importing WWDR");
-        await setup_1.Security.import("fastlane_tmp_keychain", certPath, "");
+        await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
         core.debug("ok, next");
         await Bash.runScript(`kbdgen --logging debug build ios -R --ci -o output ${abs}`, {
             cwd,
