@@ -22,6 +22,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Security = void 0;
 const core = __importStar(require("@actions/core"));
 const tc = __importStar(require("@actions/tool-cache"));
 const path_1 = __importDefault(require("path"));
@@ -67,6 +68,7 @@ class Security {
         return await Security.run("set-key-partition-list", ["-S", partitionList.join(","), "-s", "-k", `"${password}"`, `${keychainName}.keychain`]);
     }
 }
+exports.Security = Security;
 function debug(input) {
     const [out, err] = input;
     if (out.trim() != '') {

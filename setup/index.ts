@@ -11,7 +11,7 @@ async function downloadAppleWWDRCA() {
   return await tc.downloadTool("https://developer.apple.com/certificationauthority/AppleWWDRCA.cer")
 }
 
-class Security {
+export class Security {
   constructor() { throw new Error("cannot be instantiated") }
 
   private static async run(subcommand: string, args: string[]) {

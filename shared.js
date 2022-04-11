@@ -35,6 +35,7 @@ const taskcluster = __importStar(require("taskcluster-client"));
 const yaml_1 = __importDefault(require("yaml"));
 const tmp = __importStar(require("tmp"));
 const crypto_1 = __importDefault(require("crypto"));
+const setup_1 = require("./setup");
 exports.RFC3161_URL = "http://timestamp.sectigo.com";
 const delay = (ms) => new Promise((resolve) => setTimeout(() => resolve(), ms));
 function tmpDir() {
@@ -554,6 +555,9 @@ class Kbdgen {
             "MATCH_KEYCHAIN_PASSWORD": "",
             "LANG": "C.UTF-8",
         };
+        const certPath = await downloadAppleWWDRCA();
+        await Bash.runScript(`security create-keychain -p "" fastlane_tmp_keychain.keychain`);
+        await setup_1.Security.import("fastlane_tmp_keychain", certPath, "");
         await Bash.runScript(`kbdgen --logging debug build ios -R --ci -o output ${abs}`, {
             cwd,
             env
