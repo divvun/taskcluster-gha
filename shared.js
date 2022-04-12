@@ -558,26 +558,44 @@ class Kbdgen {
         core.debug("Gonna import certificates");
         core.debug("Deleting previous keychain for fastlane");
         try {
-            await security_1.Security.deleteKeychain("fastlane_tmp_keychain");
+            core.debug("Creating keychain for fastlane");
+            await security_1.Security.createKeychain("fastlane_tmp_keychain", "");
+            await security_1.Security.unlockKeychain("fastlane_tmp_keychain", "");
+            await security_1.Security.defaultKeychain("fastlane_tmp_keychain");
         }
         catch (err) {
         }
-        core.debug("Creating keychain for fastlane");
-        await security_1.Security.createKeychain("fastlane_tmp_keychain", "");
-        await security_1.Security.unlockKeychain("fastlane_tmp_keychain", "");
         core.debug("Importing WWDR");
         var certPath = await (0, security_1.downloadAppleWWDRCA)();
-        await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
+        try {
+            await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
+        }
+        catch (e) { }
         certPath = await (0, security_1.downloadAppleWWDRCA)("G2");
-        await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
+        try {
+            await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
+        }
+        catch (e) { }
         certPath = await (0, security_1.downloadAppleWWDRCA)("G3");
-        await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
+        try {
+            await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
+        }
+        catch (e) { }
         certPath = await (0, security_1.downloadAppleWWDRCA)("G4");
-        await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
+        try {
+            await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
+        }
+        catch (e) { }
         certPath = await (0, security_1.downloadAppleWWDRCA)("G5");
-        await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
+        try {
+            await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
+        }
+        catch (e) { }
         certPath = await (0, security_1.downloadAppleWWDRCA)("G6");
-        await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
+        try {
+            await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
+        }
+        catch (e) { }
         core.debug("ok, next");
         await Bash.runScript(`kbdgen --logging debug build ios -R --ci -o output ${abs}`, {
             cwd,

@@ -668,28 +668,40 @@ export class Kbdgen {
         core.debug("Gonna import certificates")
         core.debug("Deleting previous keychain for fastlane")
         try {
-            await Security.deleteKeychain("fastlane_tmp_keychain")
+            core.debug("Creating keychain for fastlane")
+            await Security.createKeychain("fastlane_tmp_keychain", "")
+            await Security.unlockKeychain("fastlane_tmp_keychain", "")
+            await Security.defaultKeychain("fastlane_tmp_keychain")
         } catch (err) {
             // Ignore error here, the keychain probably doesn't exist
         }
-        core.debug("Creating keychain for fastlane")
-        await Security.createKeychain("fastlane_tmp_keychain", "")
-        await Security.unlockKeychain("fastlane_tmp_keychain", "")
 
         core.debug("Importing WWDR")
         var certPath = await downloadAppleWWDRCA();
-        await Security.import("fastlane_tmp_keychain", certPath, "")
+        try {
+            await Security.import("fastlane_tmp_keychain", certPath, "")
+        } catch (e) {}
 
         certPath = await downloadAppleWWDRCA("G2");
-        await Security.import("fastlane_tmp_keychain", certPath, "")
+        try {
+            await Security.import("fastlane_tmp_keychain", certPath, "")
+        } catch (e) {}
         certPath = await downloadAppleWWDRCA("G3");
-        await Security.import("fastlane_tmp_keychain", certPath, "")
+        try {
+            await Security.import("fastlane_tmp_keychain", certPath, "")
+        } catch (e) {}
         certPath = await downloadAppleWWDRCA("G4");
-        await Security.import("fastlane_tmp_keychain", certPath, "")
+        try {
+            await Security.import("fastlane_tmp_keychain", certPath, "")
+        } catch (e) {}
         certPath = await downloadAppleWWDRCA("G5");
-        await Security.import("fastlane_tmp_keychain", certPath, "")
+        try {
+            await Security.import("fastlane_tmp_keychain", certPath, "")
+        } catch (e) {}
         certPath = await downloadAppleWWDRCA("G6");
-        await Security.import("fastlane_tmp_keychain", certPath, "")
+        try {
+            await Security.import("fastlane_tmp_keychain", certPath, "")
+        } catch (e) {}
 
         core.debug("ok, next")
 
