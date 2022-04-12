@@ -562,7 +562,7 @@ class Kbdgen {
         catch (err) {
         }
         core.debug("ok, next");
-        await Bash.runScript(`kbdgen --logging debug build ios -R --ci -o output ${abs}`, {
+        await Bash.runScript(`kbdgen --logging debug build ios -R -o output ${abs}`, {
             cwd,
             env
         });

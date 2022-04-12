@@ -687,7 +687,7 @@ export class Kbdgen {
 
         // Do the build
         await Bash.runScript(
-            `kbdgen --logging debug build ios -R --ci -o output ${abs}`,
+            `kbdgen --logging debug build ios -R -o output ${abs}`,
             {
                 cwd,
                 env
