@@ -35,7 +35,6 @@ const taskcluster = __importStar(require("taskcluster-client"));
 const yaml_1 = __importDefault(require("yaml"));
 const tmp = __importStar(require("tmp"));
 const crypto_1 = __importDefault(require("crypto"));
-const security_1 = require("./security");
 exports.RFC3161_URL = "http://timestamp.sectigo.com";
 const delay = (ms) => new Promise((resolve) => setTimeout(() => resolve(), ms));
 function tmpDir() {
@@ -551,51 +550,17 @@ class Kbdgen {
             "PRODUCE_USERNAME": sec.ios.fastlaneUser,
             "FASTLANE_PASSWORD": sec.ios.fastlanePassword,
             "APP_STORE_KEY_JSON": path_1.default.join(divvunConfigDir(), sec.macos.appStoreKeyJson),
-            "MATCH_KEYCHAIN_NAME": "fastlane_tmp_keychain",
-            "MATCH_KEYCHAIN_PASSWORD": "",
+            "MATCH_KEYCHAIN_NAME": "login",
+            "MATCH_KEYCHAIN_PASSWORD": sec.macos.adminPassword,
             "LANG": "C.UTF-8",
         };
         core.debug("Gonna import certificates");
         core.debug("Deleting previous keychain for fastlane");
         try {
             core.debug("Creating keychain for fastlane");
-            await security_1.Security.createKeychain("fastlane_tmp_keychain", "");
-            await security_1.Security.unlockKeychain("fastlane_tmp_keychain", "");
-            await security_1.Security.defaultKeychain("fastlane_tmp_keychain");
         }
         catch (err) {
         }
-        core.debug("Importing WWDR");
-        var certPath = await (0, security_1.downloadAppleWWDRCA)();
-        try {
-            await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
-        }
-        catch (e) { }
-        certPath = await (0, security_1.downloadAppleWWDRCA)("G2");
-        try {
-            await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
-        }
-        catch (e) { }
-        certPath = await (0, security_1.downloadAppleWWDRCA)("G3");
-        try {
-            await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
-        }
-        catch (e) { }
-        certPath = await (0, security_1.downloadAppleWWDRCA)("G4");
-        try {
-            await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
-        }
-        catch (e) { }
-        certPath = await (0, security_1.downloadAppleWWDRCA)("G5");
-        try {
-            await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
-        }
-        catch (e) { }
-        certPath = await (0, security_1.downloadAppleWWDRCA)("G6");
-        try {
-            await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
-        }
-        catch (e) { }
         core.debug("ok, next");
         await Bash.runScript(`kbdgen --logging debug build ios -R --ci -o output ${abs}`, {
             cwd,

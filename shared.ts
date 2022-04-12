@@ -660,8 +660,8 @@ export class Kbdgen {
             "PRODUCE_USERNAME": sec.ios.fastlaneUser,
             "FASTLANE_PASSWORD": sec.ios.fastlanePassword,
             "APP_STORE_KEY_JSON": path.join(divvunConfigDir(), sec.macos.appStoreKeyJson),
-            "MATCH_KEYCHAIN_NAME": "fastlane_tmp_keychain",
-            "MATCH_KEYCHAIN_PASSWORD": "",
+            "MATCH_KEYCHAIN_NAME": "login",
+            "MATCH_KEYCHAIN_PASSWORD": sec.macos.adminPassword,
             "LANG": "C.UTF-8",
         }
 
@@ -669,39 +669,9 @@ export class Kbdgen {
         core.debug("Deleting previous keychain for fastlane")
         try {
             core.debug("Creating keychain for fastlane")
-            await Security.createKeychain("fastlane_tmp_keychain", "")
-            await Security.unlockKeychain("fastlane_tmp_keychain", "")
-            await Security.defaultKeychain("fastlane_tmp_keychain")
         } catch (err) {
             // Ignore error here, the keychain probably doesn't exist
         }
-
-        core.debug("Importing WWDR")
-        var certPath = await downloadAppleWWDRCA();
-        try {
-            await Security.import("fastlane_tmp_keychain", certPath, "")
-        } catch (e) {}
-
-        certPath = await downloadAppleWWDRCA("G2");
-        try {
-            await Security.import("fastlane_tmp_keychain", certPath, "")
-        } catch (e) {}
-        certPath = await downloadAppleWWDRCA("G3");
-        try {
-            await Security.import("fastlane_tmp_keychain", certPath, "")
-        } catch (e) {}
-        certPath = await downloadAppleWWDRCA("G4");
-        try {
-            await Security.import("fastlane_tmp_keychain", certPath, "")
-        } catch (e) {}
-        certPath = await downloadAppleWWDRCA("G5");
-        try {
-            await Security.import("fastlane_tmp_keychain", certPath, "")
-        } catch (e) {}
-        certPath = await downloadAppleWWDRCA("G6");
-        try {
-            await Security.import("fastlane_tmp_keychain", certPath, "")
-        } catch (e) {}
 
         core.debug("ok, next")
 
