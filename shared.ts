@@ -666,7 +666,6 @@ export class Kbdgen {
         }
 
         core.debug("Gonna import certificates")
-        const certPath = await downloadAppleWWDRCA();
         core.debug("Deleting previous keychain for fastlane")
         try {
             await Security.deleteKeychain("fastlane_tmp_keychain")
@@ -676,8 +675,22 @@ export class Kbdgen {
         core.debug("Creating keychain for fastlane")
         await Security.createKeychain("fastlane_tmp_keychain", "")
         await Security.unlockKeychain("fastlane_tmp_keychain", "")
+
         core.debug("Importing WWDR")
+        var certPath = await downloadAppleWWDRCA();
         await Security.import("fastlane_tmp_keychain", certPath, "")
+
+        certPath = await downloadAppleWWDRCA("G2");
+        await Security.import("fastlane_tmp_keychain", certPath, "")
+        certPath = await downloadAppleWWDRCA("G3");
+        await Security.import("fastlane_tmp_keychain", certPath, "")
+        certPath = await downloadAppleWWDRCA("G4");
+        await Security.import("fastlane_tmp_keychain", certPath, "")
+        certPath = await downloadAppleWWDRCA("G5");
+        await Security.import("fastlane_tmp_keychain", certPath, "")
+        certPath = await downloadAppleWWDRCA("G6");
+        await Security.import("fastlane_tmp_keychain", certPath, "")
+
         core.debug("ok, next")
 
         // Initialise any missing languages first

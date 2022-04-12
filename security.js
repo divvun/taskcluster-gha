@@ -23,8 +23,13 @@ exports.Security = exports.downloadAppleWWDRCA = void 0;
 const tc = __importStar(require("@actions/tool-cache"));
 const core = __importStar(require("@actions/core"));
 const shared_1 = require("./shared");
-async function downloadAppleWWDRCA() {
-    return await tc.downloadTool("https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer");
+async function downloadAppleWWDRCA(version) {
+    if (version == undefined) {
+        return await tc.downloadTool("https://developer.apple.com/certificationauthority/AppleWWDRCA.cer");
+    }
+    else {
+        return await tc.downloadTool(`https://www.apple.com/certificateauthority/AppleWWDRCA${version}.cer`);
+    }
 }
 exports.downloadAppleWWDRCA = downloadAppleWWDRCA;
 class Security {

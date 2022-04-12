@@ -2,8 +2,12 @@ import * as tc from "@actions/tool-cache"
 import * as core from '@actions/core'
 import { Bash } from './shared'
 
-export async function downloadAppleWWDRCA() {
-  return await tc.downloadTool("https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer")
+export async function downloadAppleWWDRCA(version?: string) {
+  if (version == undefined) {
+    return await tc.downloadTool("https://developer.apple.com/certificationauthority/AppleWWDRCA.cer")
+  } else {
+    return await tc.downloadTool(`https://www.apple.com/certificateauthority/AppleWWDRCA${version}.cer`)
+  }
 }
 
 export class Security {

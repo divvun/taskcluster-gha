@@ -556,7 +556,6 @@ class Kbdgen {
             "LANG": "C.UTF-8",
         };
         core.debug("Gonna import certificates");
-        const certPath = await (0, security_1.downloadAppleWWDRCA)();
         core.debug("Deleting previous keychain for fastlane");
         try {
             await security_1.Security.deleteKeychain("fastlane_tmp_keychain");
@@ -567,6 +566,17 @@ class Kbdgen {
         await security_1.Security.createKeychain("fastlane_tmp_keychain", "");
         await security_1.Security.unlockKeychain("fastlane_tmp_keychain", "");
         core.debug("Importing WWDR");
+        var certPath = await (0, security_1.downloadAppleWWDRCA)();
+        await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
+        certPath = await (0, security_1.downloadAppleWWDRCA)("G2");
+        await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
+        certPath = await (0, security_1.downloadAppleWWDRCA)("G3");
+        await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
+        certPath = await (0, security_1.downloadAppleWWDRCA)("G4");
+        await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
+        certPath = await (0, security_1.downloadAppleWWDRCA)("G5");
+        await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
+        certPath = await (0, security_1.downloadAppleWWDRCA)("G6");
         await security_1.Security.import("fastlane_tmp_keychain", certPath, "");
         core.debug("ok, next");
         await Bash.runScript(`kbdgen --logging debug build ios -R --ci -o output ${abs}`, {
