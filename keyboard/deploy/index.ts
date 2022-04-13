@@ -67,7 +67,7 @@ async function run() {
         // Since kbdgen currently relies on the packageId to not contain the
         // `keyboardLayout.%lang%` part (it adds it itself), we have to "fix"
         // the published ID here.
-        pkgId = `${pkgId}.keyboardLayout.${lang}`
+        pkgId = `${pkgId}.keyboardlayout.${lang}`
         version = target.version as string
         platform = "macos"
 

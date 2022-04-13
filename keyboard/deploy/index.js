@@ -77,7 +77,7 @@ async function run() {
         const target = shared_1.Kbdgen.loadTarget(bundlePath, "mac");
         var pkgId = target.packageId;
         const lang = github.context.repo.repo.split("keyboard-")[1];
-        pkgId = `${pkgId}.keyboardLayout.${lang}`;
+        pkgId = `${pkgId}.keyboardlayout.${lang}`;
         version = target.version;
         platform = "macos";
         const ext = path_1.default.extname(payloadPath);
