@@ -75,7 +75,9 @@ async function run() {
     let artifactUrl = null;
     if (keyboardType === types_1.KeyboardType.MacOS) {
         const target = shared_1.Kbdgen.loadTarget(bundlePath, "mac");
-        const pkgId = target.packageId;
+        var pkgId = target.packageId;
+        const lang = github.context.repo.repo.split("keyboard-")[1];
+        pkgId = `${pkgId}.keyboardLayout.${lang}`;
         version = target.version;
         platform = "macos";
         const ext = path_1.default.extname(payloadPath);

@@ -60,7 +60,14 @@ async function run() {
 
     if (keyboardType === KeyboardType.MacOS) {
         const target = Kbdgen.loadTarget(bundlePath, "mac")
-        const pkgId = target.packageId
+        var pkgId = target.packageId
+        const lang = github.context.repo.repo.split("keyboard-")[1]
+        // On macos kbdgen does magic with the keyboard id to match this:
+        // `no.giella.keyboard.%lang%.keyboardLayout.%lang%` because macos.
+        // Since kbdgen currently relies on the packageId to not contain the
+        // `keyboardLayout.%lang%` part (it adds it itself), we have to "fix"
+        // the published ID here.
+        pkgId = `${pkgId}.keyboardLayout.${lang}`
         version = target.version as string
         platform = "macos"
 
