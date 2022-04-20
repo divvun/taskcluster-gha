@@ -11,8 +11,8 @@ inputs:
     description: ... plist
   xcode:
     description: derive from xcodebuild
-  nightly:
-    description: Add a nightly version suffix if `true`, or if string matches current branch name
+  nightly-channel:
+    description: The nightly channel to use
   insta-stable:
     description: When `true` don't release to the `beta` channel but to stable immediately
 outputs:

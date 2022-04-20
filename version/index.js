@@ -84,6 +84,7 @@ async function run() {
     const csharp = core.getInput("csharp") || null;
     const versionFromFile = getVersionFromFile();
     const instaStable = core.getInput("insta-stable") || false;
+    const nightlyChannel = core.getInput("nightly-channel", { required: true });
     let version;
     if (cargoToml != null) {
         core.debug("Getting version from TOML");
@@ -118,9 +119,9 @@ async function run() {
         throw new Error("Did not find any version.");
     }
     if (isNightly) {
-        core.debug("Generating nightly version");
+        core.debug(`Generating nightly version for channel ${nightlyChannel}`);
         version = await (0, shared_1.versionAsNightly)(version);
-        core.setOutput("channel", "nightly");
+        core.setOutput("channel", nightlyChannel);
     }
     else {
         if (instaStable != "true") {

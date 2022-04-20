@@ -13,6 +13,7 @@ const SEMVER_TAG_RE = /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]
 
 async function run() {
     const keyboardType = core.getInput("keyboard-type", { required: true }) as KeyboardType
+    const nightlyChannel = core.getInput("nightly-channel", { required: true })
     const bundlePath = getBundle()
 
     if (keyboardType === KeyboardType.iOS || keyboardType === KeyboardType.Android) {
@@ -25,7 +26,7 @@ async function run() {
         if (isMatchingTag(SEMVER_TAG_RE)) {
             core.debug("Using version from kbdgen project")
         } else {
-            core.setOutput("channel", "nightly")
+            core.setOutput("channel", nightlyChannel)
             core.debug("Setting current version to nightly version")
             await Kbdgen.setNightlyVersion(bundlePath, "mac")
         }
@@ -34,7 +35,7 @@ async function run() {
         if (isMatchingTag(SEMVER_TAG_RE)) {
             core.debug("Using version from kbdgen project")
         } else {
-            core.setOutput("channel", "nightly")
+            core.setOutput("channel", nightlyChannel)
             core.debug("Setting current version to nightly version")
             await Kbdgen.setNightlyVersion(bundlePath, "win")
         }

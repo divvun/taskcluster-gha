@@ -37,6 +37,7 @@ async function run() {
         const payloadPath = core.getInput('payload-path', { required: true })
         const version = core.getInput('version', { required: true });
         const channel = core.getInput('channel') || null;
+        const nightlyChannel = core.getInput("nightly-channel", { required: true })
 
         const pahkatRepo = core.getInput('repo', { required: true });
         const packageId = derivePackageId(spellerType)
@@ -62,7 +63,9 @@ async function run() {
             // Make the nightly channel be used if any channel except for the default.
             let deps: any = { "https://pahkat.uit.no/tools/packages/windivvun": "*" }
             if (channel != null) {
-                deps = { "https://pahkat.uit.no/tools/packages/windivvun?channel=nightly": "*" }
+                const windivvun = `https://pahkat.uit.no/tools/packages/windivvun?channel=${nightlyChannel}`
+                deps = {}
+                deps[windivvun] = "*"
             }
 
             payloadMetadata = await PahkatUploader.release.windowsExecutable(
@@ -86,7 +89,9 @@ async function run() {
             // Make the nightly channel be used if any channel except for the default.
             let deps: any = { "https://pahkat.uit.no/tools/packages/macdivvun": "*" }
             if (channel != null) {
-                deps = { "https://pahkat.uit.no/tools/packages/macdivvun?channel=nightly": "*" }
+                const macdivvun = `https://pahkat.uit.no/tools/packages/macdivvun?channel=${nightlyChannel}`
+                deps = {}
+                deps[macdivvun] = "*"
             }
 
             payloadMetadata = await PahkatUploader.release.macosPackage(

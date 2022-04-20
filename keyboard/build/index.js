@@ -33,6 +33,7 @@ const io = __importStar(require("@actions/io"));
 const SEMVER_TAG_RE = /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
 async function run() {
     const keyboardType = core.getInput("keyboard-type", { required: true });
+    const nightlyChannel = core.getInput("nightly-channel", { required: true });
     const bundlePath = (0, types_1.getBundle)();
     if (keyboardType === types_1.KeyboardType.iOS || keyboardType === types_1.KeyboardType.Android) {
         throw new Error(`Unsupported keyboard type for non-meta build: ${keyboardType}`);
@@ -43,7 +44,7 @@ async function run() {
             core.debug("Using version from kbdgen project");
         }
         else {
-            core.setOutput("channel", "nightly");
+            core.setOutput("channel", nightlyChannel);
             core.debug("Setting current version to nightly version");
             await shared_1.Kbdgen.setNightlyVersion(bundlePath, "mac");
         }
@@ -54,7 +55,7 @@ async function run() {
             core.debug("Using version from kbdgen project");
         }
         else {
-            core.setOutput("channel", "nightly");
+            core.setOutput("channel", nightlyChannel);
             core.debug("Setting current version to nightly version");
             await shared_1.Kbdgen.setNightlyVersion(bundlePath, "win");
         }

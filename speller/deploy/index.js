@@ -53,6 +53,7 @@ async function run() {
         const payloadPath = core.getInput('payload-path', { required: true });
         const version = core.getInput('version', { required: true });
         const channel = core.getInput('channel') || null;
+        const nightlyChannel = core.getInput("nightly-channel", { required: true });
         const pahkatRepo = core.getInput('repo', { required: true });
         const packageId = (0, manifest_1.derivePackageId)(spellerType);
         const repoPackageUrl = `${pahkatRepo}packages/${packageId}`;
@@ -69,7 +70,9 @@ async function run() {
             artifactUrl = `${shared_2.PahkatUploader.ARTIFACTS_URL}${path_1.default.basename(artifactPath)}`;
             let deps = { "https://pahkat.uit.no/tools/packages/windivvun": "*" };
             if (channel != null) {
-                deps = { "https://pahkat.uit.no/tools/packages/windivvun?channel=nightly": "*" };
+                const windivvun = `https://pahkat.uit.no/tools/packages/windivvun?channel=${nightlyChannel}`;
+                deps = {};
+                deps[windivvun] = "*";
             }
             payloadMetadata = await shared_2.PahkatUploader.release.windowsExecutable(releaseReq(version, platform, deps, channel), artifactUrl, 1, 1, shared_2.WindowsExecutableKind.Inno, productCode, [shared_2.RebootSpec.Install, shared_2.RebootSpec.Uninstall]);
         }
@@ -82,7 +85,9 @@ async function run() {
             artifactUrl = `${shared_2.PahkatUploader.ARTIFACTS_URL}${path_1.default.basename(artifactPath)}`;
             let deps = { "https://pahkat.uit.no/tools/packages/macdivvun": "*" };
             if (channel != null) {
-                deps = { "https://pahkat.uit.no/tools/packages/macdivvun?channel=nightly": "*" };
+                const macdivvun = `https://pahkat.uit.no/tools/packages/macdivvun?channel=${nightlyChannel}`;
+                deps = {};
+                deps[macdivvun] = "*";
             }
             payloadMetadata = await shared_2.PahkatUploader.release.macosPackage(releaseReq(version, platform, deps, channel), artifactUrl, 1, 1, pkgId, [shared_2.RebootSpec.Install, shared_2.RebootSpec.Uninstall], [shared_1.MacOSPackageTarget.System, shared_1.MacOSPackageTarget.User]);
         }
