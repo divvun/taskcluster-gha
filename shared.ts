@@ -263,9 +263,9 @@ export enum RebootSpec { Install = "install", Uninstall = "uninstall",  Update =
 export enum WindowsExecutableKind { Inno = "inno", Nsis = "nsis", Msi = "msi" }
 
 export class PahkatPrefix {
-    static URL_LINUX = "https://pahkat.uit.no/artifacts/pahkat-prefix-cli_0.1.0-nightly.20220203T091612813Z_linux_x86_64.txz"
-    static URL_MACOS = "https://pahkat.uit.no/artifacts/pahkat-prefix-cli_0.1.0-nightly.20220203T091612813Z_macos_x86_64.txz"
-    static URL_WINDOWS = "https://pahkat.uit.no/artifacts/pahkat-prefix-cli_0.1.0-nightly.20220203T091612813Z_windows_i686.txz"
+    static URL_LINUX = "https://pahkat.uit.no/artifacts/pahkat-prefix-cli_2.1.1-nightly.20220422T123857223Z_linux_x86_64.txz"
+    static URL_MACOS = "https://pahkat.uit.no/artifacts/pahkat-prefix-cli_2.1.1-nightly.20220422T123857223Z_macos_x86_64.txz"
+    static URL_WINDOWS = "https://pahkat.uit.no/artifacts/pahkat-prefix-cli_2.1.1-nightly.20220422T123857223Z_windows_i686.txz"
 
     static get path(): string {
         return path.join(tmpDir(), "pahkat-prefix")
