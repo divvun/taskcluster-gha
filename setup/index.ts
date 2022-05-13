@@ -53,6 +53,7 @@ async function setupMacOSKeychain() {
     await Bash.runScript(`security add-generic-password -A -s "${sec.macos.passwordChainItemMacos}" -a "${sec.macos.developerAccountMacos}" -w "${sec.macos.appPasswordMacos}" "${name}"`)
   )
   debug(await Bash.runScript(`security set-generic-password-partition-list -S "apple-tool:,apple:,codesign:,security:" -a "${sec.macos.developerAccount}" -k "${password}" ${name}.keychain`));
+  debug(await Bash.runScript(`security set-generic-password-partition-list -S "apple-tool:,apple:,codesign:,security:" -a "${sec.macos.developerAccountMacos}" -k "${password}" ${name}.keychain`));
 
   debug(
     await Bash.runScript(`bash ${divvunConfigDir()}/enc/install.sh`)
