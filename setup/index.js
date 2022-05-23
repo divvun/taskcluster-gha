@@ -61,7 +61,7 @@ async function setupMacOSKeychain() {
     debug(await security_1.Security.import(name, appCerPath.name));
     const installerCerPath = tmp.fileSync({ postfix: '.cer' });
     const installerCerBuff = Buffer.from(sec.macos.installerCer, 'base64');
-    fs.writeFileSync(appCerPath.name, installerCerBuff);
+    fs.writeFileSync(installerCerPath.name, installerCerBuff);
     debug(await security_1.Security.import(name, installerCerPath.name));
     debug(await security_1.Security.import(name, path_1.default.resolve((0, shared_1.divvunConfigDir)(), sec.macos.installerP12), sec.macos.installerP12Password));
     debug(await security_1.Security.import(name, path_1.default.resolve((0, shared_1.divvunConfigDir)(), sec.macos.appP12), sec.macos.appP12Password));
