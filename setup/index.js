@@ -61,6 +61,7 @@ async function setupMacOSKeychain() {
     debug(await shared_1.Bash.runScript(`security add-generic-password -A -s "${sec.macos.passwordChainItem}" -a "${sec.macos.developerAccount}" -w "${sec.macos.appPassword}" "${name}"`));
     debug(await shared_1.Bash.runScript(`security add-generic-password -A -s "${sec.macos.passwordChainItemMacos}" -a "${sec.macos.developerAccountMacos}" -w "${sec.macos.appPasswordMacos}" "${name}"`));
     debug(await shared_1.Bash.runScript(`security set-generic-password-partition-list -S "apple-tool:,apple:,codesign:,security:" -a "${sec.macos.developerAccount}" -k "${password}" ${name}.keychain`));
+    debug(await shared_1.Bash.runScript(`security set-generic-password-partition-list -S "apple-tool:,apple:,codesign:,security:" -a "${sec.macos.developerAccountMacos}" -k "${password}" ${name}.keychain`));
     debug(await shared_1.Bash.runScript(`bash ${(0, shared_1.divvunConfigDir)()}/enc/install.sh`));
 }
 async function cloneConfigRepo(password) {
