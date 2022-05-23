@@ -29,6 +29,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(require("@actions/core"));
 const path_1 = __importDefault(require("path"));
 const security_1 = require("../security");
+const fs = __importStar(require("fs"));
+const tmp = __importStar(require("tmp"));
 const shared_1 = require("../shared");
 function debug(input) {
     const [out, err] = input;
@@ -53,8 +55,14 @@ async function setupMacOSKeychain() {
     debug(await security_1.Security.setKeychainTimeout(name, 36000));
     const certPath = await (0, security_1.downloadAppleWWDRCA)();
     debug(await security_1.Security.import(name, certPath));
-    debug(await security_1.Security.import(name, path_1.default.resolve((0, shared_1.divvunConfigDir)(), sec.macos.appCer)));
-    debug(await security_1.Security.import(name, path_1.default.resolve((0, shared_1.divvunConfigDir)(), sec.macos.installerCer)));
+    const appCerPath = tmp.fileSync();
+    const appCerBuff = Buffer.from(sec.macos.appCer, 'base64');
+    fs.writeFileSync(appCerPath.fd, appCerBuff);
+    debug(await security_1.Security.import(name, path_1.default.resolve((0, shared_1.divvunConfigDir)(), appCerPath.name)));
+    const installerCerPath = tmp.fileSync();
+    const installerCerBuff = Buffer.from(sec.macos.installerCer, 'base64');
+    fs.writeFileSync(appCerPath.fd, installerCerBuff);
+    debug(await security_1.Security.import(name, path_1.default.resolve((0, shared_1.divvunConfigDir)(), installerCerPath.name)));
     debug(await security_1.Security.import(name, path_1.default.resolve((0, shared_1.divvunConfigDir)(), sec.macos.installerP12), sec.macos.installerP12Password));
     debug(await security_1.Security.import(name, path_1.default.resolve((0, shared_1.divvunConfigDir)(), sec.macos.appP12), sec.macos.appP12Password));
     debug(await security_1.Security.setKeyPartitionList(name, password, ["apple-tool:", "apple:", "codesign:"]));

@@ -1,6 +1,8 @@
 import * as core from '@actions/core'
 import path from "path"
 import { Security, downloadAppleWWDRCA } from '../security'
+import * as fs from 'fs'
+import * as tmp from 'tmp'
 
 import { Bash, divvunConfigDir, randomHexBytes, randomString64, secrets, Tar, tmpDir } from '../shared'
 
@@ -34,8 +36,16 @@ async function setupMacOSKeychain() {
   // Import certs
   const certPath = await downloadAppleWWDRCA()
   debug(await Security.import(name, certPath))
-  debug(await Security.import(name, path.resolve(divvunConfigDir(), sec.macos.appCer)))
-  debug(await Security.import(name, path.resolve(divvunConfigDir(), sec.macos.installerCer)))
+
+  const appCerPath = tmp.fileSync()
+  const appCerBuff = Buffer.from(sec.macos.appCer, 'base64')
+  fs.writeFileSync(appCerPath.fd, appCerBuff)
+  debug(await Security.import(name, path.resolve(divvunConfigDir(), appCerPath.name)))
+
+  const installerCerPath = tmp.fileSync()
+  const installerCerBuff = Buffer.from(sec.macos.installerCer, 'base64')
+  fs.writeFileSync(appCerPath.fd, installerCerBuff)
+  debug(await Security.import(name, path.resolve(divvunConfigDir(), installerCerPath.name)))
 
   // Import keys
   debug(await Security.import(name, path.resolve(
