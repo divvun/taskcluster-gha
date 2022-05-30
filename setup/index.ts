@@ -37,21 +37,16 @@ async function setupMacOSKeychain() {
   const certPath = await downloadAppleWWDRCA()
   debug(await Security.import(name, certPath))
 
-  const appCerPath = tmp.fileSync({ postfix: '.cer' })
-  const appCerBuff = Buffer.from(sec.macos.appCer, 'base64')
-  fs.writeFileSync(appCerPath.name, appCerBuff)
-  debug(await Security.import(name, appCerPath.name))
+  const appP12Path = tmp.fileSync({ postfix: '.p12' })
+  const appP12Buff = Buffer.from(sec.macos.appP12, 'base64')
+  fs.writeFileSync(appP12Path.name, appP12Buff)
+  debug(await Security.import(name, appP12Path.name, sec.macos.appP12Password))
 
-  const installerCerPath = tmp.fileSync({ postfix: '.cer' })
-  const installerCerBuff = Buffer.from(sec.macos.installerCer, 'base64')
-  fs.writeFileSync(installerCerPath.name, installerCerBuff)
-  debug(await Security.import(name, installerCerPath.name))
+  const installerP12Path = tmp.fileSync({ postfix: '.p12' })
+  const installerP12Buff = Buffer.from(sec.macos.installerP12, 'base64')
+  fs.writeFileSync(installerP12Path.name, installerP12Buff)
+  debug(await Security.import(name, installerP12Path.name, sec.macos.installerP12Password))
 
-  // Import keys
-  debug(await Security.import(name, path.resolve(
-    divvunConfigDir(), sec.macos.installerP12), sec.macos.installerP12Password))
-  debug(await Security.import(name, path.resolve(
-    divvunConfigDir(), sec.macos.appP12), sec.macos.appP12Password))
 
   debug(await Security.setKeyPartitionList(name, password, ["apple-tool:", "apple:", "codesign:"]))
 
