@@ -39,6 +39,7 @@ const taskcluster = __importStar(require("taskcluster-client"));
 const yaml_1 = __importDefault(require("yaml"));
 const tmp = __importStar(require("tmp"));
 const crypto_1 = __importDefault(require("crypto"));
+const security_1 = require("./security");
 exports.RFC3161_URL = "http://timestamp.sectigo.com";
 const delay = (ms) => new Promise((resolve) => setTimeout(() => resolve(), ms));
 function tmpDir() {
@@ -545,6 +546,7 @@ class Kbdgen {
         const abs = path_1.default.resolve(bundlePath);
         const cwd = path_1.default.dirname(abs);
         const sec = await secrets();
+        await security_1.Security.unlockKeychain("login", sec.macos.adminPassword);
         const env = {
             "GITHUB_USERNAME": sec.github.username,
             "GITHUB_TOKEN": sec.github.token,
@@ -554,7 +556,7 @@ class Kbdgen {
             "PRODUCE_USERNAME": sec.ios.fastlaneUser,
             "FASTLANE_PASSWORD": sec.ios.fastlanePassword,
             "APP_STORE_KEY_JSON": path_1.default.join(divvunConfigDir(), sec.macos.appStoreKeyJson),
-            "MATCH_KEYCHAIN_NAME": "login",
+            "MATCH_KEYCHAIN_NAME": "login.keychain",
             "MATCH_KEYCHAIN_PASSWORD": sec.macos.adminPassword,
             "LANG": "C.UTF-8",
         };

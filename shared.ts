@@ -650,6 +650,7 @@ export class Kbdgen {
         const sec = await secrets()
 
         // await Bash.runScript("brew install imagemagick")
+        await Security.unlockKeychain("login", sec.macos.adminPassword)
 
         const env = {
             "GITHUB_USERNAME": sec.github.username,
@@ -660,7 +661,7 @@ export class Kbdgen {
             "PRODUCE_USERNAME": sec.ios.fastlaneUser,
             "FASTLANE_PASSWORD": sec.ios.fastlanePassword,
             "APP_STORE_KEY_JSON": path.join(divvunConfigDir(), sec.macos.appStoreKeyJson),
-            "MATCH_KEYCHAIN_NAME": "login",
+            "MATCH_KEYCHAIN_NAME": "login.keychain",
             "MATCH_KEYCHAIN_PASSWORD": sec.macos.adminPassword,
             "LANG": "C.UTF-8",
         }
