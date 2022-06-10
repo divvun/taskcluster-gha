@@ -175,7 +175,7 @@ export class InnoSetupBuilder {
     }
 
     write(filePath: string) {
-        fs.writeFileSync(filePath, this.build(), "utf8")
+        fs.writeFileSync(filePath, "\xEF\xBB\xBF" + this.build(), "utf8")
     }
 }
 

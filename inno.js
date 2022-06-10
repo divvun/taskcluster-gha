@@ -147,7 +147,7 @@ class InnoSetupBuilder {
         return out;
     }
     write(filePath) {
-        fs_1.default.writeFileSync(filePath, this.build(), "utf8");
+        fs_1.default.writeFileSync(filePath, "\xEF\xBB\xBF" + this.build(), "utf8");
     }
 }
 exports.InnoSetupBuilder = InnoSetupBuilder;
