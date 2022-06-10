@@ -82,7 +82,7 @@ function addLayoutToInstaller(builder, locale, layout) {
         return builder;
     })
         .icons((builder) => {
-        builder.withName(`{group}\\Enable`)
+        builder.withName(`{group}\\Enable {layoutDisplayName}`)
             .withFilename("{app}\\kbdi.exe")
             .withParameter("keyboard_enable")
             .withParameter(`-g ""{{${guidStr}""`)
