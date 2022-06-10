@@ -48,7 +48,7 @@ export async function generateKbdInnoFromBundle(bundlePath: string, buildDir: st
     }
     const fileName = path.join(buildDir, `install.all.iss`)
     console.log(builder.build())
-    fs.writeFileSync(fileName, builder.build())
+    builder.write(fileName)
     return fileName
 }
 

@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateKbdInnoFromBundle = void 0;
 const path_1 = __importDefault(require("path"));
-const fs_1 = __importDefault(require("fs"));
 const inno_1 = require("../../inno");
 const shared_1 = require("../../shared");
 const uuid_1 = require("uuid");
@@ -45,7 +44,7 @@ async function generateKbdInnoFromBundle(bundlePath, buildDir) {
     }
     const fileName = path_1.default.join(buildDir, `install.all.iss`);
     console.log(builder.build());
-    fs_1.default.writeFileSync(fileName, builder.build());
+    builder.write(fileName);
     return fileName;
 }
 exports.generateKbdInnoFromBundle = generateKbdInnoFromBundle;
