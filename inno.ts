@@ -118,7 +118,8 @@ export class InnoSetupBuilder {
             SignTool: "signtool",
             MinVersion: this.data.minVersion || "6.3.9200",
             ArchitecturesAllowed: "x86 x64",
-            ArchitecturesInstallIn64BitMode: "x64"
+            ArchitecturesInstallIn64BitMode: "x64",
+            DefaultGroupName: "{cm:AppName}"
         }).map(x => `${x[0]}=${x[1]}`).join("\n")
 
         const iss: any = {
