@@ -25,10 +25,10 @@ async function run() {
 
         // Codesign with hardene`${filePath}.signed`d runtime and timestamp
         if (isInstaller != "true") {
+            await exec.exec("codesign", ["-s", appCodeSignId, filePath, "--timestamp", "--options=runtime"])
+        } else {
             await exec.exec("productsign", ["--timestamp", "--sign", installerCodeSignId, filePath, `${filePath}.signed`])
             await exec.exec(`mv ${filePath}.signed ${filePath}`)
-        } else {
-            await exec.exec("codesign", ["-s", appCodeSignId, filePath, "--timestamp", "--options=runtime"])
         }
 
         // Do some notarization

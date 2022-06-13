@@ -47,11 +47,11 @@ async function run() {
     else if (process.platform === "darwin") {
         const { developerAccount, appPassword, appCodeSignId, installerCodeSignId, teamId } = sec.macos;
         if (isInstaller != "true") {
-            await exec.exec("productsign", ["--timestamp", "--sign", installerCodeSignId, filePath, `${filePath}.signed`]);
-            await exec.exec(`mv ${filePath}.signed ${filePath}`);
+            await exec.exec("codesign", ["-s", appCodeSignId, filePath, "--timestamp", "--options=runtime"]);
         }
         else {
-            await exec.exec("codesign", ["-s", appCodeSignId, filePath, "--timestamp", "--options=runtime"]);
+            await exec.exec("productsign", ["--timestamp", "--sign", installerCodeSignId, filePath, `${filePath}.signed`]);
+            await exec.exec(`mv ${filePath}.signed ${filePath}`);
         }
         const zipPath = path_1.default.resolve(path_1.default.dirname(filePath), "upload.zip");
         await exec.exec("ditto", ["-c", "-k", "--keepParent", filePath, zipPath]);
