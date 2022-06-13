@@ -165,17 +165,6 @@ export class Bash {
         const out: string[] = []
         const err: string[] = []
 
-        core.debug("PATH:")
-        core.debug(process.env.PATH!)
-
-        try {
-            const paths = fs.readdirSync(path.join(PahkatPrefix.path, "pkg"))
-            core.debug(`Paths in prefix: ${paths.join(", ")}`)
-        } catch(e) {
-            core.debug("Error getting pahkat prefix")
-            core.debug(e)
-        }
-
         const listeners = {
             stdout: (data: Buffer) => {
                 out.push(data.toString())
@@ -345,9 +334,6 @@ export class PahkatUploader {
         }
         const sec = await secrets()
         let output: string = ""
-
-        core.debug("PATH:")
-        core.debug(process.env.PATH!)
 
         let exe: string
         if (process.platform === "win32") {

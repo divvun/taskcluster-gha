@@ -166,16 +166,6 @@ class Bash {
         const thisEnv = Object.assign({}, env(), args.env);
         const out = [];
         const err = [];
-        core.debug("PATH:");
-        core.debug(process.env.PATH);
-        try {
-            const paths = fs_1.default.readdirSync(path_1.default.join(PahkatPrefix.path, "pkg"));
-            core.debug(`Paths in prefix: ${paths.join(", ")}`);
-        }
-        catch (e) {
-            core.debug("Error getting pahkat prefix");
-            core.debug(e);
-        }
         const listeners = {
             stdout: (data) => {
                 out.push(data.toString());
@@ -319,8 +309,6 @@ class PahkatUploader {
         }
         const sec = await secrets();
         let output = "";
-        core.debug("PATH:");
-        core.debug(process.env.PATH);
         let exe;
         if (process.platform === "win32") {
             exe = "pahkat-uploader.exe";
