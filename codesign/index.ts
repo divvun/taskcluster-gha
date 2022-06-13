@@ -23,9 +23,10 @@ async function run() {
     } else if (process.platform === "darwin") {
         const { developerAccount, appPassword, appCodeSignId, installerCodeSignId, teamId } = sec.macos
 
-        // Codesign with hardened runtime and timestamp
+        // Codesign with hardene`${filePath}.signed`d runtime and timestamp
         if (isInstaller) {
-            await exec.exec("codesign", ["-s", installerCodeSignId, filePath, "--timestamp", "--options=runtime"])
+            await exec.exec("productsign", ["--timestamp", "--sign", installerCodeSignId, filePath, `${filePath}.signed`])
+            await exec.exec(`mv ${filePath}.signed ${filePath}`)
         } else {
             await exec.exec("codesign", ["-s", appCodeSignId, filePath, "--timestamp", "--options=runtime"])
         }
