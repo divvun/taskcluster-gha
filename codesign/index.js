@@ -36,6 +36,7 @@ async function run() {
     const filePath = path_1.default.resolve(core.getInput('path', { required: true }));
     const fileName = filePath.split(path_1.default.sep).pop();
     const sec = await (0, shared_1.secrets)();
+    const isInstaller = core.getInput('isInstaller') || false;
     if (process.platform == "win32") {
         await exec.exec("signtool.exe", [
             "sign", "/t", shared_1.RFC3161_URL,
@@ -44,8 +45,13 @@ async function run() {
         ]);
     }
     else if (process.platform === "darwin") {
-        const { developerAccount, appPassword, appCodeSignId, teamId } = sec.macos;
-        await exec.exec("codesign", ["-s", appCodeSignId, filePath, "--timestamp", "--options=runtime"]);
+        const { developerAccount, appPassword, appCodeSignId, installerCodeSignId, teamId } = sec.macos;
+        if (isInstaller) {
+            await exec.exec("codesign", ["-s", installerCodeSignId, filePath, "--timestamp", "--options=runtime"]);
+        }
+        else {
+            await exec.exec("codesign", ["-s", appCodeSignId, filePath, "--timestamp", "--options=runtime"]);
+        }
         const zipPath = path_1.default.resolve(path_1.default.dirname(filePath), "upload.zip");
         await exec.exec("ditto", ["-c", "-k", "--keepParent", filePath, zipPath]);
         const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");

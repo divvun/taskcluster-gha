@@ -12,6 +12,7 @@ async function run() {
     const filePath = path.resolve(core.getInput('path', { required: true }))
     const fileName = filePath.split(path.sep).pop()
     const sec = await secrets()
+    const isInstaller = core.getInput('isInstaller') || false
 
     if (process.platform == "win32") {
         await exec.exec("signtool.exe", [
@@ -20,10 +21,14 @@ async function run() {
             filePath
         ])
     } else if (process.platform === "darwin") {
-        const { developerAccount, appPassword, appCodeSignId, teamId } = sec.macos
+        const { developerAccount, appPassword, appCodeSignId, installerCodeSignId, teamId } = sec.macos
 
         // Codesign with hardened runtime and timestamp
-        await exec.exec("codesign", ["-s", appCodeSignId, filePath, "--timestamp", "--options=runtime"])
+        if (isInstaller) {
+            await exec.exec("codesign", ["-s", installerCodeSignId, filePath, "--timestamp", "--options=runtime"])
+        } else {
+            await exec.exec("codesign", ["-s", appCodeSignId, filePath, "--timestamp", "--options=runtime"])
+        }
 
         // Do some notarization
         const zipPath = path.resolve(path.dirname(filePath), "upload.zip")

@@ -4,6 +4,9 @@ inputs:
   path:
     description: Path to the executable or binary to be codesigned
     required: true
+  isInstaller:
+    description: Whether the signed binary is an installer or not
+    default: false
 runs:
   using: 'node12'
   main: 'index.js'
