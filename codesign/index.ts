@@ -24,7 +24,7 @@ async function run() {
         const { developerAccount, appPassword, appCodeSignId, installerCodeSignId, teamId } = sec.macos
 
         // Codesign with hardene`${filePath}.signed`d runtime and timestamp
-        if (isInstaller) {
+        if (isInstaller != "true") {
             await exec.exec("productsign", ["--timestamp", "--sign", installerCodeSignId, filePath, `${filePath}.signed`])
             await exec.exec(`mv ${filePath}.signed ${filePath}`)
         } else {

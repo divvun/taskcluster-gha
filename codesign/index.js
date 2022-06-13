@@ -46,7 +46,7 @@ async function run() {
     }
     else if (process.platform === "darwin") {
         const { developerAccount, appPassword, appCodeSignId, installerCodeSignId, teamId } = sec.macos;
-        if (isInstaller) {
+        if (isInstaller != "true") {
             await exec.exec("productsign", ["--timestamp", "--sign", installerCodeSignId, filePath, `${filePath}.signed`]);
             await exec.exec(`mv ${filePath}.signed ${filePath}`);
         }
