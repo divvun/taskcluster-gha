@@ -10,6 +10,14 @@ export async function downloadAppleWWDRCA(version?: string) {
   }
 }
 
+export async function downloadAppleRootCA(version?: string) {
+  if (version == undefined) {
+    return await tc.downloadTool("https://www.apple.com/appleca/AppleIncRootCertificate.cer")
+  } else {
+    return await tc.downloadTool(`https://www.apple.com/certificateauthority/AppleRootCA-${version}.cer`)
+  }
+}
+
 export class Security {
   constructor() { throw new Error("cannot be instantiated") }
 
