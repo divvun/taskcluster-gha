@@ -18,6 +18,14 @@ export async function downloadAppleRootCA(version?: string) {
   }
 }
 
+export async function downloadAppleDevIdCA(version?: string) {
+  if (version == undefined) {
+    return await tc.downloadTool("https://www.apple.com/certificateauthority/DeveloperIDCA.cer")
+  } else {
+    return await tc.downloadTool(`https://www.apple.com/certificateauthority/DeveloperID${version}CA.cer`)
+  }
+}
+
 export class Security {
   constructor() { throw new Error("cannot be instantiated") }
 

@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import path from "path"
-import { Security, downloadAppleWWDRCA, downloadAppleRootCA } from '../security'
+import { Security, downloadAppleWWDRCA, downloadAppleRootCA, downloadAppleDevIdCA } from '../security'
 import * as fs from 'fs'
 import * as tmp from 'tmp'
 
@@ -45,6 +45,9 @@ async function setupMacOSKeychain() {
 
   const certPath4 = await downloadAppleRootCA("G2")
   debug(await Security.import(name, certPath4))
+
+  const certPath5 = await downloadAppleDevIdCA("G2")
+  debug(await Security.import(name, certPath5))
 
   const appP12Path = tmp.fileSync({ postfix: '.p12' })
   const appP12Buff = Buffer.from(sec.macos.appP12, 'base64')

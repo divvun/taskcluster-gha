@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Security = exports.downloadAppleRootCA = exports.downloadAppleWWDRCA = void 0;
+exports.Security = exports.downloadAppleDevIdCA = exports.downloadAppleRootCA = exports.downloadAppleWWDRCA = void 0;
 const tc = __importStar(require("@actions/tool-cache"));
 const core = __importStar(require("@actions/core"));
 const shared_1 = require("./shared");
@@ -45,6 +45,15 @@ async function downloadAppleRootCA(version) {
     }
 }
 exports.downloadAppleRootCA = downloadAppleRootCA;
+async function downloadAppleDevIdCA(version) {
+    if (version == undefined) {
+        return await tc.downloadTool("https://www.apple.com/certificateauthority/DeveloperIDCA.cer");
+    }
+    else {
+        return await tc.downloadTool(`https://www.apple.com/certificateauthority/DeveloperID${version}CA.cer`);
+    }
+}
+exports.downloadAppleDevIdCA = downloadAppleDevIdCA;
 class Security {
     constructor() { throw new Error("cannot be instantiated"); }
     static async run(subcommand, args) {
