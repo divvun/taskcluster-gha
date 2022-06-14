@@ -53,12 +53,8 @@ async function setupMacOSKeychain() {
     debug(await security_1.Security.defaultKeychain(name));
     debug(await security_1.Security.unlockKeychain(name, password));
     debug(await security_1.Security.setKeychainTimeout(name, 36000));
-    const certPath = await (0, security_1.downloadAppleWWDRCA)();
-    debug(await security_1.Security.import(name, certPath));
     const certPath2 = await (0, security_1.downloadAppleWWDRCA)("G2");
     debug(await security_1.Security.import(name, certPath2));
-    const certPath3 = await (0, security_1.downloadAppleRootCA)();
-    debug(await security_1.Security.import(name, certPath3));
     const certPath4 = await (0, security_1.downloadAppleRootCA)("G2");
     debug(await security_1.Security.import(name, certPath4));
     const certPath5 = await (0, security_1.downloadAppleDevIdCA)("G2");
