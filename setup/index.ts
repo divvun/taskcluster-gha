@@ -37,15 +37,6 @@ async function setupMacOSKeychain() {
   const certPath2 = await downloadAppleWWDRCA("G2")
   debug(await Security.import(name, certPath2))
 
-  const certPath3 = await downloadAppleWWDRCA("G3")
-  debug(await Security.import(name, certPath3))
-
-  const certPath4 = await downloadAppleRootCA("G2")
-  debug(await Security.import(name, certPath4))
-
-  const certPath5 = await downloadAppleDevIdCA("G2")
-  debug(await Security.import(name, certPath5))
-
   const appP12Path = tmp.fileSync({ postfix: '.p12' })
   const appP12Buff = Buffer.from(sec.macos.appP12, 'base64')
   fs.writeFileSync(appP12Path.name, appP12Buff)
