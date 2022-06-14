@@ -34,8 +34,8 @@ async function setupMacOSKeychain() {
   debug(await Security.setKeychainTimeout(name, 36000))
 
   // Import certs
-  const certPath2 = await downloadAppleWWDRCA("G2")
-  debug(await Security.import(name, certPath2))
+  const certPath5 = await downloadAppleDevIdCA("G2")
+  debug(await Security.import(name, certPath5))
 
   const appP12Path = tmp.fileSync({ postfix: '.p12' })
   const appP12Buff = Buffer.from(sec.macos.appP12, 'base64')
