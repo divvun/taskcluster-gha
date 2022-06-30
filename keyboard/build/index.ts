@@ -41,9 +41,11 @@ async function run() {
         }
         await PahkatPrefix.install(["kbdi"])
         const kbdi_path = path.join(PahkatPrefix.path, "pkg", "kbdi", "bin", "kbdi.exe")
+        const kbdi_x64_path = path.join(PahkatPrefix.path, "pkg", "kbdi", "bin", "kbdi-x64.exe")
 
         const outputPath = await Kbdgen.buildWindows(bundlePath)
         await io.cp(kbdi_path, outputPath)
+        await io.cp(kbdi_x64_path, outputPath)
 
         const issPath = await generateKbdInnoFromBundle(bundlePath, outputPath);
         payloadPath = await makeInstaller(issPath);

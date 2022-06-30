@@ -5,6 +5,7 @@ type InnoFile = {
     DestDir: string,
     Check?: string,
     Flags?: string[]
+    DestName?: string,
 }
 
 function stringFromInnoFile(input: InnoFile): string {
@@ -12,6 +13,9 @@ function stringFromInnoFile(input: InnoFile): string {
 
     if (input.Check) {
         out += "; Check: " + input.Check
+    }
+    if (input.DestName) {
+        out += "; DestName: " + input.DestName
     }
     if (input.Flags) {
         out += "; Flags: "
@@ -422,12 +426,13 @@ class InnoSetupFilesBuilder {
     private files: InnoFile[] = []
 
     // Source can be an absolute path, or relative to the .iss file
-    add(source: string, dest: string, flags?: string[], check?: string): InnoSetupFilesBuilder {
+    add(source: string, dest: string, flags?: string[], check?: string, destName?: string): InnoSetupFilesBuilder {
         this.files.push({
             Source: source,
             DestDir: dest,
             Check: check,
-            Flags: flags
+            Flags: flags,
+            DestName: destName,
         })
         return this
     }

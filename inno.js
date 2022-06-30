@@ -10,6 +10,9 @@ function stringFromInnoFile(input) {
     if (input.Check) {
         out += "; Check: " + input.Check;
     }
+    if (input.DestName) {
+        out += "; DestName: " + input.DestName;
+    }
     if (input.Flags) {
         out += "; Flags: ";
         out += input.Flags.join(" ");
@@ -378,12 +381,13 @@ class InnoSetupFilesBuilder {
     constructor() {
         this.files = [];
     }
-    add(source, dest, flags, check) {
+    add(source, dest, flags, check, destName) {
         this.files.push({
             Source: source,
             DestDir: dest,
             Check: check,
-            Flags: flags
+            Flags: flags,
+            DestName: destName,
         });
         return this;
     }
