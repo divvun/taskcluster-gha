@@ -69,7 +69,7 @@ function addLayoutToInstaller(builder, locale, layout) {
         }
         builder.withParameter(`-g ""{{${guidStr}""`)
             .withParameter(`-d ${dllName}`)
-            .withParameter(`-n ${layoutDisplayName}`)
+            .withParameter(`-n ""${layoutDisplayName}""`)
             .withParameter("-e")
             .withFlags(["runhidden", "waituntilterminated"]);
         return builder;
