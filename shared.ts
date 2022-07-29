@@ -252,9 +252,9 @@ export enum RebootSpec { Install = "install", Uninstall = "uninstall",  Update =
 export enum WindowsExecutableKind { Inno = "inno", Nsis = "nsis", Msi = "msi" }
 
 export class PahkatPrefix {
-    static URL_LINUX = "pahkat.uit.no/devtools/download/pahkat-prefix-cli?platform=linux&channel=nightly"
-    static URL_MACOS = "pahkat.uit.no/devtools/download/pahkat-prefix-cli?platform=macos&channel=nightly"
-    static URL_WINDOWS = "pahkat.uit.no/devtools/download/pahkat-prefix-cli?platform=windows&channel=nightly"
+    static URL_LINUX = "https://pahkat.uit.no/devtools/download/pahkat-prefix-cli?platform=linux&channel=nightly"
+    static URL_MACOS = "https://pahkat.uit.no/devtools/download/pahkat-prefix-cli?platform=macos&channel=nightly"
+    static URL_WINDOWS = "https://pahkat.uit.no/devtools/download/pahkat-prefix-cli?platform=windows&channel=nightly"
 
     static get path(): string {
         return path.join(tmpDir(), "pahkat-prefix")
