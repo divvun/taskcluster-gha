@@ -293,9 +293,9 @@ class PahkatPrefix {
     }
 }
 exports.PahkatPrefix = PahkatPrefix;
-PahkatPrefix.URL_LINUX = "https://pahkat.uit.no/artifacts/pahkat-prefix-cli_2.1.1-nightly.20220422T123857223Z_linux_x86_64.txz";
-PahkatPrefix.URL_MACOS = "https://pahkat.uit.no/artifacts/pahkat-prefix-cli_2.1.1-nightly.20220422T123857223Z_macos_x86_64.txz";
-PahkatPrefix.URL_WINDOWS = "https://pahkat.uit.no/artifacts/pahkat-prefix-cli_2.1.1-nightly.20220422T123857223Z_windows_i686.txz";
+PahkatPrefix.URL_LINUX = "pahkat.uit.no/devtools/download/pahkat-prefix-cli?platform=linux&channel=nightly";
+PahkatPrefix.URL_MACOS = "pahkat.uit.no/devtools/download/pahkat-prefix-cli?platform=macos&channel=nightly";
+PahkatPrefix.URL_WINDOWS = "pahkat.uit.no/devtools/download/pahkat-prefix-cli?platform=windows&channel=nightly";
 var MacOSPackageTarget;
 (function (MacOSPackageTarget) {
     MacOSPackageTarget["System"] = "system";
