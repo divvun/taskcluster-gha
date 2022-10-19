@@ -43,6 +43,9 @@ class InnoSetupBuilder {
         if (input.endsWith("_is1")) {
             input = input.substring(0, input.length - 4);
         }
+        if (input.endsWith('}')) {
+            input = input.substring(0, input.length - 1);
+        }
         this.data.productCode = input;
         return this;
     }
