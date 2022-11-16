@@ -674,7 +674,7 @@ export class Kbdgen {
 
         // Do the build
         await Bash.runScript(
-            `kbdgen --logging debug build ios -R -o output ${abs}`,
+            `kbdgen target --output-path output --bundle-path ${abs} ios build`,
             {
                 cwd,
                 env
@@ -699,7 +699,7 @@ export class Kbdgen {
         // await Bash.runScript("brew install imagemagick")
 
         await Bash.runScript(
-            `kbdgen --logging debug build android -R --ci -o output ${abs}`,
+            `kbdgen target --output-path output --bundle-path ${abs} android build`,
             {
                 cwd,
                 env: {
@@ -731,7 +731,17 @@ export class Kbdgen {
 
         await Bash.runScript(`kbdgen -V`)
         await Bash.runScript(
-            `kbdgen --logging trace build mac -R --ci -o output ${abs}`,
+            `kbdgen target --output-path output --bundle-path ${abs} macos generate`,
+            {
+                env: {
+                    "DEVELOPER_PASSWORD_CHAIN_ITEM": sec.macos.passwordChainItem,
+                    "DEVELOPER_ACCOUNT": sec.macos.developerAccount
+                }
+            }
+        )
+
+        await Bash.runScript(
+            `kbdgen target --output-path output --bundle-path ${abs} macos build`,
             {
                 env: {
                     "DEVELOPER_PASSWORD_CHAIN_ITEM": sec.macos.passwordChainItem,
@@ -748,11 +758,7 @@ export class Kbdgen {
         const cwd = process.cwd()
 
         await Powershell.runScript(
-            `kbdgen.exe windows generate -o output ${abs}`,
-        )
-
-        await Powershell.runScript(
-            `kbdgen.exe windows build -o output ${abs}`,
+            `kbdgen target --output-path output --bundle-path ${abs} windows`
         )
 
         return `${cwd}/output`
