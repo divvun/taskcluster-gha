@@ -78,7 +78,7 @@ async function run() {
     let artifactPath = null;
     let artifactUrl = null;
     if (keyboardType === types_1.KeyboardType.MacOS) {
-        const target = shared_1.Kbdgen.loadTarget(bundlePath, "mac");
+        const target = shared_1.Kbdgen.loadTarget(bundlePath, "macos");
         var pkgId = target.packageId;
         const lang = github.context.repo.repo.split("keyboard-")[1];
         pkgId = `${pkgId}.keyboardlayout.${lang}`;
@@ -91,7 +91,7 @@ async function run() {
         payloadMetadata = await shared_2.PahkatUploader.release.macosPackage(releaseReq(version, platform, channel), artifactUrl, 1, 1, pkgId, [shared_2.RebootSpec.Install, shared_2.RebootSpec.Uninstall], [shared_1.MacOSPackageTarget.System, shared_1.MacOSPackageTarget.User]);
     }
     else if (keyboardType === types_1.KeyboardType.Windows) {
-        const target = shared_1.Kbdgen.loadTarget(bundlePath, "win");
+        const target = shared_1.Kbdgen.loadTarget(bundlePath, "windows");
         const productCode = (0, shared_1.validateProductCode)(shared_2.WindowsExecutableKind.Inno, target.uuid);
         version = target.version;
         platform = "windows";

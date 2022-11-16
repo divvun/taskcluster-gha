@@ -59,7 +59,7 @@ async function run() {
     let artifactUrl: string | null = null
 
     if (keyboardType === KeyboardType.MacOS) {
-        const target = Kbdgen.loadTarget(bundlePath, "mac")
+        const target = Kbdgen.loadTarget(bundlePath, "macos")
         var pkgId = target.packageId
         const lang = github.context.repo.repo.split("keyboard-")[1]
         // On macos kbdgen does magic with the keyboard id to match this:
@@ -86,7 +86,7 @@ async function run() {
             [MacOSPackageTarget.System, MacOSPackageTarget.User])
 
     } else if (keyboardType === KeyboardType.Windows) {
-        const target = Kbdgen.loadTarget(bundlePath, "win")
+        const target = Kbdgen.loadTarget(bundlePath, "windows")
         const productCode = validateProductCode(WindowsExecutableKind.Inno, target.uuid)
         version = target.version as string
         platform = "windows"

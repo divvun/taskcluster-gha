@@ -11,7 +11,7 @@ const uuid_1 = require("uuid");
 const KBDGEN_NAMESPACE = (0, uuid_1.v5)("divvun.no", uuid_1.v5.DNS);
 function layoutTarget(layout) {
     const targets = layout["targets"] || {};
-    return targets["win"] || {};
+    return targets["windows"] || {};
 }
 function getKbdId(locale, layout) {
     if ("id" in layout) {
@@ -20,7 +20,7 @@ function getKbdId(locale, layout) {
     return "kbd" + locale.replace(/[^A-Za-z0-9-]/g, "").substr(0, 5);
 }
 async function generateKbdInnoFromBundle(bundlePath, buildDir) {
-    var bundle = shared_1.Kbdgen.loadTarget(bundlePath, "win");
+    var bundle = shared_1.Kbdgen.loadTarget(bundlePath, "windows");
     var project = shared_1.Kbdgen.loadProjectBundle(bundlePath);
     var layouts = await shared_1.Kbdgen.loadLayouts(bundlePath);
     var builder = new inno_1.InnoSetupBuilder();

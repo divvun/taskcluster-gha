@@ -28,7 +28,7 @@ async function run() {
         } else {
             core.setOutput("channel", nightlyChannel)
             core.debug("Setting current version to nightly version")
-            await Kbdgen.setNightlyVersion(bundlePath, "mac")
+            await Kbdgen.setNightlyVersion(bundlePath, "macos")
         }
         payloadPath = await Kbdgen.buildMacOS(bundlePath)
     } else if (keyboardType === KeyboardType.Windows) {
@@ -37,7 +37,7 @@ async function run() {
         } else {
             core.setOutput("channel", nightlyChannel)
             core.debug("Setting current version to nightly version")
-            await Kbdgen.setNightlyVersion(bundlePath, "win")
+            await Kbdgen.setNightlyVersion(bundlePath, "windows")
         }
         await PahkatPrefix.install(["kbdi"])
         const kbdi_path = path.join(PahkatPrefix.path, "pkg", "kbdi", "bin", "kbdi.exe")

@@ -9,7 +9,7 @@ const KBDGEN_NAMESPACE = uuidv5("divvun.no", uuidv5.DNS)
 
 function layoutTarget(layout: {[key: string]: any}) {
     const targets = layout["targets"] || {}
-    return targets["win"] || {}
+    return targets["windows"] || {}
 }
 
 function getKbdId(locale: string, layout: {[key: string]: any}) {
@@ -20,7 +20,7 @@ function getKbdId(locale: string, layout: {[key: string]: any}) {
 }
 
 export async function generateKbdInnoFromBundle(bundlePath: string, buildDir: string): Promise<string> {
-    var bundle = Kbdgen.loadTarget(bundlePath, "win")
+    var bundle = Kbdgen.loadTarget(bundlePath, "windows")
     var project = Kbdgen.loadProjectBundle(bundlePath)
     var layouts = await Kbdgen.loadLayouts(bundlePath)
 

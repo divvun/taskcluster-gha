@@ -50,7 +50,7 @@ async function run() {
         else {
             core.setOutput("channel", nightlyChannel);
             core.debug("Setting current version to nightly version");
-            await shared_1.Kbdgen.setNightlyVersion(bundlePath, "mac");
+            await shared_1.Kbdgen.setNightlyVersion(bundlePath, "macos");
         }
         payloadPath = await shared_1.Kbdgen.buildMacOS(bundlePath);
     }
@@ -61,7 +61,7 @@ async function run() {
         else {
             core.setOutput("channel", nightlyChannel);
             core.debug("Setting current version to nightly version");
-            await shared_1.Kbdgen.setNightlyVersion(bundlePath, "win");
+            await shared_1.Kbdgen.setNightlyVersion(bundlePath, "windows");
         }
         await shared_2.PahkatPrefix.install(["kbdi"]);
         const kbdi_path = path_1.default.join(shared_2.PahkatPrefix.path, "pkg", "kbdi", "bin", "kbdi.exe");
