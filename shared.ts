@@ -748,11 +748,11 @@ export class Kbdgen {
         const cwd = process.cwd()
 
         await Powershell.runScript(
-            `C:\\kbdgen.exe windows generate -o output ${abs}`,
+            `kbdgen.exe windows generate -o output ${abs}`,
         )
 
         await Powershell.runScript(
-            `C:\\kbdgen.exe windows build -o output ${abs}`,
+            `kbdgen.exe windows build -o output ${abs}`,
         )
 
         return `${cwd}/output`
