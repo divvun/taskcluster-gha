@@ -39,7 +39,7 @@ async function generateKbdInnoFromBundle(bundlePath, buildDir) {
         return builder;
     });
     for (const [locale, layout] of Object.entries(layouts)) {
-        if ("win" in layout.modes || "desktop" in layout.modes) {
+        if ("windows" in layout) {
             addLayoutToInstaller(builder, locale, layout);
         }
     }
