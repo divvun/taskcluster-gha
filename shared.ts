@@ -759,11 +759,7 @@ export class Kbdgen {
 
         await Powershell.runScript(
             `kbdgen target --output-path output --bundle-path ${abs} windows`,
-            { env: {"RUST_LOG": "trace" } }
         )
-
-        console.log(await Powershell.runScript(`ls ${cwd}/output`))
-        console.log(await Powershell.runScript(`ls ${cwd}/output/i386`))
 
         return `${cwd}/output`
     }

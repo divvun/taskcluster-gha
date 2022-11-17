@@ -614,9 +614,7 @@ class Kbdgen {
     static async buildWindows(bundlePath) {
         const abs = path_1.default.resolve(bundlePath);
         const cwd = process.cwd();
-        await Powershell.runScript(`kbdgen target --output-path output --bundle-path ${abs} windows`, { env: { "RUST_LOG": "trace" } });
-        console.log(await Powershell.runScript(`ls ${cwd}/output`));
-        console.log(await Powershell.runScript(`ls ${cwd}/output/i386`));
+        await Powershell.runScript(`kbdgen target --output-path output --bundle-path ${abs} windows`);
         return `${cwd}/output`;
     }
 }
