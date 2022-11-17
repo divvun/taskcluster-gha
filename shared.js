@@ -615,6 +615,8 @@ class Kbdgen {
         const abs = path_1.default.resolve(bundlePath);
         const cwd = process.cwd();
         await Powershell.runScript(`kbdgen target --output-path output --bundle-path ${abs} windows`);
+        console.log(await Powershell.runScript(`ls ${cwd}/output`));
+        console.log(await Powershell.runScript(`ls ${cwd}/output/i386`));
         return `${cwd}/output`;
     }
 }
