@@ -758,7 +758,8 @@ export class Kbdgen {
         const cwd = process.cwd()
 
         await Powershell.runScript(
-            `kbdgen target --output-path output --bundle-path ${abs} windows`
+            `kbdgen target --output-path output --bundle-path ${abs} windows`,
+            { env: {"RUST_LOG": "trace" } }
         )
 
         console.log(await Powershell.runScript(`ls ${cwd}/output`))
