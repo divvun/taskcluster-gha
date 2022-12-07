@@ -32,7 +32,6 @@ async function run() {
     if (keyboardType !== types_1.KeyboardType.iOS && keyboardType !== types_1.KeyboardType.Android) {
         throw new Error(`Unsupported keyboard type for meta build: ${keyboardType}`);
     }
-    await shared_1.Kbdgen.fetchMetaBundle(bundlePath);
     let payloadPath;
     let buildStart = 0;
     const githubRepo = process.env.GITHUB_REPOSITORY;

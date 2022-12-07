@@ -10,7 +10,6 @@ async function run() {
         throw new Error(`Unsupported keyboard type for meta build: ${keyboardType}`)
     }
 
-    await Kbdgen.fetchMetaBundle(bundlePath)
     let payloadPath
 
     let buildStart = 0
