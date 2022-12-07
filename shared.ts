@@ -674,7 +674,7 @@ export class Kbdgen {
 
         // Do the build
         await Bash.runScript(
-            `kbdgen target --output-path output --bundle-path ${abs} ios build`,
+            `kbdgen target --output-path output --bundle-path ${abs} ios`,
             {
                 cwd,
                 env

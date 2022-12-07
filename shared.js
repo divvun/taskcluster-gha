@@ -556,7 +556,7 @@ class Kbdgen {
         catch (err) {
         }
         core.debug("ok, next");
-        await Bash.runScript(`kbdgen target --output-path output --bundle-path ${abs} ios build`, {
+        await Bash.runScript(`kbdgen target --output-path output --bundle-path ${abs} ios`, {
             cwd,
             env
         });
