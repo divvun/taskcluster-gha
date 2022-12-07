@@ -564,7 +564,7 @@ export class ProjectJJ {
 
 export class Kbdgen {
     static async fetchMetaBundle(metaBundlePath: string) {
-        await Bash.runScript(`kbdgen meta fetch ${metaBundlePath}`)
+        await Bash.runScript(`kbdgen fetch -b ${metaBundlePath}`)
     }
 
     private static async resolveOutput(p: string): Promise<string> {

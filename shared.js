@@ -485,7 +485,7 @@ class ProjectJJ {
 exports.ProjectJJ = ProjectJJ;
 class Kbdgen {
     static async fetchMetaBundle(metaBundlePath) {
-        await Bash.runScript(`kbdgen meta fetch ${metaBundlePath}`);
+        await Bash.runScript(`kbdgen fetch -b ${metaBundlePath}`);
     }
     static async resolveOutput(p) {
         const globber = await glob.create(p, {
