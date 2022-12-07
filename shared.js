@@ -581,7 +581,8 @@ class Kbdgen {
                 "STORE_PW": sec.android[githubRepo].storePassword,
                 "KEY_PW": sec.android[githubRepo].keyPassword,
                 "PLAY_STORE_P12": path_1.default.join(divvunConfigDir(), sec.android.playStoreP12),
-                "PLAY_STORE_ACCOUNT": sec.android.playStoreAccount
+                "PLAY_STORE_ACCOUNT": sec.android.playStoreAccount,
+                "RUST_LOG": "debug",
             }
         });
         return await Kbdgen.resolveOutput(path_1.default.join(cwd, "output", `*_release.apk`));
