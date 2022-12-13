@@ -681,7 +681,7 @@ export class Kbdgen {
                 env
             }
         )
-        const globber = await glob.create(path.resolve(abs, "../output/ios-build/ipa/*.ipa"), {
+        const globber = await glob.create(path.resolve(abs, "../output/ipa/*.ipa"), {
             followSymbolicLinks: false
         })
         const files = await globber.glob()
