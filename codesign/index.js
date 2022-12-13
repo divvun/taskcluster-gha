@@ -55,43 +55,15 @@ async function run() {
         }
         const zipPath = path_1.default.resolve(path_1.default.dirname(filePath), "upload.zip");
         await exec.exec("ditto", ["-c", "-k", "--keepParent", filePath, zipPath]);
-        const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
-        const fakeBundleId = `com.github.${owner}.${repo}.${fileName}.zip`;
-        const response = JSON.parse((await shared_1.Bash.runScript(`xcrun altool --notarize-app\
- --primary-bundle-id ${fakeBundleId}\
- --username "${developerAccount}"\
- --password "${appPassword}"\
- --team-id "${teamId}"\
- --output-format json\
- --file ${zipPath}`)).join("\n"));
-        console.log(JSON.stringify(response, null, 2));
-        const requestUuid = response["notarization-upload"].RequestUUID;
-        for (;;) {
-            console.log("Waiting 10 seconds...");
-            await delay(10000);
-            console.log("Polling for status...");
-            const response = JSON.parse((await shared_1.Bash.runScript(`xcrun altool\
- --notarization-info ${requestUuid}\
- -u "${developerAccount}"\
- -p "${appPassword}"\
- --output-format json`)).join("\n"));
-            console.log(JSON.stringify(response, null, 2));
-            const status = response["notarization-info"].Status;
-            if (status === "success") {
-                console.log("Success!");
-                fs_1.default.unlinkSync(zipPath);
-                break;
-            }
-            else if (status === "in progress") {
-                console.log("In progress...");
-            }
-            else {
-                throw new Error(`Got failure status: ${status}`);
-            }
-        }
-    }
-    else {
-        throw new Error("Unsupported platform: " + process.platform);
+        const response = await shared_1.Bash.runScript(`
+xcrun notarytool submit -v \
+    --apple-id "${developerAccount}" \
+    --password "${appPassword}" \
+    --team-id "${teamId}" \
+    --output-format json \
+    --wait "${zipPath}"`);
+        console.log(response);
+        fs_1.default.unlinkSync(zipPath);
     }
 }
 run().catch(err => {
