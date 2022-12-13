@@ -50,7 +50,7 @@ xcrun notarytool submit -v \
 
         const parsedResponse = JSON.parse(response)
 
-        if (parsedResponse['success'] != true) {
+        if (parsedResponse['status'] != "Accepted" && parsedResponse['success'] != true) {
             throw new Error(`Got failure status: ${response}.\n ${err}`)
         }
 
