@@ -547,6 +547,7 @@ class Kbdgen {
             "MATCH_KEYCHAIN_NAME": "login.keychain",
             "MATCH_KEYCHAIN_PASSWORD": sec.macos.adminPassword,
             "LANG": "C.UTF-8",
+            "RUST_LOG": "kbdgen=debug",
         };
         core.debug("Gonna import certificates");
         core.debug("Deleting previous keychain for fastlane");
