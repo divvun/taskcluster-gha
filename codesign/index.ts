@@ -38,7 +38,7 @@ async function run() {
         await exec.exec("ditto", ["-c", "-k", "--keepParent", filePath, zipPath])
 
         // Upload the zip
-        const response = await Bash.runScript(`
+        const [response, err] = await Bash.runScript(`
 xcrun notarytool submit -v \
     --apple-id "${developerAccount}" \
     --password "${appPassword}" \
@@ -48,10 +48,10 @@ xcrun notarytool submit -v \
 
         console.log(response)
 
-        const parsedResponse = JSON.parse(response.join('\n'))
+        const parsedResponse = JSON.parse(response)
 
         if (parsedResponse['success'] != true) {
-            throw new Error(`Got failure status: ${response}`)
+            throw new Error(`Got failure status: ${response}.\n ${err}`)
         }
 
         fs.unlinkSync(zipPath)

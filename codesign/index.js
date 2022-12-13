@@ -55,7 +55,7 @@ async function run() {
         }
         const zipPath = path_1.default.resolve(path_1.default.dirname(filePath), "upload.zip");
         await exec.exec("ditto", ["-c", "-k", "--keepParent", filePath, zipPath]);
-        const response = await shared_1.Bash.runScript(`
+        const [response, err] = await shared_1.Bash.runScript(`
 xcrun notarytool submit -v \
     --apple-id "${developerAccount}" \
     --password "${appPassword}" \
@@ -63,9 +63,9 @@ xcrun notarytool submit -v \
     --output-format json \
     --wait "${zipPath}"`);
         console.log(response);
-        const parsedResponse = JSON.parse(response.join('\n'));
+        const parsedResponse = JSON.parse(response);
         if (parsedResponse['success'] != true) {
-            throw new Error(`Got failure status: ${response}`);
+            throw new Error(`Got failure status: ${response}.\n ${err}`);
         }
         fs_1.default.unlinkSync(zipPath);
     }
