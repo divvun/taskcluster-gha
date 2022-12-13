@@ -63,6 +63,10 @@ xcrun notarytool submit -v \
     --output-format json \
     --wait "${zipPath}"`);
         console.log(response);
+        const parsedResponse = JSON.parse(response.join('\n'));
+        if (parsedResponse['success'] != true) {
+            throw new Error(`Got failure status: ${response}`);
+        }
         fs_1.default.unlinkSync(zipPath);
     }
 }

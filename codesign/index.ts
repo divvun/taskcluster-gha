@@ -38,8 +38,6 @@ async function run() {
         await exec.exec("ditto", ["-c", "-k", "--keepParent", filePath, zipPath])
 
         // Upload the zip
-        //const [owner, repo] = process.env.GITHUB_REPOSITORY!.split("/")
-        //const fakeBundleId = `com.github.${owner}.${repo}.${fileName}.zip`
         const response = await Bash.runScript(`
 xcrun notarytool submit -v \
     --apple-id "${developerAccount}" \
@@ -49,6 +47,13 @@ xcrun notarytool submit -v \
     --wait "${zipPath}"`)
 
         console.log(response)
+
+        const parsedResponse = JSON.parse(response.join('\n'))
+
+        if (parsedResponse['success'] != true) {
+            throw new Error(`Got failure status: ${response}`)
+        }
+
         fs.unlinkSync(zipPath)
     }
 }
