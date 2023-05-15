@@ -31,7 +31,6 @@ const toml_1 = __importDefault(require("toml"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const shared_1 = require("../../shared");
-const shared_2 = require("../../shared");
 const manifest_1 = require("../manifest");
 function loadManifest(manifestPath) {
     const manifestString = fs_1.default.readFileSync(manifestPath, "utf8");
@@ -65,20 +64,22 @@ async function run() {
         let platform = null;
         let artifactPath = null;
         let artifactUrl = null;
+        let artifactSize = null;
         if (spellerType === manifest_1.SpellerType.Windows) {
             platform = "windows";
-            const productCode = (0, shared_1.validateProductCode)(shared_2.WindowsExecutableKind.Inno, manifest.windows.system_product_code);
+            const productCode = (0, shared_1.validateProductCode)(shared_1.WindowsExecutableKind.Inno, manifest.windows.system_product_code);
             const ext = path_1.default.extname(payloadPath);
             const pathItems = [packageId, version, platform];
             artifactPath = path_1.default.join(path_1.default.dirname(payloadPath), `${pathItems.join("_")}${ext}`);
-            artifactUrl = `${shared_2.PahkatUploader.ARTIFACTS_URL}${path_1.default.basename(artifactPath)}`;
+            artifactUrl = `${shared_1.PahkatUploader.ARTIFACTS_URL}${path_1.default.basename(artifactPath)}`;
+            artifactSize = await (0, shared_1.getArtifactSize)(artifactUrl);
             let deps = { "https://pahkat.uit.no/tools/packages/windivvun": "*" };
             if (channel != null) {
                 const windivvun = `https://pahkat.uit.no/tools/packages/windivvun?channel=${nightlyChannel}`;
                 deps = {};
                 deps[windivvun] = "*";
             }
-            payloadMetadata = await shared_2.PahkatUploader.release.windowsExecutable(releaseReq(version, platform, deps, channel), artifactUrl, 1, 1, shared_2.WindowsExecutableKind.Inno, productCode, [shared_2.RebootSpec.Install, shared_2.RebootSpec.Uninstall]);
+            payloadMetadata = await shared_1.PahkatUploader.release.windowsExecutable(releaseReq(version, platform, deps, channel), artifactUrl, 1, artifactSize, shared_1.WindowsExecutableKind.Inno, productCode, [shared_1.RebootSpec.Install, shared_1.RebootSpec.Uninstall]);
         }
         else if (spellerType === manifest_1.SpellerType.MacOS) {
             platform = "macos";
@@ -86,22 +87,24 @@ async function run() {
             const ext = path_1.default.extname(payloadPath);
             const pathItems = [packageId, version, platform];
             artifactPath = path_1.default.join(path_1.default.dirname(payloadPath), `${pathItems.join("_")}${ext}`);
-            artifactUrl = `${shared_2.PahkatUploader.ARTIFACTS_URL}${path_1.default.basename(artifactPath)}`;
+            artifactUrl = `${shared_1.PahkatUploader.ARTIFACTS_URL}${path_1.default.basename(artifactPath)}`;
+            artifactSize = await (0, shared_1.getArtifactSize)(artifactUrl);
             let deps = { "https://pahkat.uit.no/tools/packages/macdivvun": "*" };
             if (channel != null) {
                 const macdivvun = `https://pahkat.uit.no/tools/packages/macdivvun?channel=${nightlyChannel}`;
                 deps = {};
                 deps[macdivvun] = "*";
             }
-            payloadMetadata = await shared_2.PahkatUploader.release.macosPackage(releaseReq(version, platform, deps, channel), artifactUrl, 1, 1, pkgId, [shared_2.RebootSpec.Install, shared_2.RebootSpec.Uninstall], [shared_1.MacOSPackageTarget.System, shared_1.MacOSPackageTarget.User]);
+            payloadMetadata = await shared_1.PahkatUploader.release.macosPackage(releaseReq(version, platform, deps, channel), artifactUrl, 1, artifactSize, pkgId, [shared_1.RebootSpec.Install, shared_1.RebootSpec.Uninstall], [shared_1.MacOSPackageTarget.System, shared_1.MacOSPackageTarget.User]);
         }
         else if (spellerType === manifest_1.SpellerType.Mobile) {
             platform = "mobile";
             const ext = path_1.default.extname(payloadPath);
             const pathItems = [packageId, version, platform];
             artifactPath = path_1.default.join(path_1.default.dirname(payloadPath), `${pathItems.join("_")}${ext}`);
-            artifactUrl = `${shared_2.PahkatUploader.ARTIFACTS_URL}${path_1.default.basename(artifactPath)}`;
-            payloadMetadata = await shared_2.PahkatUploader.release.tarballPackage(releaseReq(version, platform, {}, channel), artifactUrl, 1, 1);
+            artifactUrl = `${shared_1.PahkatUploader.ARTIFACTS_URL}${path_1.default.basename(artifactPath)}`;
+            artifactSize = await (0, shared_1.getArtifactSize)(artifactUrl);
+            payloadMetadata = await shared_1.PahkatUploader.release.tarballPackage(releaseReq(version, platform, {}, channel), artifactUrl, 1, artifactSize);
         }
         else {
             throw new Error(`Unsupported bundle type ${spellerType}`);
@@ -121,7 +124,7 @@ async function run() {
         }
         core.debug(`Renaming from ${payloadPath} to ${artifactPath}`);
         fs_1.default.renameSync(payloadPath, artifactPath);
-        await shared_2.PahkatUploader.upload(artifactPath, artifactUrl, "./metadata.toml", repoPackageUrl);
+        await shared_1.PahkatUploader.upload(artifactPath, artifactUrl, "./metadata.toml", repoPackageUrl);
     }
     catch (error) {
         core.setFailed(error.message);

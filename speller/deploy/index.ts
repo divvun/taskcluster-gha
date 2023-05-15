@@ -3,8 +3,17 @@ import toml from 'toml'
 import fs from 'fs'
 import path from 'path'
 
-import { MacOSPackageTarget, nonUndefinedProxy, validateProductCode, ReleaseRequest } from '../../shared'
-import { PahkatUploader, WindowsExecutableKind, RebootSpec } from "../../shared"
+import {
+    PahkatUploader,
+    WindowsExecutableKind,
+    RebootSpec,
+    MacOSPackageTarget,
+    nonUndefinedProxy,
+    validateProductCode,
+    ReleaseRequest,
+    getArtifactSize
+} from '../../shared'
+
 import { SpellerManifest, SpellerType, derivePackageId } from '../manifest'
 
 
@@ -48,6 +57,7 @@ async function run() {
         let platform: string | null = null
         let artifactPath: string | null = null
         let artifactUrl: string | null = null
+        let artifactSize: number | null = null
 
         // Generate the payload metadata
         if (spellerType === SpellerType.Windows) {
@@ -59,6 +69,7 @@ async function run() {
             const pathItems = [packageId, version, platform]
             artifactPath = path.join(path.dirname(payloadPath), `${pathItems.join("_")}${ext}`)
             artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${path.basename(artifactPath)}`
+            artifactSize = await getArtifactSize(artifactUrl)
 
             // Make the nightly channel be used if any channel except for the default.
             let deps: any = { "https://pahkat.uit.no/tools/packages/windivvun": "*" }
@@ -72,7 +83,7 @@ async function run() {
                 releaseReq(version, platform, deps, channel),
                 artifactUrl,
                 1,
-                1,
+                artifactSize,
                 WindowsExecutableKind.Inno,
                 productCode,
                 [RebootSpec.Install, RebootSpec.Uninstall])
@@ -84,7 +95,7 @@ async function run() {
             const pathItems = [packageId, version, platform]
             artifactPath = path.join(path.dirname(payloadPath), `${pathItems.join("_")}${ext}`)
             artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${path.basename(artifactPath)}`
-
+            artifactSize = await getArtifactSize(artifactUrl)
 
             // Make the nightly channel be used if any channel except for the default.
             let deps: any = { "https://pahkat.uit.no/tools/packages/macdivvun": "*" }
@@ -98,7 +109,7 @@ async function run() {
                 releaseReq(version, platform, deps, channel),
                 artifactUrl,
                 1,
-                1,
+                artifactSize,
                 pkgId,
                 [RebootSpec.Install, RebootSpec.Uninstall],
                 [MacOSPackageTarget.System, MacOSPackageTarget.User])
@@ -109,12 +120,13 @@ async function run() {
             const pathItems = [packageId, version, platform]
             artifactPath = path.join(path.dirname(payloadPath), `${pathItems.join("_")}${ext}`)
             artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${path.basename(artifactPath)}`
+            artifactSize = await getArtifactSize(artifactUrl)
 
             payloadMetadata = await PahkatUploader.release.tarballPackage(
                 releaseReq(version, platform, {}, channel),
                 artifactUrl,
                 1,
-                1)
+                artifactSize)
         } else {
             throw new Error(`Unsupported bundle type ${spellerType}`)
         }

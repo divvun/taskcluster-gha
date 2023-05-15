@@ -8,7 +8,8 @@ import {
     MacOSPackageTarget,
     validateProductCode,
     WindowsExecutableKind,
-    ReleaseRequest
+    ReleaseRequest,
+    getArtifactSize
 } from '../shared'
 
 enum PackageType {
@@ -106,6 +107,7 @@ async function run() {
 
     const artifactPath = path.join(path.dirname(payloadPath), `${pathItems.join("_")}${ext}`)
     const artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${path.basename(artifactPath)}`
+    const artifactSize = await getArtifactSize(artifactUrl)
 
     const releaseReq: ReleaseRequest = {
         platform,
@@ -139,7 +141,8 @@ async function run() {
         const data = await PahkatUploader.release.macosPackage(
             releaseReq,
             artifactUrl,
-            1, 1,
+            1, 
+            artifactSize,
             pkgId, requiresReboot, targets)
         fs.writeFileSync("./metadata.toml", data, "utf8")
     } else if (packageType === PackageType.WindowsExecutable) {
@@ -167,7 +170,7 @@ async function run() {
             releaseReq,
             artifactUrl,
             1,
-            1,
+            artifactSize,
             kind,
             productCode,
             requiresReboot
@@ -178,7 +181,7 @@ async function run() {
             releaseReq,
             artifactUrl,
             1,
-            1)
+            artifactSize)
         fs.writeFileSync("./metadata.toml", data, "utf8")
     } else {
         throw new Error(`Unhandled package type: '${packageType}'`)
