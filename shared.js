@@ -775,8 +775,8 @@ function isMatchingTag(tagPattern) {
     return tagPattern.test(value);
 }
 exports.isMatchingTag = isMatchingTag;
-async function getArtifactSize(artifactUrl) {
-    const cmd = `curl -sIL ${artifactUrl} | awk 'tolower($1) ~ /http.*/ { code = $2 } tolower($1) ~ /content-length:/ { size =  $2 } END { if (code >= 200 && code < 300) print size}'`;
+async function getArtifactSize(artifactPath) {
+    const cmd = `wc -c ${artifactPath} | awk '{print $1}'`;
     let resp = await Bash.runScript(cmd);
     let size = +resp[0] || 0;
     return size;

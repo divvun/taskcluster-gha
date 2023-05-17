@@ -72,7 +72,7 @@ async function run() {
             const pathItems = [packageId, version, platform];
             artifactPath = path_1.default.join(path_1.default.dirname(payloadPath), `${pathItems.join("_")}${ext}`);
             artifactUrl = `${shared_1.PahkatUploader.ARTIFACTS_URL}${path_1.default.basename(artifactPath)}`;
-            artifactSize = await (0, shared_1.getArtifactSize)(artifactUrl);
+            artifactSize = await (0, shared_1.getArtifactSize)(payloadPath);
             let deps = { "https://pahkat.uit.no/tools/packages/windivvun": "*" };
             if (channel != null) {
                 const windivvun = `https://pahkat.uit.no/tools/packages/windivvun?channel=${nightlyChannel}`;
@@ -88,7 +88,7 @@ async function run() {
             const pathItems = [packageId, version, platform];
             artifactPath = path_1.default.join(path_1.default.dirname(payloadPath), `${pathItems.join("_")}${ext}`);
             artifactUrl = `${shared_1.PahkatUploader.ARTIFACTS_URL}${path_1.default.basename(artifactPath)}`;
-            artifactSize = await (0, shared_1.getArtifactSize)(artifactUrl);
+            artifactSize = await (0, shared_1.getArtifactSize)(payloadPath);
             let deps = { "https://pahkat.uit.no/tools/packages/macdivvun": "*" };
             if (channel != null) {
                 const macdivvun = `https://pahkat.uit.no/tools/packages/macdivvun?channel=${nightlyChannel}`;
@@ -103,7 +103,7 @@ async function run() {
             const pathItems = [packageId, version, platform];
             artifactPath = path_1.default.join(path_1.default.dirname(payloadPath), `${pathItems.join("_")}${ext}`);
             artifactUrl = `${shared_1.PahkatUploader.ARTIFACTS_URL}${path_1.default.basename(artifactPath)}`;
-            artifactSize = await (0, shared_1.getArtifactSize)(artifactUrl);
+            artifactSize = await (0, shared_1.getArtifactSize)(payloadPath);
             payloadMetadata = await shared_1.PahkatUploader.release.tarballPackage(releaseReq(version, platform, {}, channel), artifactUrl, 1, artifactSize);
         }
         else {

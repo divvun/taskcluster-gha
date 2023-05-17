@@ -88,7 +88,7 @@ async function run() {
         const pathItems = [packageId, version, platform];
         artifactPath = path_1.default.join(path_1.default.dirname(payloadPath), `${pathItems.join("_")}${ext}`);
         artifactUrl = `${shared_1.PahkatUploader.ARTIFACTS_URL}${path_1.default.basename(artifactPath)}`;
-        artifactSize = await (0, shared_1.getArtifactSize)(artifactUrl);
+        artifactSize = await (0, shared_1.getArtifactSize)(payloadPath);
         payloadMetadata = await shared_1.PahkatUploader.release.macosPackage(releaseReq(version, platform, channel), artifactUrl, 1, artifactSize, pkgId, [shared_1.RebootSpec.Install, shared_1.RebootSpec.Uninstall], [shared_1.MacOSPackageTarget.System, shared_1.MacOSPackageTarget.User]);
     }
     else if (keyboardType === types_1.KeyboardType.Windows) {
@@ -100,7 +100,7 @@ async function run() {
         const pathItems = [packageId, version, platform];
         artifactPath = path_1.default.join(path_1.default.dirname(payloadPath), `${pathItems.join("_")}${ext}`);
         artifactUrl = `${shared_1.PahkatUploader.ARTIFACTS_URL}${path_1.default.basename(artifactPath)}`;
-        artifactSize = await (0, shared_1.getArtifactSize)(artifactUrl);
+        artifactSize = await (0, shared_1.getArtifactSize)(payloadPath);
         payloadMetadata = await shared_1.PahkatUploader.release.windowsExecutable(releaseReq(version, platform, channel), artifactUrl, 1, artifactSize, shared_1.WindowsExecutableKind.Inno, productCode, [shared_1.RebootSpec.Install, shared_1.RebootSpec.Uninstall]);
     }
     else {

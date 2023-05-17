@@ -1010,9 +1010,8 @@ export function isMatchingTag(tagPattern: RegExp) {
     return tagPattern.test(value)
 }
 
-// Since we only have the url to the artifact, we need to request the header to determine the artifact size.
-export async function getArtifactSize(artifactUrl: string) {
-    const cmd = `curl -sIL ${artifactUrl} | awk 'tolower($1) ~ /http.*/ { code = $2 } tolower($1) ~ /content-length:/ { size =  $2 } END { if (code >= 200 && code < 300) print size}'`
+export async function getArtifactSize(artifactPath: string) {
+    const cmd = `wc -c ${artifactPath} | awk '{print $1}'`
     let resp = await Bash.runScript(cmd)
     let size = +resp[0] || 0
     return size

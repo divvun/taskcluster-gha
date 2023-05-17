@@ -84,7 +84,7 @@ async function run() {
         const pathItems = [packageId, version, platform]
         artifactPath = path.join(path.dirname(payloadPath), `${pathItems.join("_")}${ext}`)
         artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${path.basename(artifactPath)}`
-        artifactSize = await getArtifactSize(artifactUrl)
+        artifactSize = await getArtifactSize(payloadPath)
 
         payloadMetadata = await PahkatUploader.release.macosPackage(
             releaseReq(version, platform, channel),
@@ -105,7 +105,7 @@ async function run() {
         const pathItems = [packageId, version, platform]
         artifactPath = path.join(path.dirname(payloadPath), `${pathItems.join("_")}${ext}`)
         artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${path.basename(artifactPath)}`
-        artifactSize = await getArtifactSize(artifactUrl)
+        artifactSize = await getArtifactSize(payloadPath)
 
         payloadMetadata = await PahkatUploader.release.windowsExecutable(
             releaseReq(version, platform, channel),
