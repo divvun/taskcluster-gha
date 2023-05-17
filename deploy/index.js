@@ -114,6 +114,7 @@ async function run() {
     }
     const artifactPath = path_1.default.join(path_1.default.dirname(payloadPath), `${pathItems.join("_")}${ext}`);
     const artifactUrl = `${shared_1.PahkatUploader.ARTIFACTS_URL}${path_1.default.basename(artifactPath)}`;
+    const artifactSize = (0, shared_1.getArtifactSize)(payloadPath);
     const releaseReq = {
         platform,
         version,
@@ -137,7 +138,7 @@ async function run() {
         const targets = rawTargets
             ? rawTargets.split(',').map(x => x.trim())
             : [];
-        const data = await shared_1.PahkatUploader.release.macosPackage(releaseReq, artifactUrl, 1, 1, pkgId, requiresReboot, targets);
+        const data = await shared_1.PahkatUploader.release.macosPackage(releaseReq, artifactUrl, 1, artifactSize, pkgId, requiresReboot, targets);
         fs_1.default.writeFileSync("./metadata.toml", data, "utf8");
     }
     else if (packageType === PackageType.WindowsExecutable) {
@@ -159,11 +160,11 @@ async function run() {
             default:
                 throw new Error("Unhandled Windows executable kind: " + kind);
         }
-        const data = await shared_1.PahkatUploader.release.windowsExecutable(releaseReq, artifactUrl, 1, 1, kind, productCode, requiresReboot);
+        const data = await shared_1.PahkatUploader.release.windowsExecutable(releaseReq, artifactUrl, 1, artifactSize, kind, productCode, requiresReboot);
         fs_1.default.writeFileSync("./metadata.toml", data, "utf8");
     }
     else if (packageType === PackageType.TarballPackage) {
-        const data = await shared_1.PahkatUploader.release.tarballPackage(releaseReq, artifactUrl, 1, 1);
+        const data = await shared_1.PahkatUploader.release.tarballPackage(releaseReq, artifactUrl, 1, artifactSize);
         fs_1.default.writeFileSync("./metadata.toml", data, "utf8");
     }
     else {

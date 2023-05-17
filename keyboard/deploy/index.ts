@@ -3,9 +3,17 @@ import * as github from '@actions/github'
 import fs from 'fs'
 import path from 'path'
 
-import { MacOSPackageTarget, Kbdgen, validateProductCode, ReleaseRequest } from '../../shared'
+import { 
+    PahkatUploader,
+    WindowsExecutableKind,
+    RebootSpec,
+    MacOSPackageTarget,
+    Kbdgen,
+    validateProductCode,
+    ReleaseRequest,
+    getArtifactSize
+} from "../../shared"
 
-import { PahkatUploader, WindowsExecutableKind, RebootSpec } from "../../shared"
 import { KeyboardType, getBundle } from '../types'
 
 
@@ -57,6 +65,7 @@ async function run() {
     let version: string | null = null
     let artifactPath: string | null = null
     let artifactUrl: string | null = null
+    let artifactSize: number | null = null
 
     if (keyboardType === KeyboardType.MacOS) {
         const target = Kbdgen.loadTarget(bundlePath, "macos")
@@ -75,12 +84,13 @@ async function run() {
         const pathItems = [packageId, version, platform]
         artifactPath = path.join(path.dirname(payloadPath), `${pathItems.join("_")}${ext}`)
         artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${path.basename(artifactPath)}`
+        artifactSize = getArtifactSize(payloadPath)
 
         payloadMetadata = await PahkatUploader.release.macosPackage(
             releaseReq(version, platform, channel),
             artifactUrl,
             1,
-            1,
+            artifactSize,
             pkgId,
             [RebootSpec.Install, RebootSpec.Uninstall],
             [MacOSPackageTarget.System, MacOSPackageTarget.User])
@@ -95,12 +105,13 @@ async function run() {
         const pathItems = [packageId, version, platform]
         artifactPath = path.join(path.dirname(payloadPath), `${pathItems.join("_")}${ext}`)
         artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${path.basename(artifactPath)}`
+        artifactSize = getArtifactSize(payloadPath)
 
         payloadMetadata = await PahkatUploader.release.windowsExecutable(
             releaseReq(version, platform, channel),
             artifactUrl,
             1,
-            1, 
+            artifactSize, 
             WindowsExecutableKind.Inno,
             productCode,
             [RebootSpec.Install, RebootSpec.Uninstall])

@@ -32,7 +32,6 @@ const github = __importStar(require("@actions/github"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const shared_1 = require("../../shared");
-const shared_2 = require("../../shared");
 const types_1 = require("../types");
 function derivePackageId() {
     const repo = github.context.repo.repo;
@@ -77,6 +76,7 @@ async function run() {
     let version = null;
     let artifactPath = null;
     let artifactUrl = null;
+    let artifactSize = null;
     if (keyboardType === types_1.KeyboardType.MacOS) {
         const target = shared_1.Kbdgen.loadTarget(bundlePath, "macos");
         var pkgId = target.packageId;
@@ -87,19 +87,21 @@ async function run() {
         const ext = path_1.default.extname(payloadPath);
         const pathItems = [packageId, version, platform];
         artifactPath = path_1.default.join(path_1.default.dirname(payloadPath), `${pathItems.join("_")}${ext}`);
-        artifactUrl = `${shared_2.PahkatUploader.ARTIFACTS_URL}${path_1.default.basename(artifactPath)}`;
-        payloadMetadata = await shared_2.PahkatUploader.release.macosPackage(releaseReq(version, platform, channel), artifactUrl, 1, 1, pkgId, [shared_2.RebootSpec.Install, shared_2.RebootSpec.Uninstall], [shared_1.MacOSPackageTarget.System, shared_1.MacOSPackageTarget.User]);
+        artifactUrl = `${shared_1.PahkatUploader.ARTIFACTS_URL}${path_1.default.basename(artifactPath)}`;
+        artifactSize = (0, shared_1.getArtifactSize)(payloadPath);
+        payloadMetadata = await shared_1.PahkatUploader.release.macosPackage(releaseReq(version, platform, channel), artifactUrl, 1, artifactSize, pkgId, [shared_1.RebootSpec.Install, shared_1.RebootSpec.Uninstall], [shared_1.MacOSPackageTarget.System, shared_1.MacOSPackageTarget.User]);
     }
     else if (keyboardType === types_1.KeyboardType.Windows) {
         const target = shared_1.Kbdgen.loadTarget(bundlePath, "windows");
-        const productCode = (0, shared_1.validateProductCode)(shared_2.WindowsExecutableKind.Inno, target.uuid);
+        const productCode = (0, shared_1.validateProductCode)(shared_1.WindowsExecutableKind.Inno, target.uuid);
         version = target.version;
         platform = "windows";
         const ext = path_1.default.extname(payloadPath);
         const pathItems = [packageId, version, platform];
         artifactPath = path_1.default.join(path_1.default.dirname(payloadPath), `${pathItems.join("_")}${ext}`);
-        artifactUrl = `${shared_2.PahkatUploader.ARTIFACTS_URL}${path_1.default.basename(artifactPath)}`;
-        payloadMetadata = await shared_2.PahkatUploader.release.windowsExecutable(releaseReq(version, platform, channel), artifactUrl, 1, 1, shared_2.WindowsExecutableKind.Inno, productCode, [shared_2.RebootSpec.Install, shared_2.RebootSpec.Uninstall]);
+        artifactUrl = `${shared_1.PahkatUploader.ARTIFACTS_URL}${path_1.default.basename(artifactPath)}`;
+        artifactSize = (0, shared_1.getArtifactSize)(payloadPath);
+        payloadMetadata = await shared_1.PahkatUploader.release.windowsExecutable(releaseReq(version, platform, channel), artifactUrl, 1, artifactSize, shared_1.WindowsExecutableKind.Inno, productCode, [shared_1.RebootSpec.Install, shared_1.RebootSpec.Uninstall]);
     }
     else {
         throw new Error("Unhandled keyboard type: " + keyboardType);
@@ -122,7 +124,7 @@ async function run() {
     fs_1.default.writeFileSync("./metadata.toml", payloadMetadata, "utf8");
     core.debug(`Renaming from ${payloadPath} to ${artifactPath}`);
     fs_1.default.renameSync(payloadPath, artifactPath);
-    await shared_2.PahkatUploader.upload(artifactPath, artifactUrl, "./metadata.toml", repoPackageUrl);
+    await shared_1.PahkatUploader.upload(artifactPath, artifactUrl, "./metadata.toml", repoPackageUrl);
 }
 run().catch(err => {
     console.error(err.stack);

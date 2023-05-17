@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isMatchingTag = exports.isCurrentBranch = exports.validateProductCode = exports.nonUndefinedProxy = exports.DivvunBundler = exports.versionAsNightly = exports.ThfstTools = exports.Kbdgen = exports.ProjectJJ = exports.Ssh = exports.PahkatUploader = exports.MacOSPackageTarget = exports.PahkatPrefix = exports.WindowsExecutableKind = exports.RebootSpec = exports.Tar = exports.Bash = exports.DefaultShell = exports.Powershell = exports.Pip = exports.Apt = exports.secrets = exports.DIVVUN_PFX = exports.randomHexBytes = exports.randomString64 = exports.shouldDeploy = exports.divvunConfigDir = exports.tmpDir = exports.RFC3161_URL = void 0;
+exports.getArtifactSize = exports.isMatchingTag = exports.isCurrentBranch = exports.validateProductCode = exports.nonUndefinedProxy = exports.DivvunBundler = exports.versionAsNightly = exports.ThfstTools = exports.Kbdgen = exports.ProjectJJ = exports.Ssh = exports.PahkatUploader = exports.MacOSPackageTarget = exports.PahkatPrefix = exports.WindowsExecutableKind = exports.RebootSpec = exports.Tar = exports.Bash = exports.DefaultShell = exports.Powershell = exports.Pip = exports.Apt = exports.secrets = exports.DIVVUN_PFX = exports.randomHexBytes = exports.randomString64 = exports.shouldDeploy = exports.divvunConfigDir = exports.tmpDir = exports.RFC3161_URL = void 0;
 const exec_1 = require("@actions/exec");
 const core = __importStar(require("@actions/core"));
 const github = __importStar(require("@actions/github"));
@@ -234,8 +234,8 @@ class Tar {
         await io.cp(path_1.default.join(tmpDir.name, "file.tar.xz"), outputPath);
     }
 }
-exports.Tar = Tar;
 Tar.URL_XZ_WINDOWS = "https://tukaani.org/xz/xz-5.2.5-windows.zip";
+exports.Tar = Tar;
 var RebootSpec;
 (function (RebootSpec) {
     RebootSpec["Install"] = "install";
@@ -292,10 +292,10 @@ class PahkatPrefix {
         }
     }
 }
-exports.PahkatPrefix = PahkatPrefix;
 PahkatPrefix.URL_LINUX = "https://pahkat.uit.no/devtools/download/pahkat-prefix-cli?platform=linux&channel=nightly";
 PahkatPrefix.URL_MACOS = "https://pahkat.uit.no/devtools/download/pahkat-prefix-cli?platform=macos&channel=nightly";
 PahkatPrefix.URL_WINDOWS = "https://pahkat.uit.no/devtools/download/pahkat-prefix-cli?platform=windows&channel=nightly";
+exports.PahkatPrefix = PahkatPrefix;
 var MacOSPackageTarget;
 (function (MacOSPackageTarget) {
     MacOSPackageTarget["System"] = "system";
@@ -410,7 +410,6 @@ class PahkatUploader {
         return args;
     }
 }
-exports.PahkatUploader = PahkatUploader;
 PahkatUploader.ARTIFACTS_URL = "https://pahkat.uit.no/artifacts/";
 PahkatUploader.release = {
     async windowsExecutable(release, artifactUrl, installSize, size, kind, productCode, requiresReboot) {
@@ -462,6 +461,7 @@ PahkatUploader.release = {
         return await PahkatUploader.run([...releaseArgs, ...payloadArgs]);
     },
 };
+exports.PahkatUploader = PahkatUploader;
 const CLEAR_KNOWN_HOSTS_SH = `\
 mkdir -pv ~/.ssh
 ssh-keyscan github.com | tee -a ~/.ssh/known_hosts
@@ -775,3 +775,13 @@ function isMatchingTag(tagPattern) {
     return tagPattern.test(value);
 }
 exports.isMatchingTag = isMatchingTag;
+function getArtifactSize(path) {
+    try {
+        const stats = fs_1.default.statSync(path);
+        return stats.size;
+    }
+    catch (err) {
+        return 0;
+    }
+}
+exports.getArtifactSize = getArtifactSize;

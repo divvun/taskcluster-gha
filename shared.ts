@@ -1009,3 +1009,12 @@ export function isMatchingTag(tagPattern: RegExp) {
     value = value.substring(prefix.length)
     return tagPattern.test(value)
 }
+
+export function getArtifactSize(path: string): number {
+    try {
+        const stats = fs.statSync(path)
+        return stats.size
+    } catch (err) {
+        return 0
+    }
+}
