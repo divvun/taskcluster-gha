@@ -775,10 +775,13 @@ function isMatchingTag(tagPattern) {
     return tagPattern.test(value);
 }
 exports.isMatchingTag = isMatchingTag;
-async function getArtifactSize(artifactPath) {
-    const cmd = `wc -c ${artifactPath} | awk '{print $1}'`;
-    let resp = await Bash.runScript(cmd);
-    let size = +resp[0] || 0;
-    return size;
+function getArtifactSize(path) {
+    try {
+        const stats = fs_1.default.statSync(path);
+        return stats.size;
+    }
+    catch (err) {
+        return 0;
+    }
 }
 exports.getArtifactSize = getArtifactSize;

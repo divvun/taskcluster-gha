@@ -69,7 +69,7 @@ async function run() {
             const pathItems = [packageId, version, platform]
             artifactPath = path.join(path.dirname(payloadPath), `${pathItems.join("_")}${ext}`)
             artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${path.basename(artifactPath)}`
-            artifactSize = await getArtifactSize(payloadPath)
+            artifactSize = getArtifactSize(payloadPath)
 
             // Make the nightly channel be used if any channel except for the default.
             let deps: any = { "https://pahkat.uit.no/tools/packages/windivvun": "*" }
@@ -95,7 +95,7 @@ async function run() {
             const pathItems = [packageId, version, platform]
             artifactPath = path.join(path.dirname(payloadPath), `${pathItems.join("_")}${ext}`)
             artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${path.basename(artifactPath)}`
-            artifactSize = await getArtifactSize(payloadPath)
+            artifactSize = getArtifactSize(payloadPath)
 
             // Make the nightly channel be used if any channel except for the default.
             let deps: any = { "https://pahkat.uit.no/tools/packages/macdivvun": "*" }
@@ -120,7 +120,7 @@ async function run() {
             const pathItems = [packageId, version, platform]
             artifactPath = path.join(path.dirname(payloadPath), `${pathItems.join("_")}${ext}`)
             artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${path.basename(artifactPath)}`
-            artifactSize = await getArtifactSize(payloadPath)
+            artifactSize = getArtifactSize(payloadPath)
 
             payloadMetadata = await PahkatUploader.release.tarballPackage(
                 releaseReq(version, platform, {}, channel),

@@ -107,7 +107,7 @@ async function run() {
 
     const artifactPath = path.join(path.dirname(payloadPath), `${pathItems.join("_")}${ext}`)
     const artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${path.basename(artifactPath)}`
-    const artifactSize = await getArtifactSize(payloadPath)
+    const artifactSize = getArtifactSize(payloadPath)
 
     const releaseReq: ReleaseRequest = {
         platform,

@@ -1010,9 +1010,11 @@ export function isMatchingTag(tagPattern: RegExp) {
     return tagPattern.test(value)
 }
 
-export async function getArtifactSize(artifactPath: string) {
-    const cmd = `wc -c ${artifactPath} | awk '{print $1}'`
-    let resp = await Bash.runScript(cmd)
-    let size = +resp[0] || 0
-    return size
+export function getArtifactSize(path: string): number {
+    try {
+        const stats = fs.statSync(path)
+        return stats.size
+    } catch (err) {
+        return 0
+    }
 }
