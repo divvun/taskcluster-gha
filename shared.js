@@ -589,7 +589,7 @@ class Kbdgen {
                 "RUST_LOG": "debug",
             }
         });
-        await Bash.runScript(`ls -R ${abs}`, {
+        await Bash.runScript(`ls -R ${cwd}/output`, {
             cwd,
             env: {}
         });

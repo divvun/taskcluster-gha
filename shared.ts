@@ -720,7 +720,7 @@ export class Kbdgen {
 
         // TESTING
         await Bash.runScript(
-            `ls -R ${abs}`,
+            `ls -R ${cwd}/output`,
             {
                 cwd,
                 env: {}
