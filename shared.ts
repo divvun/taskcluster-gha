@@ -248,7 +248,7 @@ export class Tar {
     }
 }
 
-export enum RebootSpec { Install = "install", Uninstall = "uninstall",  Update = "update" }
+export enum RebootSpec { Install = "install", Uninstall = "uninstall", Update = "update" }
 export enum WindowsExecutableKind { Inno = "inno", Nsis = "nsis", Msi = "msi" }
 
 export class PahkatPrefix {
@@ -596,7 +596,7 @@ export class Kbdgen {
             followSymbolicLinks: false
         })
         const layoutFiles = await globber.glob()
-        var layouts: {[locale: string]: any} = {}
+        var layouts: { [locale: string]: any } = {}
         for (const layoutFile of layoutFiles) {
             const locale = path.parse(layoutFile).base.split('.', 1)[0]
             layouts[locale] = YAML.parse(fs.readFileSync(layoutFile, 'utf-8'))
@@ -611,7 +611,7 @@ export class Kbdgen {
         targetData['version'] = await versionAsNightly(targetData['version'])
 
         fs.writeFileSync(path.resolve(
-            bundlePath, "targets", `${target}.yaml`), YAML.stringify({...targetData}), 'utf8')
+            bundlePath, "targets", `${target}.yaml`), YAML.stringify({ ...targetData }), 'utf8')
 
         return targetData['version']
     }
@@ -625,7 +625,7 @@ export class Kbdgen {
         core.debug("Set build number to " + targetData['build'])
 
         fs.writeFileSync(path.resolve(
-            bundlePath, "targets", `${target}.yaml`), YAML.stringify({...targetData}), 'utf8')
+            bundlePath, "targets", `${target}.yaml`), YAML.stringify({ ...targetData }), 'utf8')
 
         return targetData['build']
     }
@@ -698,6 +698,15 @@ export class Kbdgen {
         const cwd = path.dirname(abs)
         const sec = await secrets()
         // await Bash.runScript("brew install imagemagick")
+
+        // TESTING
+        await Bash.runScript(
+            `ls -R ${abs}`,
+            {
+                cwd,
+                env: {}
+            }
+        )
 
         await Bash.runScript(
             `kbdgen target --output-path output --bundle-path ${abs} android build`,

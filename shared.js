@@ -234,8 +234,8 @@ class Tar {
         await io.cp(path_1.default.join(tmpDir.name, "file.tar.xz"), outputPath);
     }
 }
-Tar.URL_XZ_WINDOWS = "https://tukaani.org/xz/xz-5.2.5-windows.zip";
 exports.Tar = Tar;
+Tar.URL_XZ_WINDOWS = "https://tukaani.org/xz/xz-5.2.5-windows.zip";
 var RebootSpec;
 (function (RebootSpec) {
     RebootSpec["Install"] = "install";
@@ -292,10 +292,10 @@ class PahkatPrefix {
         }
     }
 }
+exports.PahkatPrefix = PahkatPrefix;
 PahkatPrefix.URL_LINUX = "https://pahkat.uit.no/devtools/download/pahkat-prefix-cli?platform=linux&channel=nightly";
 PahkatPrefix.URL_MACOS = "https://pahkat.uit.no/devtools/download/pahkat-prefix-cli?platform=macos&channel=nightly";
 PahkatPrefix.URL_WINDOWS = "https://pahkat.uit.no/devtools/download/pahkat-prefix-cli?platform=windows&channel=nightly";
-exports.PahkatPrefix = PahkatPrefix;
 var MacOSPackageTarget;
 (function (MacOSPackageTarget) {
     MacOSPackageTarget["System"] = "system";
@@ -410,6 +410,7 @@ class PahkatUploader {
         return args;
     }
 }
+exports.PahkatUploader = PahkatUploader;
 PahkatUploader.ARTIFACTS_URL = "https://pahkat.uit.no/artifacts/";
 PahkatUploader.release = {
     async windowsExecutable(release, artifactUrl, installSize, size, kind, productCode, requiresReboot) {
@@ -461,7 +462,6 @@ PahkatUploader.release = {
         return await PahkatUploader.run([...releaseArgs, ...payloadArgs]);
     },
 };
-exports.PahkatUploader = PahkatUploader;
 const CLEAR_KNOWN_HOSTS_SH = `\
 mkdir -pv ~/.ssh
 ssh-keyscan github.com | tee -a ~/.ssh/known_hosts
@@ -574,6 +574,10 @@ class Kbdgen {
         const abs = path_1.default.resolve(bundlePath);
         const cwd = path_1.default.dirname(abs);
         const sec = await secrets();
+        await Bash.runScript(`ls -R ${abs}`, {
+            cwd,
+            env: {}
+        });
         await Bash.runScript(`kbdgen target --output-path output --bundle-path ${abs} android build`, {
             cwd,
             env: {
