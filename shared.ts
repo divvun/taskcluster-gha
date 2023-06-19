@@ -699,15 +699,6 @@ export class Kbdgen {
         const sec = await secrets()
         // await Bash.runScript("brew install imagemagick")
 
-        // TESTING
-        await Bash.runScript(
-            `ls -R ${abs}`,
-            {
-                cwd,
-                env: {}
-            }
-        )
-
         await Bash.runScript(
             `kbdgen target --output-path output --bundle-path ${abs} android build`,
             {
@@ -724,6 +715,15 @@ export class Kbdgen {
                     "PLAY_STORE_ACCOUNT": sec.android.playStoreAccount,
                     "RUST_LOG": "debug",
                 }
+            }
+        )
+
+        // TESTING
+        await Bash.runScript(
+            `ls -R ${abs}`,
+            {
+                cwd,
+                env: {}
             }
         )
 
