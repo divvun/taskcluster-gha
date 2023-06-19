@@ -574,10 +574,6 @@ class Kbdgen {
         const abs = path_1.default.resolve(bundlePath);
         const cwd = path_1.default.dirname(abs);
         const sec = await secrets();
-        await Bash.runScript(`ls -R ${abs}`, {
-            cwd,
-            env: {}
-        });
         await Bash.runScript(`kbdgen target --output-path output --bundle-path ${abs} android build`, {
             cwd,
             env: {
@@ -592,6 +588,10 @@ class Kbdgen {
                 "PLAY_STORE_ACCOUNT": sec.android.playStoreAccount,
                 "RUST_LOG": "debug",
             }
+        });
+        await Bash.runScript(`ls -R ${abs}`, {
+            cwd,
+            env: {}
         });
         return await Kbdgen.resolveOutput(path_1.default.join(cwd, "output", `*_release.apk`));
     }
