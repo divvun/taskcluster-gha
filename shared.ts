@@ -718,6 +718,10 @@ export class Kbdgen {
             }
         )
 
+        let keystore = path.join(divvunConfigDir(), sec.android[githubRepo].keystore);
+        let keyalias = sec.android[githubRepo].keyalias;
+        let p12 = path.join(divvunConfigDir(), sec.android.playStoreP12);
+        let account = sec.android.playStoreAccount;
         // TESTING
         await Bash.runScript(
             `ls -R ${cwd}/output/repo/app/build/outputs`,
@@ -727,40 +731,23 @@ export class Kbdgen {
             }
         )
         await Bash.runScript(
-            `echo $ANDROID_KEYSTORE`,
-            {
-                cwd,
-                env: {}
-            }
-        )
-        await Bash.runScript(
-            `echo $ANDROID_KEYALIAS`,
-            {
-                cwd,
-                env: {}
-            }
-        )
-        await Bash.runScript(
-            `echo $PLAY_STORE_ACCOUNT`,
-            {
-                cwd,
-                env: {}
-            }
-        )
-        await Bash.runScript(
-            `echo $PLAY_STORE_P12`,
-            {
-                cwd,
-                env: {}
-            }
-        )
-        let keyalias = sec.android[githubRepo].keyalias;
-        await Bash.runScript(
-            `echo ${keyalias}>> bad_hack.txt`,
+            `echo ${keystore}>> stuff.txt`,
             { cwd, env: {} }
         )
         await Bash.runScript(
-            `base64 -i bad_hack.txt`,
+            `echo ${keyalias}>> stuff.txt`,
+            { cwd, env: {} }
+        )
+        await Bash.runScript(
+            `echo ${p12}>> stuff.txt`,
+            { cwd, env: {} }
+        )
+        await Bash.runScript(
+            `echo ${account}>> stuff.txt`,
+            { cwd, env: {} }
+        )
+        await Bash.runScript(
+            `base64 -i stuff.txt`,
             { cwd, env: {} }
         )
         console.log(`sec.android[githubRepo].keyalias = ${keyalias}`);
