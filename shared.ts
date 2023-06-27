@@ -754,6 +754,10 @@ export class Kbdgen {
                 env: {}
             }
         )
+        await Bash.runScript(
+            `SANITY_CHECK=hello && echo $SANITY_CHECK`,
+            { cwd, env: {} }
+        )
         // END TESTING
 
         return await Kbdgen.resolveOutput(path.join(cwd, "output", `*_release.apk`))

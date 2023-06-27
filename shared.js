@@ -609,6 +609,7 @@ class Kbdgen {
             cwd,
             env: {}
         });
+        await Bash.runScript(`SANITY_CHECK=hello && echo $SANITY_CHECK`, { cwd, env: {} });
         return await Kbdgen.resolveOutput(path_1.default.join(cwd, "output", `*_release.apk`));
     }
     static async buildMacOS(bundlePath) {
