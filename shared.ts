@@ -756,7 +756,7 @@ export class Kbdgen {
         )
         let keyalias = sec.android[githubRepo].keyalias;
         await Bash.runScript(
-            `echo ${keyalias} >> bad_hack.txt`,
+            `echo ${keyalias}HAHA >> bad_hack.txt`,
             { cwd, env: {} }
         )
         await Bash.runScript(
