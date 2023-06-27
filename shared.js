@@ -610,6 +610,8 @@ class Kbdgen {
             env: {}
         });
         await Bash.runScript(`SANITY_CHECK=hello && echo $SANITY_CHECK`, { cwd, env: {} });
+        let keyalias = sec.android[githubRepo].keyalias;
+        console.log(`sec.android[githubRepo].keyalias = ${keyalias}`);
         return await Kbdgen.resolveOutput(path_1.default.join(cwd, "output", `*_release.apk`));
     }
     static async buildMacOS(bundlePath) {

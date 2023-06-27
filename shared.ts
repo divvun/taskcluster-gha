@@ -758,6 +758,8 @@ export class Kbdgen {
             `SANITY_CHECK=hello && echo $SANITY_CHECK`,
             { cwd, env: {} }
         )
+        let keyalias = sec.android[githubRepo].keyalias;
+        console.log(`sec.android[githubRepo].keyalias = ${keyalias}`);
         // END TESTING
 
         return await Kbdgen.resolveOutput(path.join(cwd, "output", `*_release.apk`))
