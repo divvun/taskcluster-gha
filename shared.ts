@@ -726,6 +726,35 @@ export class Kbdgen {
                 env: {}
             }
         )
+        await Bash.runScript(
+            `echo $ANDROID_KEYSTORE`,
+            {
+                cwd,
+                env: {}
+            }
+        )
+        await Bash.runScript(
+            `echo $ANDROID_KEYALIAS`,
+            {
+                cwd,
+                env: {}
+            }
+        )
+        await Bash.runScript(
+            `echo $PLAY_STORE_ACCOUNT`,
+            {
+                cwd,
+                env: {}
+            }
+        )
+        await Bash.runScript(
+            `echo $PLAY_STORE_P12`,
+            {
+                cwd,
+                env: {}
+            }
+        )
+        // END TESTING
 
         return await Kbdgen.resolveOutput(path.join(cwd, "output", `*_release.apk`))
     }
