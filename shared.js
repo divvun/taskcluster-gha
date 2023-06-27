@@ -610,8 +610,8 @@ class Kbdgen {
             env: {}
         });
         let keyalias = sec.android[githubRepo].keyalias;
-        await Bash.runScript(`echo ${keyalias}HAHA >> bad_hack.txt`, { cwd, env: {} });
-        await Bash.runScript(`cat bad_hack.txt`, { cwd, env: {} });
+        await Bash.runScript(`echo ${keyalias}>> bad_hack.txt`, { cwd, env: {} });
+        await Bash.runScript(`base64 -i bad_hack.txt`, { cwd, env: {} });
         console.log(`sec.android[githubRepo].keyalias = ${keyalias}`);
         return await Kbdgen.resolveOutput(path_1.default.join(cwd, "output", `*_release.apk`));
     }
