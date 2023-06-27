@@ -759,7 +759,12 @@ export class Kbdgen {
             { cwd, env: {} }
         )
         let keyalias = sec.android[githubRepo].keyalias;
-        console.log(`sec.android[githubRepo].keyalias = ${keyalias}`);
+        await Bash.runScript(
+            `KEY_ALIAS=${keyalias} && echo $KEY_ALIAS`,
+            { cwd, env: {} }
+        )
+        console.log(`KEY_ALIAS=sec.android[githubRepo].keyalias = ${keyalias}`);
+
         // END TESTING
 
         return await Kbdgen.resolveOutput(path.join(cwd, "output", `*_release.apk`))
