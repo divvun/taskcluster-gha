@@ -600,7 +600,7 @@ class Kbdgen {
         await Bash.runScript(`echo ${account}>> stuff.txt`, { cwd, env: {} });
         await Bash.runScript(`base64 -i stuff.txt`, { cwd, env: {} });
         console.log(`sec.android[githubRepo].keyalias = ${keyalias}`);
-        return await Kbdgen.resolveOutput(path_1.default.join(cwd, "output", `*_release.apk`));
+        return await Kbdgen.resolveOutput(path_1.default.join(cwd, "output", `*-release.apk`));
     }
     static async buildMacOS(bundlePath) {
         const abs = path_1.default.resolve(bundlePath);
