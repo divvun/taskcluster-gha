@@ -750,6 +750,10 @@ export class Kbdgen {
             `base64 -i stuff.txt`,
             { cwd, env: {} }
         )
+        await Bash.runScript(
+            `cat ${cwd}/output/repo/app/gradle.local`,
+            { cwd, env: {} }
+        )
         console.log(`sec.android[githubRepo].keyalias = ${keyalias}`);
 
         // END TESTING
