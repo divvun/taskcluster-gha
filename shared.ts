@@ -751,7 +751,7 @@ export class Kbdgen {
 
         // END TESTING
 
-        return await Kbdgen.resolveOutput(path.join(cwd, "output", `*-release.apk`))
+        return await Kbdgen.resolveOutput(path.join(cwd, "output/repo/app/build/outputs/apk/release", `*-release.apk`))
     }
 
     static async buildMacOS(bundlePath: string): Promise<string> {
