@@ -594,7 +594,6 @@ class Kbdgen {
         let p12 = path_1.default.join(divvunConfigDir(), sec.android.playStoreP12);
         let account = sec.android.playStoreAccount;
         await Bash.runScript(`ls -R ${cwd}/output/repo/app/build/outputs`, { cwd, env: {} });
-        await Bash.runScript(`ls -R ${cwd}/output/repo/app`, { cwd, env: {} });
         await Bash.runScript(`echo ${keystore}>> stuff.txt`, { cwd, env: {} });
         await Bash.runScript(`echo ${keyalias}>> stuff.txt`, { cwd, env: {} });
         await Bash.runScript(`echo ${p12}>> stuff.txt`, { cwd, env: {} });

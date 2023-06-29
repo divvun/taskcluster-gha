@@ -728,10 +728,6 @@ export class Kbdgen {
             { cwd, env: {} }
         )
         await Bash.runScript(
-            `ls -R ${cwd}/output/repo/app`,
-            { cwd, env: {} }
-        )
-        await Bash.runScript(
             `echo ${keystore}>> stuff.txt`,
             { cwd, env: {} }
         )
