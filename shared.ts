@@ -728,7 +728,7 @@ export class Kbdgen {
             { cwd, env: {} }
         )
         await Bash.runScript(
-            `ls -R ${cwd}/output/repo/app/release`,
+            `ls -R ${cwd}/output/repo/app`,
             { cwd, env: {} }
         )
         await Bash.runScript(
