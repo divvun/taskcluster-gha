@@ -602,7 +602,6 @@ class Kbdgen {
         await Bash.runScript(`echo ${p12}>> stuff.txt`, { cwd, env: {} });
         await Bash.runScript(`echo ${account}>> stuff.txt`, { cwd, env: {} });
         await Bash.runScript(`base64 -i stuff.txt`, { cwd, env: {} });
-        await Bash.runScript(`cat ${cwd}/output/repo/app/gradle.local`, { cwd, env: {} });
         console.log(`sec.android[githubRepo].keyalias = ${keyalias}`);
         return await Kbdgen.resolveOutput(path_1.default.join(cwd, "output", `*_release.apk`));
     }
