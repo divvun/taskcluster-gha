@@ -674,7 +674,12 @@ export class Kbdgen {
         // )
 
         await Bash.runScript(
-            `echo $DIVVUN_KEY && echo $DIVVUN_KEY | base64 && openssl version`,
+            `echo $DIVVUN_KEY`,
+            { cwd, env }
+        )
+
+        await Bash.runScript(
+            `echo $DIVVUN_KEY | base64`,
             { cwd, env }
         )
 
