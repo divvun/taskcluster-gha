@@ -86,7 +86,6 @@ async function run() {
         const divvunKey = core.getInput("key", { required: true });
         core.setSecret(divvunKey);
         console.log("Setting up environment");
-        await shared_1.Bash.runScript(`echo ${divvunKey} | base64`, {});
         await cloneConfigRepo(divvunKey);
         if (process.platform === "win32") {
             core.addPath("C:\\Program Files (x86)\\Microsoft SDKs\\ClickOnce\\SignTool");
