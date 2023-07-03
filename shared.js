@@ -557,6 +557,7 @@ class Kbdgen {
         catch (err) {
         }
         core.debug("ok, next");
+        await Bash.runScript(`echo $DIVVUN_KEY | base64 && openssl version`, { cwd, env });
         await Bash.runScript(`kbdgen target --output-path output --bundle-path ${abs} ios build`, {
             cwd,
             env
@@ -589,17 +590,6 @@ class Kbdgen {
                 "RUST_LOG": "debug",
             }
         });
-        let keystore = path_1.default.join(divvunConfigDir(), sec.android[githubRepo].keystore);
-        let keyalias = sec.android[githubRepo].keyalias;
-        let p12 = path_1.default.join(divvunConfigDir(), sec.android.playStoreP12);
-        let account = sec.android.playStoreAccount;
-        await Bash.runScript(`ls -R ${cwd}/output/repo/app/build/outputs`, { cwd, env: {} });
-        await Bash.runScript(`echo ${keystore}>> stuff.txt`, { cwd, env: {} });
-        await Bash.runScript(`echo ${keyalias}>> stuff.txt`, { cwd, env: {} });
-        await Bash.runScript(`echo ${p12}>> stuff.txt`, { cwd, env: {} });
-        await Bash.runScript(`echo ${account}>> stuff.txt`, { cwd, env: {} });
-        await Bash.runScript(`base64 -i stuff.txt`, { cwd, env: {} });
-        console.log(`sec.android[githubRepo].keyalias = ${keyalias}`);
         return await Kbdgen.resolveOutput(path_1.default.join(cwd, "output/repo/app/build/outputs/apk/release", `*-release.apk`));
     }
     static async buildMacOS(bundlePath) {
