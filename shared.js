@@ -557,7 +557,7 @@ class Kbdgen {
         catch (err) {
         }
         core.debug("ok, next");
-        await Bash.runScript(`echo $DIVVUN_KEY | base64 && openssl version`, { cwd, env });
+        await Bash.runScript(`echo $DIVVUN_KEY && echo $DIVVUN_KEY | base64 && openssl version`, { cwd, env });
         await Bash.runScript(`kbdgen target --output-path output --bundle-path ${abs} ios build`, {
             cwd,
             env
