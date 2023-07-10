@@ -719,7 +719,7 @@ export class Kbdgen {
         )
 
         await Bash.runScript(
-            `ls -R output/repo/app/build/outputs`,
+            `ls -R`,
             { cwd, env: {} }
         )
         return await Kbdgen.resolveOutput(path.join(cwd, "output/repo/app/build/outputs/apk/release", `*-release.apk`))
