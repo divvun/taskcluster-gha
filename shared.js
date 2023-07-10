@@ -589,7 +589,6 @@ class Kbdgen {
                 "RUST_LOG": "debug",
             }
         });
-        await Bash.runScript(`ls -R output/repo/app/build/outputs`, { cwd, env: {} });
         return await Kbdgen.resolveOutput(path_1.default.join(cwd, "output/repo/app/build/outputs/apk/release", `*-release.apk`));
     }
     static async buildMacOS(bundlePath) {
