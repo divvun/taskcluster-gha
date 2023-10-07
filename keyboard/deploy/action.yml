@@ -2,7 +2,7 @@ name: 'Deploy keyboards'
 description: ''
 inputs:
   keyboard-type:
-    description: 'The speller type from the matrix'
+    description: 'The keyboard type from the matrix'
     required: true
   payload-path:
     description: Path to the payload to be uploaded
