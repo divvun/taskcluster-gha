@@ -30,8 +30,8 @@ const shared_1 = require("../../shared");
 const uuid_1 = require("uuid");
 const KBDGEN_NAMESPACE = uuid_1.v5("divvun.no", uuid_1.v5.DNS);
 function layoutTarget(layout) {
-    const targets = layout["targets"] || {};
-    return targets["windows"] || {};
+    const windowsBuild = layout["windows"] || {};
+    return windowsBuild["config"] || {};
 }
 function getKbdId(locale, layout) {
     if ("id" in layout) {
@@ -70,16 +70,15 @@ async function generateKbdInnoFromBundle(bundlePath, buildDir) {
 }
 exports.generateKbdInnoFromBundle = generateKbdInnoFromBundle;
 function addLayoutToInstaller(builder, locale, layout) {
-    const target = layoutTarget(layout);
-    const kbdId = getKbdId(locale, target);
+    const targetConfig = layoutTarget(layout);
+    const kbdId = getKbdId(locale, targetConfig);
     const dllName = kbdId + ".dll";
-    const languageCode = target["locale"] || locale;
-    const languageName = target["languageName"];
+    const languageCode = targetConfig["locale"] || locale;
+    const languageName = targetConfig["languageName"];
     const layoutDisplayName = layout["displayNames"][locale];
     const guidStr = uuid_1.v5(kbdId, KBDGEN_NAMESPACE);
     core.debug("addLayoutToInstaller. Locale: " + locale + " layoutDisplayName: " + layoutDisplayName + " languageCode: " + languageCode + " languageName: " + languageName + " guidStr: " + guidStr + " dllName: " + dllName + " kbdId: " + kbdId);
-    console.log("layout:: ", layout);
-    console.log("target:: ", target);
+    console.log("target:: ", targetConfig);
     if (!layoutDisplayName) {
         throw new Error(`Display name for ${locale} not found`);
     }
