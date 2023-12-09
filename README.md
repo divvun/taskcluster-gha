@@ -16,18 +16,6 @@ Note.. You will need tsc installed globally. On a mac, go ahead and do a
 brew install typescript
 ```
 
-It's never gonna work though. Embrace docker
-
-```bash
-% docker run --rm -ti -v $(pwd):/app node:12 bash
-$ cd app
-$ npm i
-$ npm run build
-```
-
-Push these changes. They will take effect immediately. 
-
-
 # Actions
 
 ## Generic

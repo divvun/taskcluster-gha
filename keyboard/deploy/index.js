@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -14,7 +18,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -62,7 +66,7 @@ function releaseReq(version, platform, channel) {
 async function run() {
     const payloadPath = core.getInput('payload-path', { required: true });
     const keyboardType = core.getInput('keyboard-type', { required: true });
-    const bundlePath = types_1.getBundle();
+    const bundlePath = (0, types_1.getBundle)();
     const channel = core.getInput('channel') || null;
     const pahkatRepo = core.getInput('repo', { required: true });
     const packageId = derivePackageId();
@@ -84,19 +88,19 @@ async function run() {
         const pathItems = [packageId, version, platform];
         artifactPath = path_1.default.join(path_1.default.dirname(payloadPath), `${pathItems.join("_")}${ext}`);
         artifactUrl = `${shared_1.PahkatUploader.ARTIFACTS_URL}${path_1.default.basename(artifactPath)}`;
-        artifactSize = shared_1.getArtifactSize(payloadPath);
+        artifactSize = (0, shared_1.getArtifactSize)(payloadPath);
         payloadMetadata = await shared_1.PahkatUploader.release.macosPackage(releaseReq(version, platform, channel), artifactUrl, 1, artifactSize, pkgId, [shared_1.RebootSpec.Install, shared_1.RebootSpec.Uninstall], [shared_1.MacOSPackageTarget.System, shared_1.MacOSPackageTarget.User]);
     }
     else if (keyboardType === types_1.KeyboardType.Windows) {
         const target = shared_1.Kbdgen.loadTarget(bundlePath, "windows");
-        const productCode = shared_1.validateProductCode(shared_1.WindowsExecutableKind.Inno, target.uuid);
+        const productCode = (0, shared_1.validateProductCode)(shared_1.WindowsExecutableKind.Inno, target.uuid);
         version = target.version;
         platform = "windows";
         const ext = path_1.default.extname(payloadPath);
         const pathItems = [packageId, version, platform];
         artifactPath = path_1.default.join(path_1.default.dirname(payloadPath), `${pathItems.join("_")}${ext}`);
         artifactUrl = `${shared_1.PahkatUploader.ARTIFACTS_URL}${path_1.default.basename(artifactPath)}`;
-        artifactSize = shared_1.getArtifactSize(payloadPath);
+        artifactSize = (0, shared_1.getArtifactSize)(payloadPath);
         payloadMetadata = await shared_1.PahkatUploader.release.windowsExecutable(releaseReq(version, platform, channel), artifactUrl, 1, artifactSize, shared_1.WindowsExecutableKind.Inno, productCode, [shared_1.RebootSpec.Install, shared_1.RebootSpec.Uninstall]);
     }
     else {

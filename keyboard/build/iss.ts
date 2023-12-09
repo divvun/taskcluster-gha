@@ -1,4 +1,3 @@
-import * as core from "@actions/core"
 import path from "path"
 import fs from "fs"
 import { InnoSetupBuilder } from '../../inno'
@@ -62,12 +61,6 @@ function addLayoutToInstaller(builder: InnoSetupBuilder, locale: string, layout:
         const languageName = target["languageName"]
         const layoutDisplayName = layout["displayNames"][locale]
         const guidStr = uuidv5(kbdId, KBDGEN_NAMESPACE)
-        core.debug("addLayoutToInstaller. Locale: " + locale + " layoutDisplayName: " + layoutDisplayName + " languageCode: " + languageCode + " languageName: " + languageName + " guidStr: " + guidStr + " dllName: " + dllName + " kbdId: " + kbdId)
-        console.log("layout:: ", layout)
-        console.log("target:: ", target)
-
-
-
         if (!layoutDisplayName) {
             throw new Error(`Display name for ${locale} not found`)
         }

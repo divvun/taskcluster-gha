@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -14,7 +18,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -110,7 +114,7 @@ async function run() {
     }
     const artifactPath = path_1.default.join(path_1.default.dirname(payloadPath), `${pathItems.join("_")}${ext}`);
     const artifactUrl = `${shared_1.PahkatUploader.ARTIFACTS_URL}${path_1.default.basename(artifactPath)}`;
-    const artifactSize = shared_1.getArtifactSize(payloadPath);
+    const artifactSize = (0, shared_1.getArtifactSize)(payloadPath);
     const releaseReq = {
         platform,
         version,
@@ -148,7 +152,7 @@ async function run() {
             case shared_1.WindowsExecutableKind.Inno:
             case shared_1.WindowsExecutableKind.Nsis:
             case shared_1.WindowsExecutableKind.Msi:
-                productCode = shared_1.validateProductCode(kind, productCode);
+                productCode = (0, shared_1.validateProductCode)(kind, productCode);
                 break;
             case null:
                 core.debug("No Windows kind provided, not validating product code.");
