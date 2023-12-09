@@ -9,25 +9,8 @@ import { v5 as uuidv5 } from 'uuid'
 const KBDGEN_NAMESPACE = uuidv5("divvun.no", uuidv5.DNS)
 
 function layoutTarget(layout: {[key: string]: any}) {
-/** Assumed layout format:
- *
-android:
-    ...
-iOS:
-    ...
-macOS:
-    ...
-windows:
-  config:
-    locale: smn-Latn
-    languageName: Anarâškielâ
-  primary:
-    layers:
-    ...
-    */
-
-    const windowsBuild = layout["windows"] || {}
-    return windowsBuild["config"] || {}
+    const targets = layout["targets"] || {}
+    return targets["windows"] || {}
 }
 
 function getKbdId(locale: string, layout: {[key: string]: any}) {
@@ -72,15 +55,16 @@ export async function generateKbdInnoFromBundle(bundlePath: string, buildDir: st
 }
 
 function addLayoutToInstaller(builder: InnoSetupBuilder, locale: string, layout: {[key: string]: any}) {
-        const targetConfig = layoutTarget(layout)
-        const kbdId = getKbdId(locale, targetConfig)
+        const target = layoutTarget(layout)
+        const kbdId = getKbdId(locale, target)
         const dllName = kbdId + ".dll"
-        const languageCode = targetConfig["locale"] || locale
-        const languageName = targetConfig["languageName"]
+        const languageCode = target["locale"] || locale
+        const languageName = target["languageName"]
         const layoutDisplayName = layout["displayNames"][locale]
         const guidStr = uuidv5(kbdId, KBDGEN_NAMESPACE)
         core.debug("addLayoutToInstaller. Locale: " + locale + " layoutDisplayName: " + layoutDisplayName + " languageCode: " + languageCode + " languageName: " + languageName + " guidStr: " + guidStr + " dllName: " + dllName + " kbdId: " + kbdId)
-        console.log("target:: ", targetConfig)
+        console.log("layout:: ", layout)
+        console.log("target:: ", target)
 
 
 
