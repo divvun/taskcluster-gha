@@ -82,7 +82,7 @@ async function run() {
         var pkgId = target.packageId;
         const lang = github.context.repo.repo.split("keyboard-")[1];
         pkgId = `${pkgId}.keyboardlayout.${lang}`;
-        version = "0.0.0.0.0.0.0.0";
+        version = target.version;
         platform = "macos";
         const ext = path_1.default.extname(payloadPath);
         const pathItems = [packageId, version, platform];

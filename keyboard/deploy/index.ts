@@ -77,8 +77,7 @@ async function run() {
         // `keyboardLayout.%lang%` part (it adds it itself), we have to "fix"
         // the published ID here.
         pkgId = `${pkgId}.keyboardlayout.${lang}`
-        version = "0.0.0.0.0.0.0.0"
-        // version = target.version as string
+        version = target.version as string
         platform = "macos"
 
         const ext = path.extname(payloadPath)
