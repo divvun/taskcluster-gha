@@ -39,6 +39,13 @@ async function run() {
     const keyboardType = core.getInput("keyboard-type", { required: true });
     const nightlyChannel = core.getInput("nightly-channel", { required: true });
     const bundlePath = (0, types_1.getBundle)();
+    const project = shared_1.Kbdgen.loadProjectBundle(bundlePath);
+    const locales = project.locales;
+    core.debug("TESTING: NAMES AND DESCRIPTIONS FROM project.yaml:");
+    for (const locale in locales) {
+        core.debug(`  ${locales[locale].name}`);
+        core.debug(`  ${locales[locale].description}`);
+    }
     if (keyboardType === types_1.KeyboardType.iOS || keyboardType === types_1.KeyboardType.Android) {
         throw new Error(`Unsupported keyboard type for non-meta build: ${keyboardType}`);
     }

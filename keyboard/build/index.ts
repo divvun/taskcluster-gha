@@ -16,6 +16,15 @@ async function run() {
     const nightlyChannel = core.getInput("nightly-channel", { required: true })
     const bundlePath = getBundle()
 
+    // Testing how to get name and description fields
+    const project = Kbdgen.loadProjectBundle(bundlePath)
+    const locales = project.locales
+    core.debug("TESTING: NAMES AND DESCRIPTIONS FROM project.yaml:")
+    for (const locale in locales) {
+        core.debug(`  ${locales[locale].name}`)
+        core.debug(`  ${locales[locale].description}`)
+    }
+
     if (keyboardType === KeyboardType.iOS || keyboardType === KeyboardType.Android) {
         throw new Error(`Unsupported keyboard type for non-meta build: ${keyboardType}`)
     }
