@@ -153,7 +153,7 @@ async function run() {
 // Returns the path to the json file or null if unsuccessful
 function writeMetadataJson(): string | null {
     const bundlePath = getBundle()
-    const project = Kbdgen.loadProjectBundle(bundlePath)
+    const project = Kbdgen.loadProjectBundleWithoutProxy(bundlePath)
     console.log(project)
     const locales = project.locales
     console.log(locales)

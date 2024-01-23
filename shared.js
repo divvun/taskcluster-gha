@@ -508,6 +508,9 @@ class Kbdgen {
     static loadProjectBundle(bundlePath) {
         return nonUndefinedProxy(yaml_1.default.parse(fs_1.default.readFileSync(path_1.default.resolve(bundlePath, "project.yaml"), 'utf8')), true);
     }
+    static loadProjectBundleWithoutProxy(bundlePath) {
+        return yaml_1.default.parse(fs_1.default.readFileSync(path_1.default.resolve(bundlePath, "project.yaml"), 'utf8'));
+    }
     static async loadLayouts(bundlePath) {
         const globber = await glob.create(path_1.default.resolve(bundlePath, "layouts/*.yaml"), {
             followSymbolicLinks: false

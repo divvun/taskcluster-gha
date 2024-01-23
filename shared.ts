@@ -595,6 +595,11 @@ export class Kbdgen {
             path.resolve(bundlePath, "project.yaml"), 'utf8')), true)
     }
 
+    static loadProjectBundleWithoutProxy(bundlePath: string) {
+        return YAML.parse(fs.readFileSync(
+            path.resolve(bundlePath, "project.yaml"), 'utf8'))
+    }
+
     static async loadLayouts(bundlePath: string) {
         const globber = await glob.create(path.resolve(bundlePath, "layouts/*.yaml"), {
             followSymbolicLinks: false
