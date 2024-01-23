@@ -328,7 +328,7 @@ class PahkatUploader {
         }));
         return output;
     }
-    static async upload(artifactPath, artifactUrl, releaseManifestPath, repoUrl) {
+    static async upload(artifactPath, artifactUrl, releaseManifestPath, repoUrl, metadataPath = null) {
         const fileName = path_1.default.parse(artifactPath).base;
         if (process.env["PAHKAT_NO_DEPLOY"] === "true") {
             core.debug("Skipping upload because `PAHKAT_NO_DEPLOY` is true. Creating artifact instead");
@@ -368,6 +368,10 @@ class PahkatUploader {
             "-u", repoUrl,
             "-P", releaseManifestPath,
         ];
+        if (metadataPath != null) {
+            args.push("--metadata");
+            args.push(metadataPath);
+        }
         console.log(await PahkatUploader.run(args));
     }
     static releaseArgs(release) {

@@ -141,10 +141,27 @@ async function run() {
 
     fs.writeFileSync("./metadata.toml", payloadMetadata, "utf8")
 
+    const metadataJsonPath = writeMetadataJson()
+
     core.debug(`Renaming from ${payloadPath} to ${artifactPath}`)
     fs.renameSync(payloadPath, artifactPath)
 
-    await PahkatUploader.upload(artifactPath, artifactUrl, "./metadata.toml", repoPackageUrl)
+    await PahkatUploader.upload(artifactPath, artifactUrl, "./metadata.toml", repoPackageUrl, metadataJsonPath)
+}
+
+// Writes the name and description fields to a json file
+// Returns the path to the json file or null if unsuccessful
+function writeMetadataJson(): string | null {
+    const bundlePath = getBundle()
+    const project = Kbdgen.loadProjectBundle(bundlePath)
+    const locales = project.locales
+    if (!locales) {
+        return null
+    }
+    const localesJson = JSON.stringify(locales)
+    const metadataJsonPath = "./metadata.json"
+    fs.writeFileSync(metadataJsonPath, localesJson, "utf8")
+    return metadataJsonPath
 }
 
 run().catch(err => {
