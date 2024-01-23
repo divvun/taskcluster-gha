@@ -355,7 +355,7 @@ export class PahkatUploader {
         return output
     }
 
-    static async upload(artifactPath: string, artifactUrl: string, releaseManifestPath: string, repoUrl: string, metadataPath: string | null = null) {
+    static async upload(artifactPath: string, artifactUrl: string, releaseManifestPath: string, repoUrl: string, metadataJsonPath: string | null = null) {
         const fileName = path.parse(artifactPath).base
 
         if (process.env["PAHKAT_NO_DEPLOY"] === "true") {
@@ -402,9 +402,9 @@ export class PahkatUploader {
             "-u", repoUrl,
             "-P", releaseManifestPath,
         ]
-        if (metadataPath != null) {
-            args.push("--metadata")
-            args.push(metadataPath)
+        if (metadataJsonPath != null) {
+            args.push("--metadata-json")
+            args.push(metadataJsonPath)
         }
         console.log(await PahkatUploader.run(args))
 

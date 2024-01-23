@@ -154,9 +154,7 @@ async function run() {
 function writeMetadataJson(): string | null {
     const bundlePath = getBundle()
     const project = Kbdgen.loadProjectBundleWithoutProxy(bundlePath)
-    console.log(project)
     const locales = project.locales
-    console.log(locales)
     if (!locales) {
         return null
     }

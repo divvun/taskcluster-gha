@@ -130,9 +130,7 @@ async function run() {
 function writeMetadataJson() {
     const bundlePath = (0, types_1.getBundle)();
     const project = shared_1.Kbdgen.loadProjectBundleWithoutProxy(bundlePath);
-    console.log(project);
     const locales = project.locales;
-    console.log(locales);
     if (!locales) {
         return null;
     }
