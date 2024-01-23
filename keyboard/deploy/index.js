@@ -122,9 +122,22 @@ async function run() {
         throw new Error("artifact url is null; this is a logic error.");
     }
     fs_1.default.writeFileSync("./metadata.toml", payloadMetadata, "utf8");
+    const metadataJsonPath = writeMetadataJson();
     core.debug(`Renaming from ${payloadPath} to ${artifactPath}`);
     fs_1.default.renameSync(payloadPath, artifactPath);
-    await shared_1.PahkatUploader.upload(artifactPath, artifactUrl, "./metadata.toml", repoPackageUrl);
+    await shared_1.PahkatUploader.upload(artifactPath, artifactUrl, "./metadata.toml", repoPackageUrl, metadataJsonPath);
+}
+function writeMetadataJson() {
+    const bundlePath = (0, types_1.getBundle)();
+    const project = shared_1.Kbdgen.loadProjectBundle(bundlePath);
+    const locales = project.locales;
+    if (!locales) {
+        return null;
+    }
+    const localesJson = JSON.stringify(locales);
+    const metadataJsonPath = "./metadata.json";
+    fs_1.default.writeFileSync(metadataJsonPath, localesJson, "utf8");
+    return metadataJsonPath;
 }
 run().catch(err => {
     console.error(err.stack);
