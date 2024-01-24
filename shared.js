@@ -364,9 +364,12 @@ class PahkatUploader {
                 retries += 1;
             }
         }
-        const args = ["upload",
-            "-u", repoUrl,
-            "-P", releaseManifestPath,
+        const args = [
+            "upload",
+            "--url",
+            repoUrl,
+            "--release-meta",
+            releaseMetadataPath,
         ];
         if (metadataJsonPath != null) {
             args.push("--metadata-json");
