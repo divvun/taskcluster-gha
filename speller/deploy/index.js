@@ -125,7 +125,7 @@ async function run() {
         }
         core.debug(`Renaming from ${payloadPath} to ${artifactPath}`);
         fs_1.default.renameSync(payloadPath, artifactPath);
-        await shared_1.PahkatUploader.upload(artifactPath, artifactUrl, "./metadata.toml", repoPackageUrl, manifestPath, "speller");
+        await shared_1.PahkatUploader.upload(artifactPath, artifactUrl, "./metadata.toml", repoPackageUrl, null, manifestPath, "speller");
     }
     catch (error) {
         core.setFailed(error.message);

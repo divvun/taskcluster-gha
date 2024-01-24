@@ -318,13 +318,13 @@ class PahkatUploader {
         }
         assertExit0(await (0, exec_1.exec)(exe, args, {
             env: Object.assign({}, env(), {
-                PAHKAT_API_KEY: sec.pahkat.apiKey,
+                PAHKAT_API_KEY: sec.pahkat.apiKey
             }),
             listeners: {
                 stdout: (data) => {
                     output += data.toString();
-                },
-            },
+                }
+            }
         }));
         return output;
     }
@@ -341,31 +341,15 @@ class PahkatUploader {
         const sec = await secrets();
         console.log(`Uploading ${artifactPath} to S3`);
         var retries = 0;
-        await (0, exec_1.exec)("aws", [
-            "configure",
-            "set",
-            "default.s3.multipart_threshold",
-            "500MB",
-        ]);
+        await (0, exec_1.exec)("aws", ["configure", "set", "default.s3.multipart_threshold", "500MB"]);
         while (true) {
             try {
-                await (0, exec_1.exec)("aws", [
-                    "s3",
-                    "cp",
-                    "--cli-connect-timeout",
-                    "6000",
-                    "--endpoint",
-                    "https://ams3.digitaloceanspaces.com",
-                    "--acl",
-                    "public-read",
-                    artifactPath,
-                    `s3://divvun/pahkat/artifacts/${fileName}`,
-                ], {
+                await (0, exec_1.exec)("aws", ["s3", "cp", "--cli-connect-timeout", "6000", "--endpoint", "https://ams3.digitaloceanspaces.com", "--acl", "public-read", artifactPath, `s3://divvun/pahkat/artifacts/${fileName}`], {
                     env: Object.assign({}, env(), {
                         AWS_ACCESS_KEY_ID: sec.aws.accessKeyId,
                         AWS_SECRET_ACCESS_KEY: sec.aws.secretAccessKey,
-                        AWS_DEFAULT_REGION: "ams3",
-                    }),
+                        AWS_DEFAULT_REGION: "ams3"
+                    })
                 });
                 console.log("Upload successful");
                 break;
@@ -380,12 +364,9 @@ class PahkatUploader {
                 retries += 1;
             }
         }
-        const args = [
-            "upload",
-            "--url",
-            repoUrl,
-            "--release-meta",
-            releaseMetadataPath,
+        const args = ["upload",
+            "--url", repoUrl,
+            "--release-meta", releaseMetadataPath,
         ];
         if (metadataJsonPath != null) {
             args.push("--metadata-json");
@@ -402,7 +383,9 @@ class PahkatUploader {
         console.log(await PahkatUploader.run(args));
     }
     static releaseArgs(release) {
-        const args = ["release"];
+        const args = [
+            "release",
+        ];
         if (release.authors) {
             args.push("--authors");
             for (const item of release.authors) {
@@ -415,7 +398,7 @@ class PahkatUploader {
         }
         if (release.dependencies) {
             const deps = Object.entries(release.dependencies)
-                .map((x) => `${x[0]}::${x[1]}`)
+                .map(x => `${x[0]}::${x[1]}`)
                 .join(",");
             args.push("-d");
             args.push(deps);
@@ -445,14 +428,10 @@ PahkatUploader.release = {
     async windowsExecutable(release, artifactUrl, installSize, size, kind, productCode, requiresReboot) {
         const payloadArgs = [
             "windows-executable",
-            "-i",
-            (installSize | 0).toString(),
-            "-s",
-            (size | 0).toString(),
-            "-p",
-            productCode,
-            "-u",
-            artifactUrl,
+            "-i", (installSize | 0).toString(),
+            "-s", (size | 0).toString(),
+            "-p", productCode,
+            "-u", artifactUrl
         ];
         if (kind != null) {
             payloadArgs.push("-k");
@@ -468,14 +447,10 @@ PahkatUploader.release = {
     async macosPackage(release, artifactUrl, installSize, size, pkgId, requiresReboot, targets) {
         const payloadArgs = [
             "macos-package",
-            "-i",
-            (installSize | 0).toString(),
-            "-s",
-            (size | 0).toString(),
-            "-p",
-            pkgId,
-            "-u",
-            artifactUrl,
+            "-i", (installSize | 0).toString(),
+            "-s", (size | 0).toString(),
+            "-p", pkgId,
+            "-u", artifactUrl
         ];
         if (targets.length > 0) {
             payloadArgs.push("-t");
@@ -491,12 +466,9 @@ PahkatUploader.release = {
     async tarballPackage(release, artifactUrl, installSize, size) {
         const payloadArgs = [
             "tarball-package",
-            "-i",
-            (installSize | 0).toString(),
-            "-s",
-            (size | 0).toString(),
-            "-u",
-            artifactUrl,
+            "-i", (installSize | 0).toString(),
+            "-s", (size | 0).toString(),
+            "-u", artifactUrl
         ];
         const releaseArgs = PahkatUploader.releaseArgs(release);
         return await PahkatUploader.run([...releaseArgs, ...payloadArgs]);
