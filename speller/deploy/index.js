@@ -52,7 +52,8 @@ function releaseReq(version, platform, dependencies, channel) {
 async function run() {
     try {
         const spellerType = core.getInput('speller-type', { required: true });
-        const manifest = loadManifest(core.getInput('speller-manifest-path', { required: true }));
+        const manifestPath = core.getInput('speller-manifest-path', { required: true });
+        const manifest = loadManifest(manifestPath);
         const payloadPath = core.getInput('payload-path', { required: true });
         const version = core.getInput('version', { required: true });
         const channel = core.getInput('channel') || null;
@@ -124,7 +125,7 @@ async function run() {
         }
         core.debug(`Renaming from ${payloadPath} to ${artifactPath}`);
         fs_1.default.renameSync(payloadPath, artifactPath);
-        await shared_1.PahkatUploader.upload(artifactPath, artifactUrl, "./metadata.toml", repoPackageUrl);
+        await shared_1.PahkatUploader.upload(artifactPath, artifactUrl, "./metadata.toml", repoPackageUrl, manifestPath, "speller");
     }
     catch (error) {
         core.setFailed(error.message);

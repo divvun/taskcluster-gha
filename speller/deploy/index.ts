@@ -42,7 +42,8 @@ function releaseReq(version: string, platform: string, dependencies: any, channe
 async function run() {
     try {
         const spellerType = core.getInput('speller-type', { required: true }) as SpellerType
-        const manifest = loadManifest(core.getInput('speller-manifest-path', { required: true }))
+        const manifestPath = core.getInput('speller-manifest-path', { required: true })
+        const manifest = loadManifest(manifestPath)
         const payloadPath = core.getInput('payload-path', { required: true })
         const version = core.getInput('version', { required: true });
         const channel = core.getInput('channel') || null;
@@ -152,7 +153,14 @@ async function run() {
         core.debug(`Renaming from ${payloadPath} to ${artifactPath}`)
         fs.renameSync(payloadPath, artifactPath)
 
-        await PahkatUploader.upload(artifactPath, artifactUrl, "./metadata.toml", repoPackageUrl)
+        await PahkatUploader.upload(
+          artifactPath,
+          artifactUrl,
+          "./metadata.toml",
+          repoPackageUrl,
+          manifestPath,
+          "speller"
+        );
     }
     catch (error: any) {
         core.setFailed(error.message);

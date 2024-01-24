@@ -355,7 +355,7 @@ export class PahkatUploader {
         return output
     }
 
-    static async upload(artifactPath: string, artifactUrl: string, releaseManifestPath: string, repoUrl: string, metadataJsonPath: string | null = null) {
+    static async upload(artifactPath: string, artifactUrl: string, releaseMetadataPath: string, repoUrl: string, metadataJsonPath: string | null = null, manifestTomlPath: string| null = null, packageType: string | null = null) {
         const fileName = path.parse(artifactPath).base
 
         if (process.env["PAHKAT_NO_DEPLOY"] === "true") {
@@ -364,8 +364,8 @@ export class PahkatUploader {
             return
         }
 
-        if (!fs.existsSync(releaseManifestPath)) {
-            throw new Error(`Missing required payload manifest at path ${releaseManifestPath}`)
+        if (!fs.existsSync(releaseMetadataPath)) {
+            throw new Error(`Missing required payload manifest at path ${releaseMetadataPath}`)
         }
 
         const sec = await secrets()
@@ -405,6 +405,14 @@ export class PahkatUploader {
         if (metadataJsonPath != null) {
             args.push("--metadata-json")
             args.push(metadataJsonPath)
+        }
+        if (manifestTomlPath != null) {
+            args.push("--manifest-toml")
+            args.push(manifestTomlPath)
+        }
+        if (packageType != null) {
+            args.push("--package-type")
+            args.push(packageType)
         }
         console.log(await PahkatUploader.run(args))
 
