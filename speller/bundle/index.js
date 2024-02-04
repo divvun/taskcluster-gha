@@ -37,12 +37,10 @@ const lib_1 = require("../../inno-setup/lib");
 const inno_1 = require("../../inno");
 async function run() {
     const version = core.getInput("version", { required: true });
-    console.log(`VERSION !!!: ${version}`);
     const spellerType = core.getInput("speller-type", { required: true });
     const manifest = toml_1.default.parse(fs_1.default.readFileSync(core.getInput("speller-manifest-path", { required: true }), "utf8"));
     const spellerPaths = (0, shared_1.nonUndefinedProxy)(JSON.parse(core.getInput("speller-paths", { required: true })), true);
     let { spellername } = manifest;
-    console.log(`SPELLERNAME !!!: ${spellername}`);
     const packageId = (0, manifest_1.derivePackageId)(spellerType);
     const langTag = (0, manifest_1.deriveLangTag)(false);
     if (spellerType == manifest_1.SpellerType.Mobile) {

@@ -100,6 +100,7 @@ async function run() {
     }
     else if (spellerManifest != null) {
         core.debug("Getting version from speller manifest");
+        core.debug(`spellerversion: ${spellerManifest.spellerversion}`);
         version = spellerManifest.spellerversion;
     }
     else if (plistPath != null) {
