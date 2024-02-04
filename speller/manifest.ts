@@ -17,8 +17,8 @@ export type WindowsSpellerManifest = {
 }
 
 export type SpellerManifest = {
-    name: string,
-    version: string,
+    spellername: string,
+    spellerversion: string,
     windows: WindowsSpellerManifest,
     macos: {
         system_pkg_id: string,

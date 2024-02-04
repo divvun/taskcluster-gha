@@ -37,10 +37,12 @@ const lib_1 = require("../../inno-setup/lib");
 const inno_1 = require("../../inno");
 async function run() {
     const version = core.getInput("version", { required: true });
+    console.log(`VERSION !!!: ${version}`);
     const spellerType = core.getInput("speller-type", { required: true });
     const manifest = toml_1.default.parse(fs_1.default.readFileSync(core.getInput("speller-manifest-path", { required: true }), "utf8"));
     const spellerPaths = (0, shared_1.nonUndefinedProxy)(JSON.parse(core.getInput("speller-paths", { required: true })), true);
-    let { name } = manifest;
+    let { spellername } = manifest;
+    console.log(`SPELLERNAME !!!: ${spellername}`);
     const packageId = (0, manifest_1.derivePackageId)(spellerType);
     const langTag = (0, manifest_1.deriveLangTag)(false);
     if (spellerType == manifest_1.SpellerType.Mobile) {
@@ -69,7 +71,7 @@ async function run() {
             zhfstPaths.push(out);
         }
         const builder = new inno_1.InnoSetupBuilder();
-        builder.name(`${name} Speller`)
+        builder.name(`${spellername} Speller`)
             .version(version)
             .publisher("Universitetet i Tromsø - Norges arktiske universitet")
             .url("http://divvun.no/")
@@ -113,7 +115,7 @@ async function run() {
         core.setOutput("payload-path", payloadPath);
     }
     else if (spellerType == manifest_1.SpellerType.MacOS) {
-        const payloadPath = await shared_1.DivvunBundler.bundleMacOS(name, version, packageId, langTag, spellerPaths);
+        const payloadPath = await shared_1.DivvunBundler.bundleMacOS(spellername, version, packageId, langTag, spellerPaths);
         core.setOutput("payload-path", payloadPath);
     }
 }

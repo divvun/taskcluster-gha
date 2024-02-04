@@ -19,7 +19,7 @@ async function run() {
         core.getInput("speller-paths", { required: true })
     ), true) as SpellerPaths
 
-    let { name } = manifest
+    let { spellername } = manifest
     const packageId = derivePackageId(spellerType)
     const langTag = deriveLangTag(false)
 
@@ -56,7 +56,7 @@ async function run() {
 
         const builder = new InnoSetupBuilder()
 
-        builder.name(`${name} Speller`)
+        builder.name(`${spellername} Speller`)
             .version(version)
             .publisher("Universitetet i Tromsø - Norges arktiske universitet")
             .url("http://divvun.no/")
@@ -116,7 +116,7 @@ async function run() {
         const payloadPath = await makeInstaller("./install.iss")
         core.setOutput("payload-path", payloadPath)
     } else if (spellerType == SpellerType.MacOS) {
-        const payloadPath = await DivvunBundler.bundleMacOS(name, version, packageId, langTag, spellerPaths)
+        const payloadPath = await DivvunBundler.bundleMacOS(spellername, version, packageId, langTag, spellerPaths)
         core.setOutput("payload-path", payloadPath)
     }
 }

@@ -95,7 +95,7 @@ async function run() {
         version = process.env.GitBuildVersionSimple
     } else if (spellerManifest != null) {
         core.debug("Getting version from speller manifest")
-        version = spellerManifest.version
+        version = spellerManifest.spellerversion
     } else if (plistPath != null) {
         core.debug('Getting version from plist')
         const result = (await Bash.runScript(`/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "${plistPath}"`)).join("").trim()
