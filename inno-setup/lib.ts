@@ -13,7 +13,8 @@ export async function makeInstaller(issPath: string, defines: string[] = []): Pr
         `/fd sha256 ` +
         `/tr ${RFC3161_URL} ` +
         `/td sha256 ` +
-        `/sha1 ${sec.windows.sslCertThumbprintSandbox}`
+        `/sha1 ${sec.windows.sslCertThumbprintSandbox} ` +
+        `$f`
         // ` <filepath here> `
         // `/f ${DIVVUN_PFX} ` +
         // `/p ${sec.windows.pfxPassword} $f"`

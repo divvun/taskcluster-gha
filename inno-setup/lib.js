@@ -38,7 +38,8 @@ async function makeInstaller(issPath, defines = []) {
         `/fd sha256 ` +
         `/tr ${shared_1.RFC3161_URL} ` +
         `/td sha256 ` +
-        `/sha1 ${sec.windows.sslCertThumbprintSandbox}`;
+        `/sha1 ${sec.windows.sslCertThumbprintSandbox} ` +
+        `$f`;
     const installerOutput = tmp_1.default.dirSync({ keep: true }).name;
     await exec.exec(`${ISCC_PATH} ${signCmd}`, [
         "/Qp", `/O${installerOutput}`, ...defines, issPath
