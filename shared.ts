@@ -12,7 +12,8 @@ import * as tmp from 'tmp'
 import crypto from "crypto"
 import { Security, downloadAppleWWDRCA } from './security'
 
-export const RFC3161_URL = "http://timestamp.sectigo.com"
+// export const WINDOWS_SIGNING_HASH_ALGORITHM = "sha256"
+export const RFC3161_URL = "http://ts.ssl.com"
 const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(() => resolve(), ms));
 
 export function tmpDir() {

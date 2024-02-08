@@ -35,9 +35,10 @@ const ISCC_PATH = `"C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe"`;
 async function makeInstaller(issPath, defines = []) {
     const sec = await (0, shared_1.secrets)();
     const signCmd = `/S"signtool=signtool.exe sign ` +
-        `/t ${shared_1.RFC3161_URL} ` +
-        `/f ${shared_1.DIVVUN_PFX} ` +
-        `/p ${sec.windows.pfxPassword} $f"`;
+        `/fd sha256 ` +
+        `/tr ${shared_1.RFC3161_URL} ` +
+        `/td sha256 ` +
+        `/sha1 ${sec.windows.sslCertThumbprintSandbox}`;
     const installerOutput = tmp_1.default.dirSync({ keep: true }).name;
     await exec.exec(`${ISCC_PATH} ${signCmd}`, [
         "/Qp", `/O${installerOutput}`, ...defines, issPath

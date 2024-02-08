@@ -40,7 +40,7 @@ const yaml_1 = __importDefault(require("yaml"));
 const tmp = __importStar(require("tmp"));
 const crypto_1 = __importDefault(require("crypto"));
 const security_1 = require("./security");
-exports.RFC3161_URL = "http://timestamp.sectigo.com";
+exports.RFC3161_URL = "http://ts.ssl.com";
 const delay = (ms) => new Promise((resolve) => setTimeout(() => resolve(), ms));
 function tmpDir() {
     const dir = process.env["RUNNER_TEMP"];

@@ -10,9 +10,13 @@ export async function makeInstaller(issPath: string, defines: string[] = []): Pr
     const sec = await secrets()
 
     const signCmd = `/S"signtool=signtool.exe sign ` +
-        `/t ${RFC3161_URL} ` +
-        `/f ${DIVVUN_PFX} ` +
-        `/p ${sec.windows.pfxPassword} $f"`
+        `/fd sha256 ` +
+        `/tr ${RFC3161_URL} ` +
+        `/td sha256 ` +
+        `/sha1 ${sec.windows.sslCertThumbprintSandbox}`
+        // ` <filepath here> `
+        // `/f ${DIVVUN_PFX} ` +
+        // `/p ${sec.windows.pfxPassword} $f"`
 
     const installerOutput = tmp.dirSync({ keep: true }).name
 
