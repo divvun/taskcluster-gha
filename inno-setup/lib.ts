@@ -21,7 +21,8 @@ export async function makeInstaller(issPath: string, defines: string[] = []): Pr
 
     const installerOutput = tmp.dirSync({ keep: true }).name
 
-    await exec.exec(`${ISCC_PATH} ${signCmd}`, [
+    // await exec.exec(`${ISCC_PATH} ${signCmd}`, [
+    await exec.exec(`${ISCC_PATH}`, [
         "/Qp", `/O${installerOutput}`, ...defines, issPath
     ])
 

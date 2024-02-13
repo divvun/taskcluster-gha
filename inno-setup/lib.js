@@ -41,7 +41,7 @@ async function makeInstaller(issPath, defines = []) {
         `/sha1 ${sec.windows.sslCertThumbprintSandbox} ` +
         `$f`;
     const installerOutput = tmp_1.default.dirSync({ keep: true }).name;
-    await exec.exec(`${ISCC_PATH} ${signCmd}`, [
+    await exec.exec(`${ISCC_PATH}`, [
         "/Qp", `/O${installerOutput}`, ...defines, issPath
     ]);
     return path_1.default.join(installerOutput, "install.exe");
