@@ -104,8 +104,6 @@ class InnoSetupBuilder {
             Compression: "lzma",
             SolidCompression: "yes",
             WizardStyle: "modern",
-            SignedUninstaller: "yes",
-            SignTool: "signtool",
             MinVersion: this.data.minVersion || "6.3.9200",
             ArchitecturesAllowed: "x86 x64",
             ArchitecturesInstallIn64BitMode: "x64",
