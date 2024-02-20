@@ -14,7 +14,9 @@ async function run() {
     const sec = await secrets()
     const isInstaller = core.getInput('isInstaller') || false
 
-    if (process.platform == "win32") {
+    if (process.platform == "linux") {
+       core.debug("~~~HELLO FROM A BRANCH~~~") 
+    } else if (process.platform == "win32") {
         // TODO: update this to use SSL.com api
         await exec.exec("signtool.exe", [
             "sign", "/t", RFC3161_URL,
