@@ -19,40 +19,40 @@ async function run() {
     core.debug(`Code signing: ${filePath}`);
 
     if (process.platform == "win32") {
-      // Send to our internal API for code signing
-      if (!fileName) {
-        throw new Error("Name of file to be signed not found");
-      }
+        // Send to our internal API for code signing
+        if (!fileName) {
+            throw new Error("Name of file to be signed not found");
+        }
 
-      // URL to send the request
-      const url = "http://192.168.122.1:5000/";
+        try {
+            // URL to send the request
+            const url = "http://192.168.122.1:5000/";
 
-      // Create form data
-      const formData = new FormData();
-      formData.append("file", fs.createReadStream(filePath));
+            // Create form data
+            const formData = new FormData();
+            formData.append("file", fs.createReadStream(filePath));
 
-      // Send POST request
-      fetch(url, {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => {
-          // Ensure the response is ok
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          // Read the response as binary
-          return response.arrayBuffer();
-        })
-        .then((buffer) => {
-          // Save the response to a file
-          const signedOutputDir = tmp.dirSync({ keep: true }).name;
-          const signedOutputPath = path.join(signedOutputDir, fileName);
-          fs.writeFileSync(signedOutputPath, Buffer.from(buffer));
-        })
-        .catch((error) => {
+            // Send POST request
+            const response = await fetch(url, {
+                method: "POST",
+                body: formData,
+            })
+
+            // Ensure the response is ok
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            // Read the response as binary
+            const buffer = response.arrayBuffer();
+            // Save the response to a file
+            const signedOutputDir = tmp.dirSync({ keep: true }).name;
+            const signedOutputPath = path.join(signedOutputDir, fileName);
+            fs.writeFileSync(signedOutputPath, Buffer.from(buffer));
+            core.debug(`Signed file saved to ${signedOutputPath}`);
+            core.setOutput("signed-path", signedOutputPath);
+        } catch (error) {
           console.error(
-            "There was a problem with your fetch operation:",
+            "There was a problem with the codesigning fetch operation:",
             error
           );
         });
