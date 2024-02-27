@@ -30,19 +30,43 @@ const core = __importStar(require("@actions/core"));
 const exec = __importStar(require("@actions/exec"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
+const node_fetch_1 = __importDefault(require("node-fetch"));
+const form_data_1 = __importDefault(require("form-data"));
+const tmp_1 = __importDefault(require("tmp"));
 const shared_1 = require("../shared");
 const delay = (ms) => new Promise((resolve) => setTimeout(() => resolve(), ms));
 async function run() {
-    const filePath = path_1.default.resolve(core.getInput('path', { required: true }));
+    const filePath = path_1.default.resolve(core.getInput("path", { required: true }));
     const fileName = filePath.split(path_1.default.sep).pop();
     const sec = await (0, shared_1.secrets)();
-    const isInstaller = core.getInput('isInstaller') || false;
+    const isInstaller = core.getInput("isInstaller") || false;
+    core.debug(`Code signing: ${filePath}`);
     if (process.platform == "win32") {
-        await exec.exec("signtool.exe", [
-            "sign", "/t", shared_1.RFC3161_URL,
-            "/f", shared_1.DIVVUN_PFX, "/p", sec.windows.pfxPassword,
-            filePath
-        ]);
+        if (!fileName) {
+            throw new Error("Name of file to be signed not found");
+        }
+        try {
+            const url = "http://192.168.122.1:5000/";
+            const formData = new form_data_1.default();
+            formData.append("file", fs_1.default.createReadStream(filePath));
+            const response = await (0, node_fetch_1.default)(url, {
+                method: "POST",
+                body: formData,
+            });
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            const buffer = response.arrayBuffer();
+            const signedOutputDir = tmp_1.default.dirSync({ keep: true }).name;
+            const signedOutputPath = path_1.default.join(signedOutputDir, fileName);
+            fs_1.default.writeFileSync(signedOutputPath, Buffer.from(buffer));
+            core.debug(`Signed file saved to ${signedOutputPath}`);
+            core.setOutput("signed-path", signedOutputPath);
+        }
+        catch (error) {
+            console.error("There was a problem with the codesigning fetch operation:", error);
+        }
+        ;
     }
     else if (process.platform === "darwin") {
         const { developerAccount, appPassword, appCodeSignId, installerCodeSignId, teamId } = sec.macos;

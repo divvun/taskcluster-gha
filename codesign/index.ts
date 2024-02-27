@@ -55,7 +55,7 @@ async function run() {
             "There was a problem with the codesigning fetch operation:",
             error
           );
-        });
+        };
     } else if (process.platform === "darwin") {
         const { developerAccount, appPassword, appCodeSignId, installerCodeSignId, teamId } = sec.macos
 
