@@ -36,11 +36,13 @@ const tmp_1 = __importDefault(require("tmp"));
 const shared_1 = require("../shared");
 const delay = (ms) => new Promise((resolve) => setTimeout(() => resolve(), ms));
 async function run() {
+    core.debug("~~~Running code signing~~~");
     const filePath = path_1.default.resolve(core.getInput("path", { required: true }));
+    core.debug(`  filePath: ${filePath}`);
     const fileName = filePath.split(path_1.default.sep).pop();
     const sec = await (0, shared_1.secrets)();
     const isInstaller = core.getInput("isInstaller") || false;
-    core.debug(`Code signing: ${filePath}`);
+    core.debug("  past variable defs");
     if (process.platform == "win32") {
         if (!fileName) {
             throw new Error("Name of file to be signed not found");
