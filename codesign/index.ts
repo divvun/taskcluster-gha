@@ -12,11 +12,13 @@ import { secrets, DIVVUN_PFX, Bash, RFC3161_URL } from "../shared"
 const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(() => resolve(), ms))
 
 async function run() {
+    core.debug("~~~Running code signing~~~");
     const filePath = path.resolve(core.getInput("path", { required: true }));
+    core.debug(`  filePath: ${filePath}`);
     const fileName = filePath.split(path.sep).pop();
     const sec = await secrets();
     const isInstaller = core.getInput("isInstaller") || false;
-    core.debug(`Code signing: ${filePath}`);
+    core.debug("  past variable defs");
 
     if (process.platform == "win32") {
         // Send to our internal API for code signing
