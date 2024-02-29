@@ -51,7 +51,6 @@ function releaseReq(version, platform, dependencies, channel) {
 }
 async function run() {
     try {
-        core.debug("~~~Running deploy~~~");
         const spellerType = core.getInput('speller-type', { required: true });
         const manifestPath = core.getInput('speller-manifest-path', { required: true });
         const manifest = loadManifest(manifestPath);
@@ -59,8 +58,6 @@ async function run() {
         const version = core.getInput('version', { required: true });
         const channel = core.getInput('channel') || null;
         const nightlyChannel = core.getInput("nightly-channel", { required: true });
-        core.debug(`  payloadPath: ${payloadPath}`);
-        return;
         const pahkatRepo = core.getInput('repo', { required: true });
         const packageId = (0, manifest_1.derivePackageId)(spellerType);
         const repoPackageUrl = `${pahkatRepo}packages/${packageId}`;
