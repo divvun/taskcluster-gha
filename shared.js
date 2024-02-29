@@ -371,7 +371,7 @@ class PahkatUploader {
         }
         const args = ["upload",
             "--url", repoUrl,
-            "--release-meta-path", releaseMetadataPath,
+            "--release-meta", releaseMetadataPath,
         ];
         if (metadataJsonPath != null) {
             args.push("--metadata-json");

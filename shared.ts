@@ -408,7 +408,7 @@ export class PahkatUploader {
         // Step 2: Push the manifest to the server.
         const args = ["upload",
             "--url", repoUrl,
-            "--release-meta-path", releaseMetadataPath,
+            "--release-meta", releaseMetadataPath,
         ]
         if (metadataJsonPath != null) {
             args.push("--metadata-json")
