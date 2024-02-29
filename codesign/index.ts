@@ -18,12 +18,8 @@ async function run() {
     core.debug("  past variable defs");
 
     if (process.platform == "win32") {
-        // TODO: update this to use SSL.com api
-        await exec.exec("signtool.exe", [
-            "sign", "/t", RFC3161_URL,
-            "/f", DIVVUN_PFX, "/p", sec.windows.pfxPassword,
-            filePath
-        ])
+        core.debug("  Windows platform");
+        exec.exec("curl", ["google.com"]);
     } else if (process.platform === "darwin") {
         const { developerAccount, appPassword, appCodeSignId, installerCodeSignId, teamId } = sec.macos
 
