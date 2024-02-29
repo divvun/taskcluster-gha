@@ -41,11 +41,8 @@ async function run() {
     const isInstaller = core.getInput("isInstaller") || false;
     core.debug("  past variable defs");
     if (process.platform == "win32") {
-        await exec.exec("signtool.exe", [
-            "sign", "/t", shared_1.RFC3161_URL,
-            "/f", shared_1.DIVVUN_PFX, "/p", sec.windows.pfxPassword,
-            filePath
-        ]);
+        core.debug("  Windows platform");
+        exec.exec("curl", ["google.com"]);
     }
     else if (process.platform === "darwin") {
         const { developerAccount, appPassword, appCodeSignId, installerCodeSignId, teamId } = sec.macos;
