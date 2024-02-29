@@ -366,8 +366,6 @@ export class PahkatUploader {
     static async upload(artifactPath: string, artifactUrl: string, releaseMetadataPath: string, repoUrl: string, metadataJsonPath: string | null = null, manifestTomlPath: string| null = null, packageType: string | null = null) {
         const fileName = path.parse(artifactPath).base
 
-        exec("pahkat-uploader.exe", ["--version"])
-
         if (process.env["PAHKAT_NO_DEPLOY"] === "true") {
             core.debug("Skipping upload because `PAHKAT_NO_DEPLOY` is true. Creating artifact instead")
             process.stdout.write(`::create-artifact path=${fileName}::${artifactPath}`)
