@@ -114,7 +114,7 @@ async function run() {
         core.debug(builder.build())
 
         const payloadPath = await makeInstaller("./install.iss")
-        core.setOutput("path", payloadPath)
+        core.setOutput("payload-path", payloadPath)
         core.debug(`Installer created at ${payloadPath}`)
     } else if (spellerType == SpellerType.MacOS) {
         const payloadPath = await DivvunBundler.bundleMacOS(spellername, version, packageId, langTag, spellerPaths)
