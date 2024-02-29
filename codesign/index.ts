@@ -3,9 +3,6 @@ import * as exec from '@actions/exec'
 
 import fs from "fs"
 import path from "path"
-import fetch from "node-fetch"
-import FormData from "form-data"
-import tmp from "tmp"
 
 import { secrets, DIVVUN_PFX, Bash, RFC3161_URL } from "../shared"
 
@@ -21,43 +18,12 @@ async function run() {
     core.debug("  past variable defs");
 
     if (process.platform == "win32") {
-        // Send to our internal API for code signing
-        if (!fileName) {
-            throw new Error("Name of file to be signed not found");
-        }
-
-        try {
-            // URL to send the request
-            const url = "http://192.168.122.1:5000/";
-
-            // Create form data
-            const formData = new FormData();
-            formData.append("file", fs.createReadStream(filePath));
-
-            // Send POST request
-            const response = await fetch(url, {
-                method: "POST",
-                body: formData,
-            })
-
-            // Ensure the response is ok
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-            // Read the response as binary
-            const buffer = response.arrayBuffer();
-            // Save the response to a file
-            const signedOutputDir = tmp.dirSync({ keep: true }).name;
-            const signedOutputPath = path.join(signedOutputDir, fileName);
-            fs.writeFileSync(signedOutputPath, Buffer.from(buffer));
-            core.debug(`Signed file saved to ${signedOutputPath}`);
-            core.setOutput("signed-path", signedOutputPath);
-        } catch (error) {
-          console.error(
-            "There was a problem with the codesigning fetch operation:",
-            error
-          );
-        };
+        // TODO: update this to use SSL.com api
+        await exec.exec("signtool.exe", [
+            "sign", "/t", RFC3161_URL,
+            "/f", DIVVUN_PFX, "/p", sec.windows.pfxPassword,
+            filePath
+        ])
     } else if (process.platform === "darwin") {
         const { developerAccount, appPassword, appCodeSignId, installerCodeSignId, teamId } = sec.macos
 
