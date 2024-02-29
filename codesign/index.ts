@@ -21,7 +21,7 @@ async function run() {
         core.debug("  Windows platform");
         const signedFilePath = `${filePath}.signed`;
         exec.exec("curl", ["-v", "-X", "POST", "-F", `"file=@${filePath}"`, "http://192.168.122.1:5000", "-o", `${signedFilePath}`]);
-        exec.exec("ls");
+        exec.exec("dir");
         core.setOutput("signed-path", signedFilePath);
     } else if (process.platform === "darwin") {
         const { developerAccount, appPassword, appCodeSignId, installerCodeSignId, teamId } = sec.macos
