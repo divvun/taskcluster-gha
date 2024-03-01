@@ -16,12 +16,8 @@ Note.. You will need tsc installed globally. On a mac, go ahead and do a
 brew install typescript
 ```
 
-# Actions
+# Developing
 
-## Generic
-### Setup
-### Deploy
+You should do development using a branch so you don't break CI nor pollute the `main` branch with the inevitable slew of test commits.
 
-## Speller
-### Setup
-### Deploy
+Detailed instructions for the CI development process are in the [`taskcluster-scripts` repo](https://github.com/divvun/taskcluster-scripts/#developing)
