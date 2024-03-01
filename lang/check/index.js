@@ -27,6 +27,7 @@ const shared_1 = require("../../shared");
 const core = __importStar(require("@actions/core"));
 const path = __importStar(require("path"));
 async function run() {
+    core.debug("~~~HELLO FROM windows-codesign BRANCH~~~");
     const githubWorkspace = process.env.GITHUB_WORKSPACE;
     if (githubWorkspace == null) {
         core.setFailed("GITHUB_WORKSPACE not set, failing.");
