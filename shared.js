@@ -246,13 +246,13 @@ var RebootSpec;
     RebootSpec["Install"] = "install";
     RebootSpec["Uninstall"] = "uninstall";
     RebootSpec["Update"] = "update";
-})(RebootSpec = exports.RebootSpec || (exports.RebootSpec = {}));
+})(RebootSpec || (exports.RebootSpec = RebootSpec = {}));
 var WindowsExecutableKind;
 (function (WindowsExecutableKind) {
     WindowsExecutableKind["Inno"] = "inno";
     WindowsExecutableKind["Nsis"] = "nsis";
     WindowsExecutableKind["Msi"] = "msi";
-})(WindowsExecutableKind = exports.WindowsExecutableKind || (exports.WindowsExecutableKind = {}));
+})(WindowsExecutableKind || (exports.WindowsExecutableKind = WindowsExecutableKind = {}));
 class PahkatPrefix {
     static get path() {
         return path_1.default.join(tmpDir(), "pahkat-prefix");
@@ -305,7 +305,7 @@ var MacOSPackageTarget;
 (function (MacOSPackageTarget) {
     MacOSPackageTarget["System"] = "system";
     MacOSPackageTarget["User"] = "user";
-})(MacOSPackageTarget = exports.MacOSPackageTarget || (exports.MacOSPackageTarget = {}));
+})(MacOSPackageTarget || (exports.MacOSPackageTarget = MacOSPackageTarget = {}));
 class PahkatUploader {
     static async run(args) {
         if (process.env["PAHKAT_NO_DEPLOY"] === "true") {

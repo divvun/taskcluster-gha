@@ -38,7 +38,7 @@ var KeyboardType;
     KeyboardType["ChromeOS"] = "keyboard-chromeos";
     KeyboardType["M17n"] = "keyboard-m17n";
     KeyboardType["X11"] = "keyboard-x11";
-})(KeyboardType = exports.KeyboardType || (exports.KeyboardType = {}));
+})(KeyboardType || (exports.KeyboardType = KeyboardType = {}));
 function getBundle() {
     const override = core.getInput("bundle-path");
     if (override) {
