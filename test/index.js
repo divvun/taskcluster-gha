@@ -25,9 +25,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(require("@actions/core"));
 async function run() {
-    const input = core.getInput("test");
     core.debug("!!!RUNNING TEST ACTION!!!");
-    core.debug(`  input: ${input}`);
 }
 run().catch(err => {
     console.error(err.stack);
