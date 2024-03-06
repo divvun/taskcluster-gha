@@ -114,6 +114,7 @@ async function run() {
         core.debug(builder.build())
 
         const payloadPath = await makeInstaller("./install.iss")
+        core.setOutput("hmm", "ci breaks without this extra arbitrary input")
         core.setOutput("payload-path", payloadPath)
         core.debug(`Installer created at ${payloadPath}`)
     } else if (spellerType == SpellerType.MacOS) {
