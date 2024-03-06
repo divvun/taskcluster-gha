@@ -1,0 +1,9 @@
+name: 'Testing'
+description: ''
+inputs:
+  test:
+    description: To test sending to inputs
+    required: true
+runs:
+  using: 'node12'
+  main: 'index.js'
