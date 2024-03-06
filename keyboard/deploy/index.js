@@ -125,7 +125,12 @@ async function run() {
     const metadataJsonPath = writeMetadataJson();
     core.debug(`Renaming from ${payloadPath} to ${artifactPath}`);
     fs_1.default.renameSync(payloadPath, artifactPath);
-    await shared_1.PahkatUploader.upload(artifactPath, artifactUrl, "./metadata.toml", repoPackageUrl, metadataJsonPath);
+    if (keyboardType === types_1.KeyboardType.Windows) {
+        await shared_1.PahkatUploader.upload(artifactPath, artifactUrl, "./metadata.toml", repoPackageUrl);
+    }
+    else {
+        await shared_1.PahkatUploader.upload(artifactPath, artifactUrl, "./metadata.toml", repoPackageUrl, metadataJsonPath);
+    }
 }
 function writeMetadataJson() {
     const bundlePath = (0, types_1.getBundle)();
