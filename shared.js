@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getArtifactSize = exports.isMatchingTag = exports.isCurrentBranch = exports.validateProductCode = exports.nonUndefinedProxy = exports.DivvunBundler = exports.versionAsNightly = exports.ThfstTools = exports.Kbdgen = exports.ProjectJJ = exports.Ssh = exports.PahkatUploader = exports.MacOSPackageTarget = exports.PahkatPrefix = exports.WindowsExecutableKind = exports.RebootSpec = exports.Tar = exports.Bash = exports.DefaultShell = exports.Powershell = exports.Pip = exports.Apt = exports.secrets = exports.DIVVUN_PFX = exports.randomHexBytes = exports.randomString64 = exports.shouldDeploy = exports.divvunConfigDir = exports.tmpDir = exports.RFC3161_URL = void 0;
+exports.getArtifactSize = exports.isMatchingTag = exports.isCurrentBranch = exports.validateProductCode = exports.nonUndefinedProxy = exports.DivvunBundler = exports.versionAsNightly = exports.ThfstTools = exports.Kbdgen = exports.ProjectJJ = exports.Ssh = exports.PahkatUploader = exports.MacOSPackageTarget = exports.PahkatPrefix = exports.WindowsExecutableKind = exports.RebootSpec = exports.Tar = exports.Bash = exports.DefaultShell = exports.Powershell = exports.Pipx = exports.Pip = exports.Apt = exports.secrets = exports.DIVVUN_PFX = exports.randomHexBytes = exports.randomString64 = exports.shouldDeploy = exports.divvunConfigDir = exports.tmpDir = exports.RFC3161_URL = void 0;
 const exec_1 = require("@actions/exec");
 const core = __importStar(require("@actions/core"));
 const github = __importStar(require("@actions/github"));
@@ -132,6 +132,24 @@ class Pip {
     }
 }
 exports.Pip = Pip;
+class Pipx {
+    static async bootstrap(requiresSudo) {
+        if (requiresSudo) {
+            assertExit0(await (0, exec_1.exec)("sudo", ["pipx", "ensurepath", "--global"], { env: env() }));
+        }
+        assertExit0(await (0, exec_1.exec)("pipx", ["ensurepath"], { env: env() }));
+        core.addPath(path_1.default.join(process.env.HOME, ".local", "bin"));
+    }
+    static async install(packages, requiresSudo) {
+        if (requiresSudo) {
+            assertExit0(await (0, exec_1.exec)("sudo", ["pipx", "install", "--global", ...packages], { env: env() }));
+        }
+        else {
+            assertExit0(await (0, exec_1.exec)("pipx", ["install", ...packages], { env: env() }));
+        }
+    }
+}
+exports.Pipx = Pipx;
 class Powershell {
     static async runScript(script, opts = {}) {
         const thisEnv = Object.assign({}, env(), opts.env);
@@ -241,13 +259,13 @@ var RebootSpec;
     RebootSpec["Install"] = "install";
     RebootSpec["Uninstall"] = "uninstall";
     RebootSpec["Update"] = "update";
-})(RebootSpec = exports.RebootSpec || (exports.RebootSpec = {}));
+})(RebootSpec || (exports.RebootSpec = RebootSpec = {}));
 var WindowsExecutableKind;
 (function (WindowsExecutableKind) {
     WindowsExecutableKind["Inno"] = "inno";
     WindowsExecutableKind["Nsis"] = "nsis";
     WindowsExecutableKind["Msi"] = "msi";
-})(WindowsExecutableKind = exports.WindowsExecutableKind || (exports.WindowsExecutableKind = {}));
+})(WindowsExecutableKind || (exports.WindowsExecutableKind = WindowsExecutableKind = {}));
 class PahkatPrefix {
     static get path() {
         return path_1.default.join(tmpDir(), "pahkat-prefix");
@@ -300,7 +318,7 @@ var MacOSPackageTarget;
 (function (MacOSPackageTarget) {
     MacOSPackageTarget["System"] = "system";
     MacOSPackageTarget["User"] = "user";
-})(MacOSPackageTarget = exports.MacOSPackageTarget || (exports.MacOSPackageTarget = {}));
+})(MacOSPackageTarget || (exports.MacOSPackageTarget = MacOSPackageTarget = {}));
 class PahkatUploader {
     static async run(args) {
         if (process.env["PAHKAT_NO_DEPLOY"] === "true") {
