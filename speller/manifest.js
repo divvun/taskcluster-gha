@@ -30,7 +30,7 @@ var SpellerType;
     SpellerType["MacOS"] = "speller-macos";
     SpellerType["Mobile"] = "speller-mobile";
     SpellerType["Windows"] = "speller-windows";
-})(SpellerType = exports.SpellerType || (exports.SpellerType = {}));
+})(SpellerType || (exports.SpellerType = SpellerType = {}));
 function deriveLangTag(force3) {
     const lang = github.context.repo.repo.split("lang-")[1];
     if (force3) {

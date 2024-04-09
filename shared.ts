@@ -117,6 +117,24 @@ export class Pip {
     }
 }
 
+export class Pipx {
+    static async bootstrap(requiresSudo: boolean) {
+        if (requiresSudo) {
+            assertExit0(await exec("sudo", ["pipx", "ensurepath", "--global"], { env: env() }))
+        }
+        assertExit0(await exec("pipx", ["ensurepath"], { env: env() }))
+        core.addPath(path.join(process.env.HOME!, ".local", "bin"))
+    }
+
+    static async install(packages: string[], requiresSudo: boolean) {
+        if (requiresSudo) {
+            assertExit0(await exec("sudo", ["pipx", "install", "--global", ...packages], { env: env() }))
+        } else {
+            assertExit0(await exec("pipx", ["install", ...packages], { env: env() }))
+        }
+    }
+}
+
 export class Powershell {
     static async runScript(script: string, opts: {
         cwd?: string,
