@@ -51,7 +51,7 @@ async function run() {
         "wget",
         "zip"
     ];
-    const devPackages = ["foma", "hfst", "libhfst-dev", "cg3-dev", "divvun-gramcheck", "python3-corpustools", "python3-lxml", "python3-yaml"];
+    const devPackages = ["foma", "hfst", "libhfst-dev", "cg3-dev", "divvun-gramcheck", "python3-corpustools", "python3-lxml", "python3-yaml", "python3.10-venv"];
     const pipPackages = ["pipx"];
     const pipxPackages = ["git+https://github.com/divvun/giellaltgramtools"];
     if (requiresApertium) {
