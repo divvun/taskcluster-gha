@@ -110,13 +110,13 @@ export class Apt {
 export class Pip {
     static async install(packages: string[]) {
         assertExit0(await exec("pip3", ["install", "--user", ...packages], { env: env() }))
+        core.addPath(path.join(process.env.HOME!, ".local", "bin"))
     }
 }
 
 export class Pipx {
     static async ensurepath() {
         assertExit0(await exec("pipx", ["ensurepath"], { env: env() }))
-        core.addPath(path.join(process.env.HOME!, ".local", "bin"))
     }
 
     static async install(packages: string[]) {

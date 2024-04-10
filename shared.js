@@ -124,13 +124,13 @@ exports.Apt = Apt;
 class Pip {
     static async install(packages) {
         assertExit0(await (0, exec_1.exec)("pip3", ["install", "--user", ...packages], { env: env() }));
+        core.addPath(path_1.default.join(process.env.HOME, ".local", "bin"));
     }
 }
 exports.Pip = Pip;
 class Pipx {
     static async ensurepath() {
         assertExit0(await (0, exec_1.exec)("pipx", ["ensurepath"], { env: env() }));
-        core.addPath(path_1.default.join(process.env.HOME, ".local", "bin"));
     }
     static async install(packages) {
         assertExit0(await (0, exec_1.exec)("pipx", ["install", ...packages], { env: env() }));
