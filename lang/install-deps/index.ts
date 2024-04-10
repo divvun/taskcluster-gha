@@ -1,5 +1,5 @@
 import * as core from "@actions/core"
-import { Apt, Pipx, ProjectJJ, Ssh } from "../../shared"
+import { Apt, Pip, Pipx, ProjectJJ, Ssh } from "../../shared"
 
 function getSudo() {
     const x = core.getInput("sudo")
@@ -27,7 +27,6 @@ async function run() {
         "build-essential",
         "gawk",
         "git",
-        "pipx",
         "pkg-config",
         "python3-pip",
         "wget",
@@ -35,7 +34,7 @@ async function run() {
     ]
 
     const devPackages = ["foma", "hfst", "libhfst-dev", "cg3-dev", "divvun-gramcheck", "python3-corpustools", "python3-lxml", "python3-yaml"]
-
+    const pipPackages = ["pipx"]
     const pipxPackages = ["https://github.com/divvun/giellaltgramtools"]
 
     if (requiresApertium) {
@@ -49,8 +48,9 @@ async function run() {
     await Apt.install(basePackages, requiresSudo)
     await ProjectJJ.addNightlyToApt(requiresSudo)
     await Apt.install(devPackages, requiresSudo)
-    await Pipx.bootstrap(requiresSudo)
-    await Pipx.install(pipxPackages, requiresSudo)
+    await Pip.install(pipPackages)
+    await Pipx.ensurepath()
+    await Pipx.install(pipxPackages)
     await Ssh.cleanKnownHosts()
 }
 
