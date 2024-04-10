@@ -122,31 +122,18 @@ class Apt {
 }
 exports.Apt = Apt;
 class Pip {
-    static async install(packages, requiresSudo) {
-        if (requiresSudo) {
-            assertExit0(await (0, exec_1.exec)("sudo", ["pip3", "install", ...packages], { env: env() }));
-        }
-        else {
-            assertExit0(await (0, exec_1.exec)("pip3", ["install", ...packages], { env: env() }));
-        }
+    static async install(packages) {
+        assertExit0(await (0, exec_1.exec)("pip3", ["install", "--user", ...packages], { env: env() }));
     }
 }
 exports.Pip = Pip;
 class Pipx {
-    static async bootstrap(requiresSudo) {
-        if (requiresSudo) {
-            assertExit0(await (0, exec_1.exec)("sudo", ["pipx", "ensurepath", "--global"], { env: env() }));
-        }
+    static async ensurepath() {
         assertExit0(await (0, exec_1.exec)("pipx", ["ensurepath"], { env: env() }));
         core.addPath(path_1.default.join(process.env.HOME, ".local", "bin"));
     }
-    static async install(packages, requiresSudo) {
-        if (requiresSudo) {
-            assertExit0(await (0, exec_1.exec)("sudo", ["pipx", "install", "--global", ...packages], { env: env() }));
-        }
-        else {
-            assertExit0(await (0, exec_1.exec)("pipx", ["install", ...packages], { env: env() }));
-        }
+    static async install(packages) {
+        assertExit0(await (0, exec_1.exec)("pipx", ["install", ...packages], { env: env() }));
     }
 }
 exports.Pipx = Pipx;

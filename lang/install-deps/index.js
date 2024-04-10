@@ -46,14 +46,14 @@ async function run() {
         "build-essential",
         "gawk",
         "git",
-        "pipx",
         "pkg-config",
         "python3-pip",
         "wget",
         "zip"
     ];
     const devPackages = ["foma", "hfst", "libhfst-dev", "cg3-dev", "divvun-gramcheck", "python3-corpustools", "python3-lxml", "python3-yaml"];
-    const pipxPackages = ["https://github.com/divvun/giellaltgramtools"];
+    const pipPackages = ["pipx"];
+    const pipxPackages = ["git+https://github.com/divvun/giellaltgramtools"];
     if (requiresApertium) {
         devPackages.push("apertium");
         devPackages.push("apertium-dev");
@@ -64,8 +64,9 @@ async function run() {
     await shared_1.Apt.install(basePackages, requiresSudo);
     await shared_1.ProjectJJ.addNightlyToApt(requiresSudo);
     await shared_1.Apt.install(devPackages, requiresSudo);
-    await shared_1.Pipx.bootstrap(requiresSudo);
-    await shared_1.Pipx.install(pipxPackages, requiresSudo);
+    await shared_1.Pip.install(pipPackages);
+    await shared_1.Pipx.ensurepath();
+    await shared_1.Pipx.install(pipxPackages);
     await shared_1.Ssh.cleanKnownHosts();
 }
 run().catch(err => {
