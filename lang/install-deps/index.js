@@ -64,8 +64,8 @@ async function run() {
     await shared_1.Apt.install(basePackages, requiresSudo);
     await shared_1.ProjectJJ.addNightlyToApt(requiresSudo);
     await shared_1.Apt.install(devPackages, requiresSudo);
-    await shared_1.Pipx.bootstrap(requiresApertium);
-    await shared_1.Pipx.install(pipxPackages, requiresApertium);
+    await shared_1.Pipx.bootstrap(requiresSudo);
+    await shared_1.Pipx.install(pipxPackages, requiresSudo);
     await shared_1.Ssh.cleanKnownHosts();
 }
 run().catch(err => {

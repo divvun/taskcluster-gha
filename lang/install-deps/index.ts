@@ -49,8 +49,8 @@ async function run() {
     await Apt.install(basePackages, requiresSudo)
     await ProjectJJ.addNightlyToApt(requiresSudo)
     await Apt.install(devPackages, requiresSudo)
-    await Pipx.bootstrap(requiresApertium)
-    await Pipx.install(pipxPackages, requiresApertium)
+    await Pipx.bootstrap(requiresSudo)
+    await Pipx.install(pipxPackages, requiresSudo)
     await Ssh.cleanKnownHosts()
 }
 
