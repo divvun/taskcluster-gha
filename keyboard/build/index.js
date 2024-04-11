@@ -82,7 +82,7 @@ async function run() {
     else {
         throw new Error(`Unhandled keyboard type: ${keyboardType}`);
     }
-    core.setOutput("hmm", "without this output, windows can't see the following 'payload-path' output and CI breaks for some reason");
+    core.setOutput("DON'T DELETE", "without this output, windows can't see the following 'payload-path' output and CI breaks for some reason");
     core.setOutput("payload-path", payloadPath);
 }
 run().catch(err => {
