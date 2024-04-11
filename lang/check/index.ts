@@ -3,8 +3,6 @@ import * as core from "@actions/core"
 import * as path from "path"
 
 async function run() {
-    // TODO: Remove this when done testing
-    core.debug("~~~HELLO FROM windows-codesign BRANCH~~~")
     const githubWorkspace = process.env.GITHUB_WORKSPACE
     if (githubWorkspace == null) {
         core.setFailed("GITHUB_WORKSPACE not set, failing.")

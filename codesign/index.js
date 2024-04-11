@@ -33,13 +33,10 @@ const path_1 = __importDefault(require("path"));
 const shared_1 = require("../shared");
 const delay = (ms) => new Promise((resolve) => setTimeout(() => resolve(), ms));
 async function run() {
-    core.debug("~~~Running code signing~~~");
     const filePath = path_1.default.resolve(core.getInput("path", { required: true }));
-    core.debug(`  filePath: ${filePath}`);
     const fileName = filePath.split(path_1.default.sep).pop();
     const sec = await (0, shared_1.secrets)();
     const isInstaller = core.getInput("isInstaller") || false;
-    core.debug("  past variable defs");
     if (process.platform == "win32") {
         core.debug("  Windows platform");
         exec.exec("curl", ["-v", "-X", "POST", "-F", `file=@${filePath}`, "http://192.168.122.1:5000", "-o", `${filePath}`]);
