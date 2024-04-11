@@ -87,10 +87,7 @@ async function run() {
         core.setSecret(divvunKey);
         console.log("Setting up environment");
         await cloneConfigRepo(divvunKey);
-        if (process.platform === "win32") {
-            core.addPath("C:\\Program Files (x86)\\Microsoft SDKs\\ClickOnce\\SignTool");
-        }
-        else if (process.platform == "darwin") {
+        if (process.platform == "darwin") {
             await setupMacOSKeychain();
             await bootstrapDependencies();
         }

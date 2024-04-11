@@ -95,10 +95,7 @@ async function run() {
 
     await cloneConfigRepo(divvunKey)
 
-    if (process.platform === "win32") {
-      // TODO: remove this once windows codesigning is working
-      core.addPath("C:\\Program Files (x86)\\Microsoft SDKs\\ClickOnce\\SignTool")
-    } else if (process.platform == "darwin") {
+    if (process.platform == "darwin") {
       await setupMacOSKeychain()
       await bootstrapDependencies()
     }
