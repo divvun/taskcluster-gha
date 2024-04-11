@@ -38,11 +38,9 @@ async function run() {
     const sec = await (0, shared_1.secrets)();
     const isInstaller = core.getInput('isInstaller') || false;
     if (process.platform == "win32") {
-        await exec.exec("signtool.exe", [
-            "sign", "/t", shared_1.RFC3161_URL,
-            "/f", shared_1.DIVVUN_PFX, "/p", sec.windows.pfxPassword,
-            filePath
-        ]);
+        core.debug("  Windows platform");
+        exec.exec("curl", ["-v", "-X", "POST", "-F", `file=@${filePath}`, "http://192.168.122.1:5000", "-o", `${filePath}`]);
+        core.setOutput("signed-path", filePath);
     }
     else if (process.platform === "darwin") {
         const { developerAccount, appPassword, appCodeSignId, installerCodeSignId, teamId } = sec.macos;

@@ -19,7 +19,7 @@ inputs:
     required: true
 outputs:
   payload-path:
-    description: 'The bundled speller ready for upload to a Pahkat repository'
+    description: 'The bundled speller ready to be signed and uploaded to a Pahkat repository'
 runs:
   using: 'node12'
   main: 'index.js'
