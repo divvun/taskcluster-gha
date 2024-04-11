@@ -153,27 +153,15 @@ async function run() {
         core.debug(`Renaming from ${payloadPath} to ${artifactPath}`)
         fs.renameSync(payloadPath, artifactPath)
 
-        if (spellerType === SpellerType.Windows) {
-            // Temporarily use the old PahkatUploader API on Windows
-            // This is because, since CI was broken, Windows never got the new version of pahkat-uploader
-            // TODO: remove this once the new version of pahkat-uploader is available for Windows
-            await PahkatUploader.upload(
-                artifactPath,
-                artifactUrl,
-                "./metadata.toml",
-                repoPackageUrl
-            );
-        } else {
-            await PahkatUploader.upload(
-                artifactPath,
-                artifactUrl,
-                "./metadata.toml",
-                repoPackageUrl,
-                null,
-                manifestPath,
-                "speller"
-            );
-        }
+        await PahkatUploader.upload(
+            artifactPath,
+            artifactUrl,
+            "./metadata.toml",
+            repoPackageUrl,
+            null,
+            manifestPath,
+            "speller"
+        );
     }
     catch (error: any) {
         core.setFailed(error.message);

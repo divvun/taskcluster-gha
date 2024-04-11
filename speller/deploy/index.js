@@ -125,12 +125,7 @@ async function run() {
         }
         core.debug(`Renaming from ${payloadPath} to ${artifactPath}`);
         fs_1.default.renameSync(payloadPath, artifactPath);
-        if (spellerType === manifest_1.SpellerType.Windows) {
-            await shared_1.PahkatUploader.upload(artifactPath, artifactUrl, "./metadata.toml", repoPackageUrl);
-        }
-        else {
-            await shared_1.PahkatUploader.upload(artifactPath, artifactUrl, "./metadata.toml", repoPackageUrl, null, manifestPath, "speller");
-        }
+        await shared_1.PahkatUploader.upload(artifactPath, artifactUrl, "./metadata.toml", repoPackageUrl, null, manifestPath, "speller");
     }
     catch (error) {
         core.setFailed(error.message);
