@@ -17,7 +17,7 @@ async function run() {
     if (process.platform == "win32") {
         core.debug("  Windows platform");
         // Call our internal API to sign the file
-        // This overrites the unsigned file
+        // This overwrites the unsigned file
         exec.exec("curl", ["-v", "-X", "POST", "-F", `file=@${filePath}`, "http://192.168.122.1:5000", "-o", `${filePath}`]);
         core.setOutput("signed-path", filePath);
     } else if (process.platform === "darwin") {
