@@ -724,6 +724,10 @@ export class Kbdgen {
         const sec = await secrets()
         // await Bash.runScript("brew install imagemagick")
 
+        core.debug(`ANDROID_NDK_HOME: ${process.env.ANDROID_NDK_HOME}`)
+        core.debug(`ANDROID_SDK_ROOT: ${process.env.ANDROID_SDK_ROOT}`)
+        core.debug(`ANDROID_HOME: ${process.env.ANDROID_HOME}`)
+
         await Bash.runScript(
             `kbdgen target --output-path output --bundle-path ${abs} android build`,
             {

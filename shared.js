@@ -594,6 +594,9 @@ class Kbdgen {
         const abs = path_1.default.resolve(bundlePath);
         const cwd = path_1.default.dirname(abs);
         const sec = await secrets();
+        core.debug(`ANDROID_NDK_HOME: ${process.env.ANDROID_NDK_HOME}`);
+        core.debug(`ANDROID_SDK_ROOT: ${process.env.ANDROID_SDK_ROOT}`);
+        core.debug(`ANDROID_HOME: ${process.env.ANDROID_HOME}`);
         await Bash.runScript(`kbdgen target --output-path output --bundle-path ${abs} android build`, {
             cwd,
             env: {
