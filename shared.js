@@ -687,6 +687,7 @@ class DivvunBundler {
             "-i", `Developer ID Installer: The University of Tromso (2K5J2584NX)`,
             "-n", sec.macos.developerAccount,
             "-p", sec.macos.appPassword,
+            "-d", sec.macos.teamId,
             "speller",
             "-f", langTag,
             ...deriveBundlerArgs(spellerPaths)
