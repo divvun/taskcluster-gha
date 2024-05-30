@@ -33,7 +33,8 @@ async function run() {
         defines = rawDefines.split(" ")
             .map(x => `/D${x.trim()}`);
     }
-    const installerOutput = await (0, lib_1.makeInstaller)(issPath, defines);
+    const sign = true;
+    const installerOutput = await (0, lib_1.makeInstaller)(issPath, defines, sign);
     console.log("Installer generated.\n\n");
     core.setOutput("installer-path", installerOutput);
 }
