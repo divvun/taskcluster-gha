@@ -30,10 +30,8 @@ exports.makeInstaller = void 0;
 const exec = __importStar(require("@actions/exec"));
 const tmp_1 = __importDefault(require("tmp"));
 const path_1 = __importDefault(require("path"));
-const shared_1 = require("../shared");
 const ISCC_PATH = `"C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe"`;
 async function makeInstaller(issPath, defines = []) {
-    const sec = await (0, shared_1.secrets)();
     const installerOutput = tmp_1.default.dirSync({ keep: true }).name;
     const signCmd = `/S"signtool=curl -v ` +
         `-F file=@$f ` +
