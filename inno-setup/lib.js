@@ -30,18 +30,14 @@ exports.makeInstaller = void 0;
 const exec = __importStar(require("@actions/exec"));
 const tmp_1 = __importDefault(require("tmp"));
 const path_1 = __importDefault(require("path"));
-const shared_1 = require("../shared");
 const ISCC_PATH = `"C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe"`;
 async function makeInstaller(issPath, defines = []) {
-    const sec = await (0, shared_1.secrets)();
-    const signCmd = `/S"signtool=signtool.exe sign ` +
-        `/fd sha256 ` +
-        `/tr ${shared_1.RFC3161_URL} ` +
-        `/td sha256 ` +
-        `/sha1 ${sec.windows.sslCertThumbprintSandbox} ` +
-        `$f`;
     const installerOutput = tmp_1.default.dirSync({ keep: true }).name;
-    await exec.exec(`${ISCC_PATH}`, [
+    const signCmd = `/S"signtool=curl -v ` +
+        `-F file=@$f ` +
+        `http://192.168.122.1:5000 ` +
+        `-o $f"`;
+    await exec.exec(`${ISCC_PATH} ${signCmd}`, [
         "/Qp", `/O${installerOutput}`, ...defines, issPath
     ]);
     return path_1.default.join(installerOutput, "install.exe");
