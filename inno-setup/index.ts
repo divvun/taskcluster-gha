@@ -10,7 +10,7 @@ async function run() {
         defines = rawDefines.split(" ")
             .map(x => `/D${x.trim()}`)
     }
-   
+    
     const installerOutput = await makeInstaller(issPath, defines)
 
     // Workaround for setOutput being dumb and perhaps adding ::set-output
