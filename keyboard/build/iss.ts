@@ -8,8 +8,8 @@ import { v5 as uuidv5 } from 'uuid'
 const KBDGEN_NAMESPACE = uuidv5("divvun.no", uuidv5.DNS)
 
 function layoutTarget(layout: {[key: string]: any}) {
-    const targets = layout["targets"] || {}
-    return targets["windows"] || {}
+    const targets = layout["windows"] || {}
+    return targets["config"] || {}
 }
 
 function getKbdId(locale: string, layout: {[key: string]: any}) {

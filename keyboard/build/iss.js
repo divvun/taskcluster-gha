@@ -10,8 +10,8 @@ const shared_1 = require("../../shared");
 const uuid_1 = require("uuid");
 const KBDGEN_NAMESPACE = (0, uuid_1.v5)("divvun.no", uuid_1.v5.DNS);
 function layoutTarget(layout) {
-    const targets = layout["targets"] || {};
-    return targets["windows"] || {};
+    const targets = layout["windows"] || {};
+    return targets["config"] || {};
 }
 function getKbdId(locale, layout) {
     if ("id" in layout) {
