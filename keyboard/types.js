@@ -26,8 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.KeyboardType = void 0;
-exports.getBundle = getBundle;
+exports.getBundle = exports.KeyboardType = void 0;
 const core = __importStar(require("@actions/core"));
 const fs_1 = __importDefault(require("fs"));
 var KeyboardType;
@@ -52,3 +51,4 @@ function getBundle() {
     }
     throw new Error("Did not find bundle with .kbdgen suffix.");
 }
+exports.getBundle = getBundle;

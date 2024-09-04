@@ -26,19 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DivvunBundler = exports.ThfstTools = exports.Kbdgen = exports.ProjectJJ = exports.Ssh = exports.PahkatUploader = exports.MacOSPackageTarget = exports.PahkatPrefix = exports.WindowsExecutableKind = exports.RebootSpec = exports.Tar = exports.Bash = exports.DefaultShell = exports.Powershell = exports.Pipx = exports.Pip = exports.Apt = exports.DIVVUN_PFX = exports.RFC3161_URL = void 0;
-exports.tmpDir = tmpDir;
-exports.divvunConfigDir = divvunConfigDir;
-exports.shouldDeploy = shouldDeploy;
-exports.randomString64 = randomString64;
-exports.randomHexBytes = randomHexBytes;
-exports.secrets = secrets;
-exports.versionAsNightly = versionAsNightly;
-exports.nonUndefinedProxy = nonUndefinedProxy;
-exports.validateProductCode = validateProductCode;
-exports.isCurrentBranch = isCurrentBranch;
-exports.isMatchingTag = isMatchingTag;
-exports.getArtifactSize = getArtifactSize;
+exports.getArtifactSize = exports.isMatchingTag = exports.isCurrentBranch = exports.validateProductCode = exports.nonUndefinedProxy = exports.DivvunBundler = exports.versionAsNightly = exports.ThfstTools = exports.Kbdgen = exports.ProjectJJ = exports.Ssh = exports.PahkatUploader = exports.MacOSPackageTarget = exports.PahkatPrefix = exports.WindowsExecutableKind = exports.RebootSpec = exports.Tar = exports.Bash = exports.DefaultShell = exports.Powershell = exports.Pipx = exports.Pip = exports.Apt = exports.secrets = exports.DIVVUN_PFX = exports.randomHexBytes = exports.randomString64 = exports.shouldDeploy = exports.divvunConfigDir = exports.tmpDir = exports.RFC3161_URL = void 0;
 const exec_1 = require("@actions/exec");
 const core = __importStar(require("@actions/core"));
 const github = __importStar(require("@actions/github"));
@@ -61,18 +49,23 @@ function tmpDir() {
     }
     return dir;
 }
+exports.tmpDir = tmpDir;
 function divvunConfigDir() {
     return path_1.default.resolve(tmpDir(), "divvun-ci-config");
 }
+exports.divvunConfigDir = divvunConfigDir;
 function shouldDeploy() {
     return github.context.ref === 'refs/heads/master';
 }
+exports.shouldDeploy = shouldDeploy;
 function randomString64() {
     return crypto_1.default.randomBytes(48).toString("base64");
 }
+exports.randomString64 = randomString64;
 function randomHexBytes(count) {
     return crypto_1.default.randomBytes(count).toString("hex");
 }
+exports.randomHexBytes = randomHexBytes;
 exports.DIVVUN_PFX = `${divvunConfigDir()}\\enc\\creds\\windows\\divvun.pfx`;
 let loadedSecrets = null;
 async function secrets() {
@@ -86,6 +79,7 @@ async function secrets() {
     loadedSecrets = secrets.secret;
     return loadedSecrets;
 }
+exports.secrets = secrets;
 function env() {
     let langs = {
         LANG: "C.UTF-8",
@@ -669,6 +663,7 @@ async function versionAsNightly(version) {
     const nightlyTs = task.created.replace(/[-:\.]/g, "");
     return `${verChunks.join(".")}-nightly.${nightlyTs}`;
 }
+exports.versionAsNightly = versionAsNightly;
 function deriveBundlerArgs(spellerPaths, withZhfst = true) {
     const args = [];
     for (const [langTag, zhfstPath] of Object.entries(spellerPaths.desktop)) {
@@ -727,6 +722,7 @@ function nonUndefinedProxy(obj, withNull = false) {
         }
     });
 }
+exports.nonUndefinedProxy = nonUndefinedProxy;
 function validateProductCode(kind, code) {
     if (kind === null) {
         core.debug("Found no kind, returning original code");
@@ -770,6 +766,7 @@ function validateProductCode(kind, code) {
     }
     throw new Error("Unhandled kind: " + kind);
 }
+exports.validateProductCode = validateProductCode;
 function isCurrentBranch(names) {
     const value = process.env.GITHUB_REF;
     core.debug(`names: ${names}`);
@@ -784,6 +781,7 @@ function isCurrentBranch(names) {
     }
     return false;
 }
+exports.isCurrentBranch = isCurrentBranch;
 function isMatchingTag(tagPattern) {
     let value = process.env.GITHUB_REF;
     core.debug(`tag pattern: ${tagPattern}`);
@@ -798,6 +796,7 @@ function isMatchingTag(tagPattern) {
     value = value.substring(prefix.length);
     return tagPattern.test(value);
 }
+exports.isMatchingTag = isMatchingTag;
 function getArtifactSize(path) {
     try {
         const stats = fs_1.default.statSync(path);
@@ -807,3 +806,4 @@ function getArtifactSize(path) {
         return 0;
     }
 }
+exports.getArtifactSize = getArtifactSize;

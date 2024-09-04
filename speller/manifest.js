@@ -23,9 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SpellerType = void 0;
-exports.deriveLangTag = deriveLangTag;
-exports.derivePackageId = derivePackageId;
+exports.derivePackageId = exports.deriveLangTag = exports.SpellerType = void 0;
 const github = __importStar(require("@actions/github"));
 var SpellerType;
 (function (SpellerType) {
@@ -49,7 +47,9 @@ function deriveLangTag(force3) {
     }
     return lang;
 }
+exports.deriveLangTag = deriveLangTag;
 function derivePackageId(type) {
     const lang = github.context.repo.repo.split("lang-")[1];
     return `speller-${lang}`;
 }
+exports.derivePackageId = derivePackageId;
