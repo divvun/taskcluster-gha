@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.derivePackageId = void 0;
+exports.derivePackageId = derivePackageId;
 const core = __importStar(require("@actions/core"));
 const github = __importStar(require("@actions/github"));
 const fs_1 = __importDefault(require("fs"));
@@ -41,7 +41,6 @@ function derivePackageId() {
     const lang = github.context.repo.repo.split("keyboard-")[1];
     return `keyboard-${lang}`;
 }
-exports.derivePackageId = derivePackageId;
 function releaseReq(version, platform, channel) {
     const req = {
         version,

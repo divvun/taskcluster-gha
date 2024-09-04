@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.makeInstaller = void 0;
+exports.makeInstaller = makeInstaller;
 const exec = __importStar(require("@actions/exec"));
 const tmp_1 = __importDefault(require("tmp"));
 const path_1 = __importDefault(require("path"));
@@ -42,4 +42,3 @@ async function makeInstaller(issPath, defines = []) {
     ]);
     return path_1.default.join(installerOutput, "install.exe");
 }
-exports.makeInstaller = makeInstaller;
