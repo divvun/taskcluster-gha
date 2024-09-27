@@ -9,18 +9,10 @@ async function run() {
         return
     }
     const directory = path.join(githubWorkspace, "lang")
-    await Bash.runScript("make check -j$(nproc)", { cwd: path.join(directory, "build") })
-    Bash.runScript("cat tools/spellcheckers/test/fstbased/desktop/hfst/test-suite.log", { cwd: path.join(directory, "build") })
+    await Bash.runScript("make check -j$(nproc) || cat tools/spellcheckers/test/fstbased/desktop/hfst/test-suite.log && exit 1", { cwd: path.join(directory, "build") })
 }
 
 run().catch(err => {
     console.error(err.stack)
-    const githubWorkspace = process.env.GITHUB_WORKSPACE
-    if (githubWorkspace == null) {
-        core.setFailed("GITHUB_WORKSPACE not set, failing.")
-        return
-    }
-    const directory = path.join(githubWorkspace, "lang")
-    Bash.runScript("cat tools/spellcheckers/test/fstbased/desktop/hfst/test-suite.log", { cwd: path.join(directory, "build") })
     process.exit(1)
 })
