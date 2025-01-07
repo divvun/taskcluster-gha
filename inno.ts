@@ -1,194 +1,206 @@
 import fs from "fs"
 
 type InnoFile = {
-    Source: string,
-    DestDir: string,
-    Check?: string,
-    Flags?: string[]
-    DestName?: string,
+  Source: string
+  DestDir: string
+  Check?: string
+  Flags?: string[]
+  DestName?: string
 }
 
 function stringFromInnoFile(input: InnoFile): string {
-    let out = `Source: "${input.Source}"; DestDir: "${input.DestDir}"`
+  let out = `Source: "${input.Source}"; DestDir: "${input.DestDir}"`
 
-    if (input.Check) {
-        out += "; Check: " + input.Check
-    }
-    if (input.DestName) {
-        out += "; DestName: " + input.DestName
-    }
-    if (input.Flags) {
-        out += "; Flags: "
-        out += input.Flags.join(" ")
-    }
+  if (input.Check) {
+    out += "; Check: " + input.Check
+  }
+  if (input.DestName) {
+    out += "; DestName: " + input.DestName
+  }
+  if (input.Flags) {
+    out += "; Flags: "
+    out += input.Flags.join(" ")
+  }
 
-    return out
+  return out
 }
 
 export class InnoSetupBuilder {
-    private data: { [key: string]: any } = {}
+  private data: { [key: string]: any } = {}
 
-    name(input: string): InnoSetupBuilder {
-        this.data.name = input
-        return this
+  name(input: string): InnoSetupBuilder {
+    this.data.name = input
+    return this
+  }
+
+  version(input: string): InnoSetupBuilder {
+    this.data.version = input
+    return this
+  }
+
+  publisher(input: string): InnoSetupBuilder {
+    this.data.publisher = input
+    return this
+  }
+
+  url(input: string): InnoSetupBuilder {
+    this.data.url = input
+    return this
+  }
+
+  productCode(input: string): InnoSetupBuilder {
+    if (input.endsWith("_is1")) {
+      input = input.substring(0, input.length - 4)
     }
 
-    version(input: string): InnoSetupBuilder {
-        this.data.version = input
-        return this
+    // Remove trailing `}` if present as we add back it ourselves later
+    if (input.endsWith("}")) {
+      input = input.substring(0, input.length - 1)
     }
 
-    publisher(input: string): InnoSetupBuilder {
-        this.data.publisher = input
-        return this
+    this.data.productCode = input
+    return this
+  }
+
+  defaultDirName(input: string): InnoSetupBuilder {
+    this.data.defaultDirName = input
+    return this
+  }
+
+  files(
+    callback: (builder: InnoSetupFilesBuilder) => InnoSetupFilesBuilder
+  ): InnoSetupBuilder {
+    this.data.files = callback(new InnoSetupFilesBuilder())
+    return this
+  }
+
+  code(
+    callback: (builder: InnoSetupCodeBuilder) => InnoSetupCodeBuilder
+  ): InnoSetupBuilder {
+    this.data.code = callback(new InnoSetupCodeBuilder())
+    return this
+  }
+
+  run(callback: (builder: InnoCommandBuilder) => InnoCommandBuilder) {
+    if (!this.data.run) {
+      this.data.run = []
+    }
+    this.data.run.push(callback(new InnoCommandBuilder()))
+    return this
+  }
+
+  uninstallRun(callback: (builder: InnoCommandBuilder) => InnoCommandBuilder) {
+    if (!this.data.uninstallRun) {
+      this.data.uninstallRun = []
+    }
+    this.data.uninstallRun.push(callback(new InnoCommandBuilder()))
+    return this
+  }
+
+  icons(callback: (builder: InnoCommandBuilder) => InnoCommandBuilder) {
+    if (!this.data.icons) {
+      this.data.icons = []
+    }
+    this.data.icons.push(callback(new InnoCommandBuilder()))
+    return this
+  }
+
+  build(): string {
+    for (const key of [
+      "name",
+      "version",
+      "url",
+      "productCode",
+      "defaultDirName",
+    ]) {
+      if (this.data[key] == null) {
+        throw new Error(`Missing key "${key}" for Inno Setup builder`)
+      }
     }
 
-    url(input: string): InnoSetupBuilder {
-        this.data.url = input
-        return this
+    const { name, version, publisher, url, productCode, defaultDirName } =
+      this.data
+    const setup = Object.entries({
+      AppId: `{${productCode}}`,
+      AppName: name,
+      AppVersion: version,
+      AppPublisher: publisher,
+      AppPublisherURL: url,
+      AppSupportURL: url,
+      AppUpdatesURL: url,
+      DefaultDirName: defaultDirName,
+      DisableDirPage: "yes",
+      DisableProgramGroupPage: "yes",
+      OutputBaseFilename: "install",
+      Compression: "lzma",
+      SolidCompression: "yes",
+      WizardStyle: "modern",
+      SignedUninstaller: "yes",
+      SignTool: "signtool",
+      MinVersion: this.data.minVersion || "6.3.9200",
+      ArchitecturesAllowed: "x86 x64",
+      ArchitecturesInstallIn64BitMode: "x64",
+      DefaultGroupName: name,
+    })
+      .map((x) => `${x[0]}=${x[1]}`)
+      .join("\n")
+
+    const iss: any = {
+      setup,
+      languages: INNO_LANGUAGES_SECTION,
     }
 
-    productCode(input: string): InnoSetupBuilder {
-        if (input.endsWith("_is1")) {
-            input = input.substring(0, input.length - 4)
-        }
+    const { code, run, uninstallRun, icons, files } = this.data
 
-        // Remove trailing `}` if present as we add back it ourselves later
-        if (input.endsWith('}')) {
-            input = input.substring(0, input.length - 1)
-        }
-
-        this.data.productCode = input
-        return this
+    if (files != null) {
+      iss.files = files.build()
     }
 
-    defaultDirName(input: string): InnoSetupBuilder {
-        this.data.defaultDirName = input
-        return this
+    if (code != null) {
+      iss.code = code.build()
     }
 
-    files(callback: (builder: InnoSetupFilesBuilder) => InnoSetupFilesBuilder): InnoSetupBuilder {
-        this.data.files = callback(new InnoSetupFilesBuilder())
-        return this
+    let out = `[Setup]\n${iss.setup}\n\n[Languages]\n${iss.languages}\n\n`
+
+    if (iss.files != null) {
+      out += `[Files]\n${iss.files}\n\n`
     }
 
-    code(callback: (builder: InnoSetupCodeBuilder) => InnoSetupCodeBuilder): InnoSetupBuilder {
-        this.data.code = callback(new InnoSetupCodeBuilder())
-        return this
+    if (iss.code != null) {
+      out += `[Code]\n${iss.code}\n\n`
     }
 
-    run(callback: (builder: InnoCommandBuilder) => InnoCommandBuilder) {
-        if (!this.data.run) {
-            this.data.run = []
-        }
-        this.data.run.push(callback(new InnoCommandBuilder()))
-        return this
+    if (run != null) {
+      var runScript = ""
+      for (const runBuilder of run) {
+        runScript += `${runBuilder.build()}\n`
+      }
+      out += `[Run]\n${runScript}\n\n`
     }
 
-    uninstallRun(callback: (builder: InnoCommandBuilder) => InnoCommandBuilder) {
-        if (!this.data.uninstallRun) {
-            this.data.uninstallRun = []
-        }
-        this.data.uninstallRun.push(callback(new InnoCommandBuilder()))
-        return this
+    if (uninstallRun != null) {
+      var uninstallRunScript = ""
+      for (const uninstallRunBuilder of uninstallRun) {
+        uninstallRunScript += `${uninstallRunBuilder.build()}\n`
+      }
+      out += `[UninstallRun]\n${uninstallRunScript}\n\n`
     }
 
-    icons(callback: (builder: InnoCommandBuilder) => InnoCommandBuilder) {
-        if (!this.data.icons) {
-            this.data.icons = []
-        }
-        this.data.icons.push(callback(new InnoCommandBuilder()))
-        return this
+    if (icons != null) {
+      var iconsScript = ""
+      for (const iconsBuilder of icons) {
+        iconsScript += `${iconsBuilder.build()}\n`
+      }
+      out += `[Icons]\n${iconsScript}\n\n`
     }
 
-    build(): string {
-        for (const key of ["name", "version", "url", "productCode", "defaultDirName"]) {
-            if (this.data[key] == null) {
-                throw new Error(`Missing key "${key}" for Inno Setup builder`)
-            }
-        }
+    return out
+  }
 
-        const { name, version, publisher, url, productCode, defaultDirName } = this.data
-        const setup = Object.entries({
-            AppId: `{${productCode}}`,
-            AppName: name,
-            AppVersion: version,
-            AppPublisher: publisher,
-            AppPublisherURL: url,
-            AppSupportURL: url,
-            AppUpdatesURL: url,
-            DefaultDirName: defaultDirName,
-            DisableDirPage: "yes",
-            DisableProgramGroupPage: "yes",
-            OutputBaseFilename: "install",
-            Compression: "lzma",
-            SolidCompression: "yes",
-            WizardStyle: "modern",
-            SignedUninstaller: "yes",
-            SignTool: "signtool",
-            MinVersion: this.data.minVersion || "6.3.9200",
-            ArchitecturesAllowed: "x86 x64",
-            ArchitecturesInstallIn64BitMode: "x64",
-            DefaultGroupName: name
-        }).map(x => `${x[0]}=${x[1]}`).join("\n")
-
-        const iss: any = {
-            setup,
-            languages: INNO_LANGUAGES_SECTION
-        }
-
-        const { code, run, uninstallRun, icons, files } = this.data
-
-        if (files != null) {
-            iss.files = files.build()
-        }
-
-        if (code != null) {
-            iss.code = code.build()
-        }
-
-        let out = `[Setup]\n${iss.setup}\n\n[Languages]\n${iss.languages}\n\n`
-
-        if (iss.files != null) {
-            out += `[Files]\n${iss.files}\n\n`
-        }
-
-        if (iss.code != null) {
-            out += `[Code]\n${iss.code}\n\n`
-        }
-
-        if (run != null) {
-            var runScript = ""
-            for (const runBuilder of run) {
-                runScript += `${runBuilder.build()}\n`
-            }
-            out += `[Run]\n${runScript}\n\n`
-        }
-
-        if (uninstallRun != null) {
-            var uninstallRunScript = ""
-            for (const uninstallRunBuilder of uninstallRun) {
-                uninstallRunScript += `${uninstallRunBuilder.build()}\n`
-            }
-            out += `[UninstallRun]\n${uninstallRunScript}\n\n`
-        }
-
-        if (icons != null) {
-            var iconsScript = ""
-            for (const iconsBuilder of icons) {
-                iconsScript += `${iconsBuilder.build()}\n`
-            }
-            out += `[Icons]\n${iconsScript}\n\n`
-        }
-
-        return out
-    }
-
-    write(filePath: string) {
-        fs.writeFileSync(filePath, "\ufeff" + this.build(), "utf8")
-    }
+  write(filePath: string) {
+    fs.writeFileSync(filePath, "\ufeff" + this.build(), "utf8")
+  }
 }
-
 
 const INNO_LANGUAGES_SECTION = `\
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -299,20 +311,23 @@ end;
 `
 
 function generateExec(binary: string, args: string, errorMsg: string) {
-    return `\
+  return `\
 if Result = '' then
 begin
     Exec(ExpandConstant('${binary}'), ExpandConstant('${args}'), '', SW_HIDE, ewWaitUntilTerminated, iResultCode);
     if iResultCode <> 0 then
     begin
-        Result := '${errorMsg.replace(/'/g, "\\'")} (Error code: ' + IntToStr(iResultCode) + ')';
+        Result := '${errorMsg.replace(
+          /'/g,
+          "\\'"
+        )} (Error code: ' + IntToStr(iResultCode) + ')';
     end;
 end;
 `
 }
 
 function generateNsisUninst(productCode: string) {
-    return `\
+  return `\
 if Result = '' then
 begin
     Result := UninstallIfExists('${productCode}', '/S');
@@ -321,7 +336,7 @@ end;
 }
 
 function generateMsiUninst(productCode: string) {
-    return `\
+  return `\
 if Result = '' then
 begin
     Result := UninstallMsiIfExists('${productCode}');
@@ -330,45 +345,61 @@ end;
 }
 
 class InnoSetupCodeBuilder {
-    private preInstalls: string[] = []
-    private postInstalls: string[] = []
-    private preUninstalls: string[] = []
-    private postUninstalls: string[] = []
+  private preInstalls: string[] = []
+  private postInstalls: string[] = []
+  private preUninstalls: string[] = []
+  private postUninstalls: string[] = []
 
-    uninstallLegacy(productCode: string, type: string): InnoSetupCodeBuilder {
-        if (type === "nsis") {
-            this.preInstalls.push(generateNsisUninst(productCode))
-        } else if (type === "msi") {
-            this.preInstalls.push(generateMsiUninst(productCode))
-        } else {
-            throw new Error(`Unhandled type: '${type}'`)
-        }
-
-        return this
+  uninstallLegacy(productCode: string, type: string): InnoSetupCodeBuilder {
+    if (type === "nsis") {
+      this.preInstalls.push(generateNsisUninst(productCode))
+    } else if (type === "msi") {
+      this.preInstalls.push(generateMsiUninst(productCode))
+    } else {
+      throw new Error(`Unhandled type: '${type}'`)
     }
 
-    execPreInstall(binary: string, args: string, errorMsg: string): InnoSetupCodeBuilder {
-        this.preInstalls.push(generateExec(binary, args, errorMsg))
-        return this
-    }
+    return this
+  }
 
-    execPostInstall(binary: string, args: string, errorMsg: string): InnoSetupCodeBuilder {
-        this.postInstalls.push(generateExec(binary, args, errorMsg))
-        return this
-    }
+  execPreInstall(
+    binary: string,
+    args: string,
+    errorMsg: string
+  ): InnoSetupCodeBuilder {
+    this.preInstalls.push(generateExec(binary, args, errorMsg))
+    return this
+  }
 
-    execPreUninstall(binary: string, args: string, errorMsg: string): InnoSetupCodeBuilder {
-        this.preUninstalls.push(generateExec(binary, args, errorMsg))
-        return this
-    }
+  execPostInstall(
+    binary: string,
+    args: string,
+    errorMsg: string
+  ): InnoSetupCodeBuilder {
+    this.postInstalls.push(generateExec(binary, args, errorMsg))
+    return this
+  }
 
-    execPostUninstall(binary: string, args: string, errorMsg: string): InnoSetupCodeBuilder {
-        this.postUninstalls.push(generateExec(binary, args, errorMsg))
-        return this
-    }
+  execPreUninstall(
+    binary: string,
+    args: string,
+    errorMsg: string
+  ): InnoSetupCodeBuilder {
+    this.preUninstalls.push(generateExec(binary, args, errorMsg))
+    return this
+  }
 
-    private generatePreInstall(): string {
-        const cmd = `\
+  execPostUninstall(
+    binary: string,
+    args: string,
+    errorMsg: string
+  ): InnoSetupCodeBuilder {
+    this.postUninstalls.push(generateExec(binary, args, errorMsg))
+    return this
+  }
+
+  private generatePreInstall(): string {
+    const cmd = `\
 function RunPreInstall: String;
 var
     iResultCode: Integer;
@@ -376,11 +407,11 @@ begin
 ${this.preInstalls.join("\n")}
 end;
 `
-        return cmd
-    }
+    return cmd
+  }
 
-    private generatePostInstall() {
-        const cmd = `\
+  private generatePostInstall() {
+    const cmd = `\
 function RunPostInstall: String;
 var
     iResultCode: Integer;
@@ -388,11 +419,11 @@ begin
 ${this.postInstalls.join("\n")}
 end;
 `
-        return cmd
-    }
+    return cmd
+  }
 
-    private generatePreUninstall() {
-        const cmd = `\
+  private generatePreUninstall() {
+    const cmd = `\
 function RunPreUninstall: String;
 var
     iResultCode: Integer;
@@ -400,12 +431,11 @@ begin
 ${this.preUninstalls.join("\n")}
 end;
 `
-        return cmd
-    }
+    return cmd
+  }
 
-
-    private generatePostUninstall() {
-        const cmd = `\
+  private generatePostUninstall() {
+    const cmd = `\
 function RunPostUninstall: String;
 var
     iResultCode: Integer;
@@ -413,11 +443,11 @@ begin
 ${this.postUninstalls.join("\n")}
 end;
 `
-        return cmd
-    }
+    return cmd
+  }
 
-    build(): string {
-        return `\
+  build(): string {
+    return `\
 ${INNO_CODE_HEADER}
 ${this.generatePreInstall()}
 ${this.generatePostInstall()}
@@ -425,66 +455,72 @@ ${this.generatePreUninstall()}
 ${this.generatePostUninstall()}
 ${INNO_CODE_EVENTS}
 `
-    }
+  }
 }
 
 class InnoSetupFilesBuilder {
-    private files: InnoFile[] = []
+  private files: InnoFile[] = []
 
-    // Source can be an absolute path, or relative to the .iss file
-    add(source: string, dest: string, flags?: string[], check?: string, destName?: string): InnoSetupFilesBuilder {
-        this.files.push({
-            Source: source,
-            DestDir: dest,
-            Check: check,
-            Flags: flags,
-            DestName: destName,
-        })
-        return this
-    }
+  // Source can be an absolute path, or relative to the .iss file
+  add(
+    source: string,
+    dest: string,
+    flags?: string[],
+    check?: string,
+    destName?: string
+  ): InnoSetupFilesBuilder {
+    this.files.push({
+      Source: source,
+      DestDir: dest,
+      Check: check,
+      Flags: flags,
+      DestName: destName,
+    })
+    return this
+  }
 
-    build(): string {
-        return this.files.map(stringFromInnoFile).join("\n")
-    }
+  build(): string {
+    return this.files.map(stringFromInnoFile).join("\n")
+  }
 }
 
 class InnoCommandBuilder {
-    private executableName: string = ""
-    private parameters: string[] = []
-    private flags: string[] = []
-    private name: string = ""
+  private executableName: string = ""
+  private parameters: string[] = []
+  private flags: string[] = []
+  private name: string = ""
 
-    withFilename(filename: string) {
-        this.executableName = filename
-        return this
-    }
+  withFilename(filename: string) {
+    this.executableName = filename
+    return this
+  }
 
-    withParameter(parameter: string) {
-        this.parameters.push(parameter)
-        return this
-    }
+  withParameter(parameter: string) {
+    this.parameters.push(parameter)
+    return this
+  }
 
-    withFlags(flags: string[]) {
-        this.flags = flags
-        return this
-    }
+  withFlags(flags: string[]) {
+    this.flags = flags
+    return this
+  }
 
-    withName(name: string) {
-        this.name = name
-        return this
-    }
+  withName(name: string) {
+    this.name = name
+    return this
+  }
 
-    build(): string {
-        var parameters = this.parameters.join(" ")
-        var ret = ""
-        if (this.name) {
-            ret += `Name: ${this.name}; `
-        }
-        ret += `Filename: ${this.executableName}; Parameters: "${parameters}"`
-        if (this.flags) {
-            var flags = this.flags.join(" ")
-            ret += `; Flags: ${flags}`
-        }
-        return ret
+  build(): string {
+    var parameters = this.parameters.join(" ")
+    var ret = ""
+    if (this.name) {
+      ret += `Name: ${this.name}; `
     }
+    ret += `Filename: ${this.executableName}; Parameters: "${parameters}"`
+    if (this.flags) {
+      var flags = this.flags.join(" ")
+      ret += `; Flags: ${flags}`
+    }
+    return ret
+  }
 }

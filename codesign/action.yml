@@ -1,5 +1,5 @@
-name: 'Codesign'
-description: ''
+name: "Codesign"
+description: ""
 inputs:
   path:
     description: Path to the executable or binary to be codesigned
@@ -9,7 +9,7 @@ inputs:
     default: false
 outputs:
   signed-path:
-    description: 'The resulting signed binary'
+    description: "The resulting signed binary"
 runs:
-  using: 'node12'
-  main: 'index.js'
+  using: "node12"
+  main: "index.js"

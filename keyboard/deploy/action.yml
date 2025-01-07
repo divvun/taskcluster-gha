@@ -1,8 +1,8 @@
-name: 'Deploy keyboards'
-description: ''
+name: "Deploy keyboards"
+description: ""
 inputs:
   keyboard-type:
-    description: 'The keyboard type from the matrix'
+    description: "The keyboard type from the matrix"
     required: true
   payload-path:
     description: Path to the payload to be uploaded
@@ -19,5 +19,5 @@ inputs:
     description: Override deployment check and always deploy
     required: false
 runs:
-  using: 'node12'
-  main: 'index.js'
+  using: "node12"
+  main: "index.js"

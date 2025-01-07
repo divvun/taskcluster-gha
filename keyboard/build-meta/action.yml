@@ -1,5 +1,5 @@
-name: 'Build Keyboard Metabundle'
-description: ''
+name: "Build Keyboard Metabundle"
+description: ""
 inputs:
   keyboard-type:
     description: The keyboard type
@@ -8,5 +8,5 @@ inputs:
     description: The path to the .kbdgen bundle directory
     required: true
 runs:
-  using: 'node12'
-  main: 'index.js'
+  using: "node12"
+  main: "index.js"

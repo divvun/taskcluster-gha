@@ -7,17 +7,17 @@ import type {
   Globber,
   InputOptions,
   Context,
-} from "./gha-builder";
+} from "./gha-builder"
 
-const isDivvunCI = process.env.DIVVUN_CI;
+const isDivvunCI = process.env.DIVVUN_CI
 
 // Ensure we get the proper types from the implementations
-let selectedBuilder: typeof import("./gha-builder");
+let selectedBuilder: typeof import("./gha-builder")
 
 if (isDivvunCI) {
-  selectedBuilder = require("./bk-builder");
+  selectedBuilder = require("./bk-builder")
 } else {
-  selectedBuilder = require("./gha-builder");
+  selectedBuilder = require("./gha-builder")
 }
 
 // Re-export everything with proper typing
@@ -40,7 +40,7 @@ export const {
   warning,
   exportVariable,
   context,
-} = selectedBuilder;
+} = selectedBuilder
 
 // Re-export types
 export type {
@@ -51,4 +51,4 @@ export type {
   Globber,
   InputOptions,
   Context,
-};
+}

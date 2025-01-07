@@ -1,26 +1,22 @@
 {
-    "compilerOptions": {
-        "baseUrl": ".",
-        "paths": {
-            "~/*": ["*.ts"],
-        },
-        "module": "commonjs",
-        "target": "es2018",
-        "moduleResolution": "node",
-        "strict": true,
-        "esModuleInterop": true,
-        "skipLibCheck": true,
-        "noUnusedLocals": false,
-        "noUnusedParameters": false,
-        "noImplicitAny": true,
-        "preserveConstEnums": true,
-        "removeComments": true,
-        "resolveJsonModule": true,
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["*.ts"]
     },
-    "include": [
-        "**/*.ts"
-    ],
-    "exclude": [
-        "node_modules"
-    ]
+    "module": "commonjs",
+    "target": "es2018",
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitAny": true,
+    "preserveConstEnums": true,
+    "removeComments": true,
+    "resolveJsonModule": true
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules"]
 }

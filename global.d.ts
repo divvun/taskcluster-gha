@@ -1,1 +1,1 @@
-declare module 'taskcluster-client'
+declare module "taskcluster-client"

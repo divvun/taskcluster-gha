@@ -1,54 +1,54 @@
 // Buildkite implementation of the builder interface
 
-import { spawn } from "child_process";
-import { cp as fsCp, mkdtemp, writeFile } from "fs/promises";
-import { tmpdir } from "os";
-import { dirname, join } from "path";
+import { spawn } from "child_process"
+import { cp as fsCp, mkdtemp, writeFile } from "fs/promises"
+import { tmpdir } from "os"
+import { dirname, join } from "path"
 
 export type ExecListeners = {
   /** A call back for each buffer of stdout */
-  stdout?: (data: Buffer) => void;
+  stdout?: (data: Buffer) => void
   /** A call back for each buffer of stderr */
-  stderr?: (data: Buffer) => void;
+  stderr?: (data: Buffer) => void
   /** A call back for each line of stdout */
-  stdline?: (data: string) => void;
+  stdline?: (data: string) => void
   /** A call back for each line of stderr */
-  errline?: (data: string) => void;
+  errline?: (data: string) => void
   /** A call back for each debug log */
-  debug?: (data: string) => void;
-};
+  debug?: (data: string) => void
+}
 
 export type ExecOptions = {
   /** optional working directory.  defaults to current */
-  cwd?: string;
+  cwd?: string
   /** optional envvar dictionary.  defaults to current process's env */
   env?: {
-    [key: string]: string;
-  };
+    [key: string]: string
+  }
   /** optional.  defaults to false */
-  silent?: boolean;
+  silent?: boolean
   /** optional. whether to skip quoting/escaping arguments if needed.  defaults to false. */
-  windowsVerbatimArguments?: boolean;
+  windowsVerbatimArguments?: boolean
   /** optional.  whether to fail if output to stderr.  defaults to false */
-  failOnStdErr?: boolean;
+  failOnStdErr?: boolean
   /** optional.  defaults to failing on non zero.  ignore will not fail leaving it up to the caller */
-  ignoreReturnCode?: boolean;
+  ignoreReturnCode?: boolean
   /** optional. How long in ms to wait for STDIO streams to close after the exit event of the process before terminating. defaults to 10000 */
-  delay?: number;
+  delay?: number
   /** optional. input to write to the process on STDIN. */
-  input?: Buffer;
+  input?: Buffer
   /** optional. Listeners for output. Callback functions that will be called on these events */
-  listeners?: ExecListeners;
-};
+  listeners?: ExecListeners
+}
 
 export type CopyOptions = {
   /** Optional. Whether to recursively copy all subdirectories. Defaults to false */
-  recursive?: boolean;
+  recursive?: boolean
   /** Optional. Whether to overwrite existing files in the destination. Defaults to true */
-  force?: boolean;
+  force?: boolean
   /** Optional. Whether to copy the source directory along with all the files. Only takes effect when recursive=true and copying a directory. Default is true*/
-  copySourceDirectory?: boolean;
-};
+  copySourceDirectory?: boolean
+}
 
 export type GlobOptions = {
   /**
@@ -57,7 +57,7 @@ export type GlobOptions = {
    *
    * @default true
    */
-  followSymbolicLinks?: boolean;
+  followSymbolicLinks?: boolean
   /**
    * Indicates whether directories that match a glob pattern, should implicitly
    * cause all descendant paths to be matched.
@@ -67,15 +67,15 @@ export type GlobOptions = {
    *
    * @default true
    */
-  implicitDescendants?: boolean;
+  implicitDescendants?: boolean
   /**
    * Indicates whether broken symbolic should be ignored and omitted from the
    * result set. Otherwise an error will be thrown.
    *
    * @default true
    */
-  omitBrokenSymbolicLinks?: boolean;
-};
+  omitBrokenSymbolicLinks?: boolean
+}
 
 export type Globber = {
   /**
@@ -86,41 +86,41 @@ export type Globber = {
    *
    * Example 2: The patterns `/foo/*` and `/foo/bar/*` returns `/foo`.
    */
-  getSearchPaths(): string[];
+  getSearchPaths(): string[]
   /**
    * Returns files and directories matching the glob patterns.
    *
    * Order of the results is not guaranteed.
    */
-  glob(): Promise<string[]>;
+  glob(): Promise<string[]>
   /**
    * Returns files and directories matching the glob patterns.
    *
    * Order of the results is not guaranteed.
    */
-  globGenerator(): AsyncGenerator<string, void>;
-};
+  globGenerator(): AsyncGenerator<string, void>
+}
 
 export type InputOptions = {
   /** Optional. Whether the input is required. If required and not present, will throw. Defaults to false */
-  required?: boolean;
+  required?: boolean
   /** Optional. Whether leading/trailing whitespace will be trimmed for the input. Defaults to true */
-  trimWhitespace?: boolean;
-};
+  trimWhitespace?: boolean
+}
 
 export type Context = {
-  ref: string;
-};
+  ref: string
+}
 
 // Buildkite-specific implementations
 
 export function debug(message: string) {
-  console.debug(message);
+  console.debug(message)
 }
 
 export function setFailed(message: string) {
-  console.error(message);
-  process.exit(1);
+  console.error(message)
+  process.exit(1)
 }
 
 export async function exec(
@@ -133,35 +133,35 @@ export async function exec(
       cwd: options?.cwd,
       env: options?.env || process.env,
       stdio: options?.silent ? "ignore" : "inherit",
-    });
+    })
 
     if (options?.listeners?.stdout) {
-      proc.stdout?.on("data", options.listeners.stdout);
+      proc.stdout?.on("data", options.listeners.stdout)
     }
     if (options?.listeners?.stderr) {
-      proc.stderr?.on("data", options.listeners.stderr);
+      proc.stderr?.on("data", options.listeners.stderr)
     }
 
-    proc.on("error", reject);
+    proc.on("error", reject)
     proc.on("close", (code) => {
       if (code !== 0 && !options?.ignoreReturnCode) {
-        reject(new Error(`Process exited with code ${code}`));
+        reject(new Error(`Process exited with code ${code}`))
       } else {
-        resolve(code || 0);
+        resolve(code || 0)
       }
-    });
+    })
 
     if (options?.input) {
-      proc.stdin?.write(options.input);
-      proc.stdin?.end();
+      proc.stdin?.write(options.input)
+      proc.stdin?.end()
     }
-  });
+  })
 }
 
 export function addPath(path: string) {
   process.env.PATH = `${path}${process.platform === "win32" ? ";" : ":"}${
     process.env.PATH
-  }`;
+  }`
 }
 
 export async function downloadTool(
@@ -169,29 +169,29 @@ export async function downloadTool(
   dest?: string,
   auth?: string
 ): Promise<string> {
-  const { default: fetch } = await import("node-fetch");
-  const headers: { [key: string]: string } = {};
+  const { default: fetch } = await import("node-fetch")
+  const headers: { [key: string]: string } = {}
   if (auth) {
-    headers.Authorization = auth;
+    headers.Authorization = auth
   }
 
-  const response = await fetch(url, { headers });
+  const response = await fetch(url, { headers })
   if (!response.ok) {
-    throw new Error(`Failed to download from ${url}: ${response.statusText}`);
+    throw new Error(`Failed to download from ${url}: ${response.statusText}`)
   }
 
   const finalDest =
-    dest || join(tmpdir(), Math.random().toString(36).substring(7));
-  const buffer = await response.buffer();
-  await writeFile(finalDest, buffer);
-  return finalDest;
+    dest || join(tmpdir(), Math.random().toString(36).substring(7))
+  const buffer = await response.buffer()
+  await writeFile(finalDest, buffer)
+  return finalDest
 }
 
 export async function extractZip(file: string, dest?: string): Promise<string> {
-  const extract = (await import("extract-zip")).default;
-  const finalDest = dest || (await mkdtemp(join(tmpdir(), "extract-")));
-  await extract(file, { dir: finalDest });
-  return finalDest;
+  const extract = (await import("extract-zip")).default
+  const finalDest = dest || (await mkdtemp(join(tmpdir(), "extract-")))
+  await extract(file, { dir: finalDest })
+  return finalDest
 }
 
 export async function extractTar(
@@ -199,65 +199,63 @@ export async function extractTar(
   dest?: string,
   flags?: string | string[]
 ): Promise<string> {
-  const finalDest = dest || (await mkdtemp(join(tmpdir(), "extract-")));
-  const flagsArray = typeof flags === "string" ? [flags] : flags || ["-xf"];
+  const finalDest = dest || (await mkdtemp(join(tmpdir(), "extract-")))
+  const flagsArray = typeof flags === "string" ? [flags] : flags || ["-xf"]
 
-  await exec("tar", [...flagsArray, file, "-C", finalDest]);
-  return finalDest;
+  await exec("tar", [...flagsArray, file, "-C", finalDest])
+  return finalDest
 }
 
 export async function cp(source: string, dest: string, options?: CopyOptions) {
   await fsCp(source, dest, {
     recursive: options?.recursive,
     force: options?.force,
-  });
+  })
 }
 
 export async function globber(
   pattern: string,
   options?: GlobOptions
 ): Promise<Globber> {
-  const { glob } = await import("glob");
+  const { glob } = await import("glob")
   const matches = (await glob(pattern, {
     follow: options?.followSymbolicLinks,
     dot: true,
     nocase: true,
-  })) as string[];
+  })) as string[]
 
   return {
     getSearchPaths: (): string[] => {
-      const paths = matches.map((m: string) => dirname(m));
-      return [...new Set(paths)];
+      const paths = matches.map((m: string) => dirname(m))
+      return [...new Set(paths)]
     },
     glob: async () => matches,
     globGenerator: async function* () {
       for (const match of matches) {
-        yield match;
+        yield match
       }
     },
-  };
+  }
 }
 
 export async function setSecret(secret: string) {
   return new Promise<void>((resolve, reject) => {
-    const echo = spawn("echo", [secret]);
-    const redactor = spawn("buildkite-agent", ["redactor", "add"]);
+    const echo = spawn("echo", [secret])
+    const redactor = spawn("buildkite-agent", ["redactor", "add"])
 
-    echo.stdout.pipe(redactor.stdin);
+    echo.stdout.pipe(redactor.stdin)
 
-    redactor.on("error", reject);
+    redactor.on("error", reject)
     redactor.on("close", (code) => {
       if (code === 0) {
-        resolve();
+        resolve()
       } else {
-        reject(
-          new Error(`Failed to add secret to redactor: exit code ${code}`)
-        );
+        reject(new Error(`Failed to add secret to redactor: exit code ${code}`))
       }
-    });
+    })
 
-    echo.on("error", reject);
-  });
+    echo.on("error", reject)
+  })
 }
 
 export async function getInput(
@@ -269,52 +267,52 @@ export async function getInput(
       exec("buildkite-agent", ["meta-data", "get", variable])
         .then((code) => {
           if (code === 0) {
-            resolve(process.stdout.toString().trim());
+            resolve(process.stdout.toString().trim())
           } else {
-            reject(new Error(`Failed to get meta-data for ${variable}`));
+            reject(new Error(`Failed to get meta-data for ${variable}`))
           }
         })
-        .catch(reject);
-    });
+        .catch(reject)
+    })
 
     if (value && options?.trimWhitespace !== false) {
-      return value.trim();
+      return value.trim()
     }
-    return value;
+    return value
   } catch (error) {
     if (options?.required) {
-      throw new Error(`Input required and not supplied: ${variable}`);
+      throw new Error(`Input required and not supplied: ${variable}`)
     }
-    return "";
+    return ""
   }
 }
 
 export async function setOutput(name: string, value: any) {
-  await exec("buildkite-agent", ["meta-data", "set", name, value.toString()]);
+  await exec("buildkite-agent", ["meta-data", "set", name, value.toString()])
 }
 
 export function startGroup(name: string) {
-  console.log(`--- ${name}`);
+  console.log(`--- ${name}`)
 }
 
 export function endGroup() {
-  console.log("^^^");
+  console.log("^^^")
 }
 
 export function warning(message: string) {
-  console.warn(`⚠️  ${message}`);
+  console.warn(`⚠️  ${message}`)
 }
 
 export function error(message: string | Error) {
-  const errorMessage = message instanceof Error ? message.message : message;
-  console.error(`❌ ${errorMessage}`);
+  const errorMessage = message instanceof Error ? message.message : message
+  console.error(`❌ ${errorMessage}`)
 }
 
 export function exportVariable(name: string, value: string) {
-  process.env[name] = value;
-  console.log(`Setting environment variable ${name}=${value}`);
+  process.env[name] = value
+  console.log(`Setting environment variable ${name}=${value}`)
 }
 
 export const context: Context = {
   ref: process.env.BUILDKITE_COMMIT || "",
-};
+}

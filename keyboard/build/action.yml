@@ -1,5 +1,5 @@
-name: 'Build Keyboard Bundle'
-description: ''
+name: "Build Keyboard Bundle"
+description: ""
 inputs:
   keyboard-type:
     description: The keyboard type
@@ -8,5 +8,5 @@ inputs:
     description: Github token
     required: true
 runs:
-  using: 'node12'
-  main: 'index.js'
+  using: "node12"
+  main: "index.js"

@@ -1,5 +1,5 @@
-name: 'Install Pahkat dependencies'
-description: ''
+name: "Install Pahkat dependencies"
+description: ""
 inputs:
   repo:
     description: The URL to the repository to use
@@ -11,5 +11,5 @@ inputs:
     required: true
 
 runs:
-  using: 'node12'
-  main: 'index.js'
+  using: "node12"
+  main: "index.js"

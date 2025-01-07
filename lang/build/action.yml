@@ -1,34 +1,34 @@
-name: 'Build'
-description: 'Build configuration for a language'
+name: "Build"
+description: "Build configuration for a language"
 inputs:
   # General options
   fst:
-    description: 'An array of FSTs to use. Options: hfst, foma.'
+    description: "An array of FSTs to use. Options: hfst, foma."
     required: true
-    default: "[\"hfst\"]"
+    default: '["hfst"]'
 
   generators:
-    description: 'Build generators'
+    description: "Build generators"
     required: false
     default: false
-  
+
   spellers:
-    description: 'Build spellers'
+    description: "Build spellers"
     required: false
     default: true
 
   hyphenators:
-    description: 'Build hyphenators'
+    description: "Build hyphenators"
     required: false
     default: false
 
   analysers:
-    description: 'Build analysers'
+    description: "Build analysers"
     required: false
     default: false
 
   grammar-checkers:
-    description: 'Build grammar checkers'
+    description: "Build grammar checkers"
     required: false
 
   # Language-specific optimisations
@@ -67,5 +67,5 @@ outputs:
   speller-paths:
     description: A JSON object consisting of desktop and mobile keys with paths to each zhfst speller
 runs:
-  using: 'node12'
-  main: 'index.js'
+  using: "node12"
+  main: "index.js"

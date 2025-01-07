@@ -2,7 +2,7 @@
 
 GitHub Actions for use by the Divvun CI system.
 
-This repo is used by [taskcluster-scripts](https://github.com/divvun/taskcluster-scripts) to perform actions such as building language files and deploying new versions of iOS/Android keyboards, among others. 
+This repo is used by [taskcluster-scripts](https://github.com/divvun/taskcluster-scripts) to perform actions such as building language files and deploying new versions of iOS/Android keyboards, among others.
 
 # Building
 

@@ -1,11 +1,11 @@
-name: 'Deploy spellers'
-description: ''
+name: "Deploy spellers"
+description: ""
 inputs:
   speller-type:
-    description: 'The speller type from the matrix'
+    description: "The speller type from the matrix"
     required: true
   speller-manifest-path:
-    description: 'Path to the speller manifest'
+    description: "Path to the speller manifest"
     required: true
     default: "manifest.toml"
   payload-path:
@@ -23,5 +23,5 @@ inputs:
     description: Pahkat repository channel
     required: false
 runs:
-  using: 'node12'
-  main: 'index.js'
+  using: "node12"
+  main: "index.js"

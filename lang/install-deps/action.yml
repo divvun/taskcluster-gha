@@ -1,5 +1,5 @@
-name: 'Install Dependencies'
-description: 'Install dependencies for a speller build'
+name: "Install Dependencies"
+description: "Install dependencies for a speller build"
 
 inputs:
   sudo:
@@ -9,7 +9,7 @@ inputs:
   apertium:
     description: Requires apertium
     required: false
-  
+
 runs:
-  using: 'node12'
-  main: 'index.js'
+  using: "node12"
+  main: "index.js"

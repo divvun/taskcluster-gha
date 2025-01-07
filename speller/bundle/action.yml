@@ -1,11 +1,11 @@
-name: 'Bundle spellers'
-description: ''
+name: "Bundle spellers"
+description: ""
 inputs:
   speller-type:
-    description: 'The speller type from the matrix'
+    description: "The speller type from the matrix"
     required: true
   speller-manifest-path:
-    description: 'Path to the speller manifest'
+    description: "Path to the speller manifest"
     required: true
     default: "manifest.toml"
   speller-paths:
@@ -19,7 +19,7 @@ inputs:
     required: true
 outputs:
   payload-path:
-    description: 'The bundled speller ready to be signed and uploaded to a Pahkat repository'
+    description: "The bundled speller ready to be signed and uploaded to a Pahkat repository"
 runs:
-  using: 'node12'
-  main: 'index.js'
+  using: "node12"
+  main: "index.js"

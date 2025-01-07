@@ -1,5 +1,5 @@
-name: 'Lang check'
-description: 'Run make check for a language'
+name: "Lang check"
+description: "Run make check for a language"
 runs:
-  using: 'node12'
-  main: 'index.js'
+  using: "node12"
+  main: "index.js"

@@ -1,32 +1,32 @@
-name: 'Deploy a thing'
-description: ''
+name: "Deploy a thing"
+description: ""
 inputs:
   package-id:
     description: Package identifier (the part that comes after /packages/ in the package key URL)
     required: true
   platform:
-    description: 'Platform'
+    description: "Platform"
     required: true
   version:
-    description: 'Version'
+    description: "Version"
     required: true
   payload-path:
-    description: 'Path to payload artifact to deploy'
+    description: "Path to payload artifact to deploy"
     required: true
   repo:
-    description: 'Pahkat repository to deploy to'
+    description: "Pahkat repository to deploy to"
     required: true
   channel:
-    description: 'Pahkat channel'
+    description: "Pahkat channel"
     required: false
   macos-pkg-id:
     description: "macOS operating system package identifier (macOS: required)"
     required: false
   macos-requires-reboot:
-    description: ''
+    description: ""
     required: false
   macos-targets:
-    description: ''
+    description: ""
     required: false
   windows-product-code:
     description: "Windows product code (Windows: required)"
@@ -35,11 +35,11 @@ inputs:
     description: The kind of installer
     required: false
   windows-requires-reboot:
-    description: ''
+    description: ""
     required: false
   GITHUB_TOKEN:
     description: Github token
     required: true
 runs:
-  using: 'node12'
-  main: 'index.js'
+  using: "node12"
+  main: "index.js"
