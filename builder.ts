@@ -171,11 +171,11 @@ export type InputOptions = {
     trimWhitespace?: boolean;
 }
 
-export function getInput(variable: string, options?: InputOptions): string {
+export async function getInput(variable: string, options?: InputOptions): Promise<string> {
     return actionsCore.getInput(variable, options)
 }
 
-export function setOutput(name: string, value: any) {
+export async function setOutput(name: string, value: any): Promise<void> {
     return actionsCore.setOutput(name, value)
 }
 

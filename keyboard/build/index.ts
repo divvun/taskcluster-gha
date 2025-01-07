@@ -9,9 +9,9 @@ import { generateKbdInnoFromBundle } from './iss'
 const SEMVER_TAG_RE = /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
 
 async function run() {
-    const keyboardType = builder.getInput("keyboard-type", { required: true }) as KeyboardType
-    const nightlyChannel = builder.getInput("nightly-channel", { required: true })
-    const bundlePath = getBundle()
+    const keyboardType = await builder.getInput("keyboard-type", { required: true }) as KeyboardType
+    const nightlyChannel = await builder.getInput("nightly-channel", { required: true })
+    const bundlePath = await getBundle()
 
     // Testing how to get name and description fields
     const project = Kbdgen.loadProjectBundle(bundlePath)
@@ -32,7 +32,7 @@ async function run() {
         if (isMatchingTag(SEMVER_TAG_RE)) {
             builder.debug("Using version from kbdgen project")
         } else {
-            builder.setOutput("channel", nightlyChannel)
+            await builder.setOutput("channel", nightlyChannel)
             builder.debug("Setting current version to nightly version")
             await Kbdgen.setNightlyVersion(bundlePath, "macos")
         }
@@ -41,7 +41,7 @@ async function run() {
         if (isMatchingTag(SEMVER_TAG_RE)) {
             builder.debug("Using version from kbdgen project")
         } else {
-            builder.setOutput("channel", nightlyChannel)
+            await builder.setOutput("channel", nightlyChannel)
             builder.debug("Setting current version to nightly version")
             await Kbdgen.setNightlyVersion(bundlePath, "windows")
         }
@@ -59,7 +59,7 @@ async function run() {
         throw new Error(`Unhandled keyboard type: ${keyboardType}`)
     }
 
-    builder.setOutput("payload-path", payloadPath)
+    await builder.setOutput("payload-path", payloadPath)
 }
 
 run().catch(err => {

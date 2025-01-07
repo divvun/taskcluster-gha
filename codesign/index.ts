@@ -7,10 +7,10 @@ import { Bash, secrets } from "../shared"
 const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(() => resolve(), ms))
 
 async function run() {
-    const filePath = path.resolve(builder.getInput('path', { required: true }))
+    const filePath = path.resolve(await builder.getInput('path', { required: true }))
     const fileName = filePath.split(path.sep).pop()
     const sec = await secrets()
-    const isInstaller = builder.getInput('isInstaller') || false
+    const isInstaller = await builder.getInput('isInstaller') || false
 
     if (process.platform == "win32") {
         builder.debug("  Windows platform");

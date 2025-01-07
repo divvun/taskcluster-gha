@@ -2,7 +2,7 @@ import * as builder from "~/builder"
 import { Powershell } from '../shared'
 
 async function run() {
-    const tags = builder.getInput('tags', { required: true }).split(",").map(x => x.trim())
+    const tags = (await builder.getInput('tags', { required: true })).split(",").map(x => x.trim())
 
     let script = `$langs = Get-WinUserLanguageList; `
     for (const tag of tags) {

@@ -5,7 +5,7 @@ import * as builder from "~/builder"
 import { Tar } from "../shared"
 
 async function run() {
-    const filesPath = builder.getInput('path', { required: true })
+    const filesPath = await builder.getInput('path', { required: true })
 
     const globber = await builder.globber(path.join(filesPath, "*"), {
         followSymbolicLinks: false,
@@ -21,7 +21,7 @@ async function run() {
     }).name
 
     await Tar.createFlatTxz(files, outputTxz)
-    builder.setOutput("txz-path", outputTxz)
+    await builder.setOutput("txz-path", outputTxz)
 }
 
 run().catch(err => {

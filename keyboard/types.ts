@@ -11,8 +11,8 @@ export enum KeyboardType {
     X11 = "keyboard-x11"
 }
 
-export function getBundle() {
-    const override = builder.getInput("bundle-path")
+export async function getBundle() {
+    const override = await builder.getInput("bundle-path")
     if (override) {
         return override
     }

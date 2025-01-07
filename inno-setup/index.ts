@@ -2,8 +2,8 @@ import * as builder from "~/builder"
 import { makeInstaller } from './lib'
 
 async function run() {
-    const issPath = builder.getInput('path', { required: true })
-    const rawDefines = builder.getInput('defines')
+    const issPath = await builder.getInput('path', { required: true })
+    const rawDefines = await builder.getInput('defines')
     
     let defines: string[] = []
     if (rawDefines != null) {
@@ -17,7 +17,7 @@ async function run() {
     // without checking it has a new line to write one.
     console.log("Installer generated.\n\n")
 
-    builder.setOutput("installer-path", installerOutput)
+    await builder.setOutput("installer-path", installerOutput)
 }
 
 run().catch(err => {

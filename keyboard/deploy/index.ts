@@ -50,11 +50,11 @@ function releaseReq(version: string, platform: string, channel: string | null): 
 }
 
 async function run() {
-    const payloadPath = builder.getInput('payload-path', { required: true })
-    const keyboardType = builder.getInput('keyboard-type', { required: true }) as KeyboardType
-    const bundlePath = getBundle()
-    const channel = builder.getInput('channel') || null;
-    const pahkatRepo = builder.getInput('repo', { required: true });
+    const payloadPath = await builder.getInput('payload-path', { required: true })
+    const keyboardType = await builder.getInput('keyboard-type', { required: true }) as KeyboardType
+    const bundlePath = await getBundle()
+    const channel = await builder.getInput('channel') || null;
+    const pahkatRepo = await builder.getInput('repo', { required: true });
     const packageId = derivePackageId()
 
     const repoPackageUrl = `${pahkatRepo}packages/${packageId}`
@@ -140,7 +140,7 @@ async function run() {
 
     fs.writeFileSync("./metadata.toml", payloadMetadata, "utf8")
 
-    const metadataJsonPath = writeMetadataJson()
+    const metadataJsonPath = await writeMetadataJson()
 
     builder.debug(`Renaming from ${payloadPath} to ${artifactPath}`)
     fs.renameSync(payloadPath, artifactPath)
@@ -150,8 +150,8 @@ async function run() {
 
 // Writes the name and description fields to a json file
 // Returns the path to the json file or null if unsuccessful
-function writeMetadataJson(): string | null {
-    const bundlePath = getBundle()
+async function writeMetadataJson(): Promise<string | null> {
+    const bundlePath = await getBundle()
     const project = Kbdgen.loadProjectBundleWithoutProxy(bundlePath)
     const locales = project.locales
     if (!locales) {

@@ -18,9 +18,9 @@ enum PackageType {
     TarballPackage = "TarballPackage",
 }
 
-function getPlatformAndType(): { packageType: PackageType, platform: string } {
-    let platform = builder.getInput('platform') || null
-    const givenType = builder.getInput('type') || null
+async function getPlatformAndType(): Promise<{ packageType: PackageType, platform: string }> {
+    let platform = await builder.getInput('platform') || null
+    const givenType = await builder.getInput('type') || null
 
     builder.debug(`Platform: '${platform}', Type: '${givenType}'`)
 
@@ -74,8 +74,8 @@ function getPlatformAndType(): { packageType: PackageType, platform: string } {
     }
 }
 
-function getDependencies() {
-    const deps = builder.getInput('dependencies') || null
+async function getDependencies() {
+    const deps = await builder.getInput('dependencies') || null
 
     if (deps == null) {
         return null
@@ -85,17 +85,17 @@ function getDependencies() {
 }
 
 async function run() {
-    const packageId = builder.getInput('package-id', { required: true })
-    const { packageType, platform } = getPlatformAndType()
-    const payloadPath = builder.getInput('payload-path', { required: true })
-    const arch = builder.getInput('arch') || null
-    const channel = builder.getInput('channel') || null
-    const dependencies = getDependencies()
-    const pahkatRepo = builder.getInput('repo', { required: true })
+    const packageId = await builder.getInput('package-id', { required: true })
+    const { packageType, platform } = await getPlatformAndType()
+    const payloadPath = await builder.getInput('payload-path', { required: true })
+    const arch = await builder.getInput('arch') || null
+    const channel = await builder.getInput('channel') || null
+    const dependencies = await getDependencies()
+    const pahkatRepo = await builder.getInput('repo', { required: true })
 
     const repoPackageUrl = `${pahkatRepo}/packages/${packageId}`
 
-    let version = builder.getInput('version', { required: true })
+    let version = await builder.getInput('version', { required: true })
     builder.debug("Version: " + version)
 
     const ext = path.extname(payloadPath)
@@ -127,9 +127,9 @@ async function run() {
     }
 
     if (packageType === PackageType.MacOSPackage) {
-        const pkgId = builder.getInput('macos-pkg-id', { required: true })
-        const rawReqReboot = builder.getInput('macos-requires-reboot')
-        const rawTargets = builder.getInput('macos-targets')
+        const pkgId = await builder.getInput('macos-pkg-id', { required: true })
+        const rawReqReboot = await builder.getInput('macos-requires-reboot')
+        const rawTargets = await builder.getInput('macos-targets')
 
         const requiresReboot: RebootSpec[] = rawReqReboot
             ? rawReqReboot.split(',').map(x => x.trim()) as RebootSpec[]
@@ -146,9 +146,9 @@ async function run() {
             pkgId, requiresReboot, targets)
         fs.writeFileSync("./metadata.toml", data, "utf8")
     } else if (packageType === PackageType.WindowsExecutable) {
-        let productCode = builder.getInput("windows-product-code", { required: true })
-        const kind = builder.getInput("windows-kind") || null
-        const rawReqReboot = builder.getInput('windows-requires-reboot')
+        let productCode = await builder.getInput("windows-product-code", { required: true })
+        const kind = await builder.getInput("windows-kind") || null
+        const rawReqReboot = await builder.getInput('windows-requires-reboot')
         const requiresReboot: RebootSpec[] = rawReqReboot
             ? rawReqReboot.split(',').map(x => x.trim()) as RebootSpec[]
             : []

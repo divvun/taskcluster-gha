@@ -9,13 +9,13 @@ import { DivvunBundler, SpellerPaths, Tar, ThfstTools, nonUndefinedProxy } from 
 import { SpellerManifest, SpellerType, deriveLangTag, derivePackageId } from '../manifest'
 
 async function run() {
-    const version = builder.getInput("version", { required: true })
-    const spellerType = builder.getInput("speller-type", { required: true }) as SpellerType
+    const version = await builder.getInput("version", { required: true })
+    const spellerType = await builder.getInput("speller-type", { required: true }) as SpellerType
     const manifest = toml.parse(fs.readFileSync(
-        builder.getInput("speller-manifest-path", { required: true }), "utf8"
+        await builder.getInput("speller-manifest-path", { required: true }), "utf8"
     )) as SpellerManifest
     const spellerPaths = nonUndefinedProxy(JSON.parse(
-        builder.getInput("speller-paths", { required: true })
+        await builder.getInput("speller-paths", { required: true })
     ), true) as SpellerPaths
 
     let { spellername } = manifest
@@ -38,7 +38,7 @@ async function run() {
         builder.debug(`Creating txz from [${bhfstPaths.join(", ")}] at ${payloadPath}`)
         await Tar.createFlatTxz(bhfstPaths, payloadPath)
 
-        builder.setOutput("payload-path", payloadPath)
+        await builder.setOutput("payload-path", payloadPath)
     } else if (spellerType == SpellerType.Windows) {
         if (manifest.windows.system_product_code == null) {
             throw new Error("Missing system_product_code")
@@ -113,11 +113,11 @@ async function run() {
         builder.debug(innoBuilder.build())
 
         const payloadPath = await makeInstaller("./install.iss")
-        builder.setOutput("payload-path", payloadPath)
+        await builder.setOutput("payload-path", payloadPath)
         builder.debug(`Installer created at ${payloadPath}`)
     } else if (spellerType == SpellerType.MacOS) {
         const payloadPath = await DivvunBundler.bundleMacOS(spellername, version, packageId, langTag, spellerPaths)
-        builder.setOutput("payload-path", payloadPath)
+        await builder.setOutput("payload-path", payloadPath)
     }
 }
 

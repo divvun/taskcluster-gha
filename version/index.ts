@@ -6,8 +6,8 @@ import * as builder from "~/builder"
 import { Bash, isMatchingTag, nonUndefinedProxy, versionAsNightly } from '../shared'
 import { SpellerManifest } from '../speller/manifest'
 
-function getCargoToml() {
-    const cargo = builder.getInput("cargo") || null
+async function getCargoToml() {
+    const cargo = await builder.getInput("cargo") || null
 
     if (cargo == null) {
         return null
@@ -20,8 +20,8 @@ function getCargoToml() {
     return nonUndefinedProxy(toml.parse(fs.readFileSync(cargo, "utf8")))
 }
 
-function getSpellerManifestToml(): SpellerManifest | null {
-    const manifest = builder.getInput("speller-manifest") || null
+async function getSpellerManifestToml(): Promise<SpellerManifest | null> {
+    const manifest = await builder.getInput("speller-manifest") || null
 
     if (manifest == null) {
         return null
@@ -35,7 +35,7 @@ function getSpellerManifestToml(): SpellerManifest | null {
 }
 
 async function getXcodeMarketingVersion() {
-    const input = builder.getInput("xcode") || null
+    const input = await builder.getInput("xcode") || null
     let cwd
 
     if (input != null && input !== "true") {
@@ -53,8 +53,8 @@ function deriveNightly(): boolean {
     return !isMatchingTag(SEMVER_TAG_RE)
 }
 
-function getPlistPath() {
-    const plistPath = builder.getInput("plist") || null
+async function getPlistPath() {
+    const plistPath = await builder.getInput("plist") || null
 
     if (plistPath == null) {
         return null
@@ -63,8 +63,8 @@ function getPlistPath() {
     return path.resolve(plistPath)
 }
 
-function getVersionFromFile() {
-    const filePath = builder.getInput("filepath") || null;
+async function getVersionFromFile() {
+    const filePath = await builder.getInput("filepath") || null;
 
     if (filePath == null) {
         return null
@@ -75,15 +75,15 @@ function getVersionFromFile() {
 }
 
 async function run() {
-    const isXcode = builder.getInput("xcode") || null
+    const isXcode = await builder.getInput("xcode") || null
     const isNightly = deriveNightly()
-    const cargoToml = getCargoToml()
-    const spellerManifest = getSpellerManifestToml()
-    const plistPath = getPlistPath()
-    const csharp = builder.getInput("csharp") || null
-    const versionFromFile = getVersionFromFile()
-    const instaStable = builder.getInput("insta-stable") || false
-    const nightlyChannel = builder.getInput("nightly-channel", { required: true })
+    const cargoToml = await getCargoToml()
+    const spellerManifest = await getSpellerManifestToml()
+    const plistPath = await getPlistPath()
+    const csharp = await builder.getInput("csharp") || null
+    const versionFromFile = await getVersionFromFile()
+    const instaStable = await builder.getInput("insta-stable") || false
+    const nightlyChannel = await builder.getInput("nightly-channel", { required: true })
 
     let version 
 
@@ -120,20 +120,20 @@ async function run() {
         builder.debug(`Generating nightly version for channel ${nightlyChannel}`)
         version = await versionAsNightly(version)
 
-        builder.setOutput("channel", nightlyChannel)
+        await builder.setOutput("channel", nightlyChannel)
     } else {
         if (instaStable != "true") {
-            builder.setOutput("channel", "beta")
+            await builder.setOutput("channel", "beta")
         } else {
             // An insta-stable package that is pre-1.0.0 will still be released to beta
             if (version.startsWith("0")) {
-                builder.setOutput("channel", "beta")
+                await builder.setOutput("channel", "beta")
             }
         }
     }
 
     builder.debug("Setting version to: " + version)
-    builder.setOutput("version", version)
+    await builder.setOutput("version", version)
 }
 
 run().catch(err => {

@@ -1,8 +1,8 @@
 import * as builder from "~/builder"
 import { Apt, Pip, Pipx, ProjectJJ, Ssh } from "../../shared"
 
-function getSudo() {
-    const x = builder.getInput("sudo")
+async function getSudo() {
+    const x = await builder.getInput("sudo")
 
     if (x === "true") {
         return true
@@ -16,8 +16,8 @@ function getSudo() {
 }
 
 async function run() {
-    const requiresSudo = getSudo()
-    const requiresApertium = !!builder.getInput("apertium")
+    const requiresSudo = await getSudo()
+    const requiresApertium = !!await builder.getInput("apertium")
     builder.debug("Requires sudo? " + requiresSudo)
 
     const basePackages = [

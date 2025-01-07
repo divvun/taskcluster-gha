@@ -33,11 +33,11 @@ class Autotools {
     }
 }
 
-function deriveInputs(inputs: string[]): { [key: string]: any } {
+async function deriveInputs(inputs: string[]): Promise<{ [key: string]: any }> {
     const o: { [key: string]: any } = {}
 
     for (const input of inputs) {
-        const value: any = builder.getInput(input)
+        const value: any = await builder.getInput(input)
 
         console.log(input, value)
 
@@ -67,9 +67,9 @@ async function run() {
         return
     }
 
-    const requiresDesktopAsMobileWorkaround = builder.getInput("force-desktop-spellers-as-mobile")
+    const requiresDesktopAsMobileWorkaround = await builder.getInput("force-desktop-spellers-as-mobile")
 
-    const config = deriveInputs([
+    const config = await deriveInputs([
         "fst",
         "generators",
         "spellers",
@@ -213,7 +213,7 @@ async function run() {
 
         console.log("Saving speller-paths")
 
-        builder.setOutput("speller-paths", JSON.stringify(out, null, 0))
+        await builder.setOutput("speller-paths", JSON.stringify(out, null, 0))
         console.log("Setting speller paths to:")
         console.log(JSON.stringify(out, null, 2))
     } else {
