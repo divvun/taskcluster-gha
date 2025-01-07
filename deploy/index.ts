@@ -1,15 +1,15 @@
-import * as core from '@actions/core'
 import fs from "fs"
 import path from "path"
+import * as builder from "~/builder"
 
 import {
+    getArtifactSize,
+    MacOSPackageTarget,
     PahkatUploader,
     RebootSpec,
-    MacOSPackageTarget,
-    validateProductCode,
-    WindowsExecutableKind,
     ReleaseRequest,
-    getArtifactSize
+    validateProductCode,
+    WindowsExecutableKind
 } from '../shared'
 
 enum PackageType {
@@ -19,10 +19,10 @@ enum PackageType {
 }
 
 function getPlatformAndType(): { packageType: PackageType, platform: string } {
-    let platform = core.getInput('platform') || null
-    const givenType = core.getInput('type') || null
+    let platform = builder.getInput('platform') || null
+    const givenType = builder.getInput('type') || null
 
-    core.debug(`Platform: '${platform}', Type: '${givenType}'`)
+    builder.debug(`Platform: '${platform}', Type: '${givenType}'`)
 
     if (givenType == null) {
         if (platform == null) {
@@ -75,7 +75,7 @@ function getPlatformAndType(): { packageType: PackageType, platform: string } {
 }
 
 function getDependencies() {
-    const deps = core.getInput('dependencies') || null
+    const deps = builder.getInput('dependencies') || null
 
     if (deps == null) {
         return null
@@ -85,18 +85,18 @@ function getDependencies() {
 }
 
 async function run() {
-    const packageId = core.getInput('package-id', { required: true })
+    const packageId = builder.getInput('package-id', { required: true })
     const { packageType, platform } = getPlatformAndType()
-    const payloadPath = core.getInput('payload-path', { required: true })
-    const arch = core.getInput('arch') || null
-    const channel = core.getInput('channel') || null
+    const payloadPath = builder.getInput('payload-path', { required: true })
+    const arch = builder.getInput('arch') || null
+    const channel = builder.getInput('channel') || null
     const dependencies = getDependencies()
-    const pahkatRepo = core.getInput('repo', { required: true })
+    const pahkatRepo = builder.getInput('repo', { required: true })
 
     const repoPackageUrl = `${pahkatRepo}/packages/${packageId}`
 
-    let version = core.getInput('version', { required: true })
-    core.debug("Version: " + version)
+    let version = builder.getInput('version', { required: true })
+    builder.debug("Version: " + version)
 
     const ext = path.extname(payloadPath)
     const pathItems = [packageId, version, platform]
@@ -127,9 +127,9 @@ async function run() {
     }
 
     if (packageType === PackageType.MacOSPackage) {
-        const pkgId = core.getInput('macos-pkg-id', { required: true })
-        const rawReqReboot = core.getInput('macos-requires-reboot')
-        const rawTargets = core.getInput('macos-targets')
+        const pkgId = builder.getInput('macos-pkg-id', { required: true })
+        const rawReqReboot = builder.getInput('macos-requires-reboot')
+        const rawTargets = builder.getInput('macos-targets')
 
         const requiresReboot: RebootSpec[] = rawReqReboot
             ? rawReqReboot.split(',').map(x => x.trim()) as RebootSpec[]
@@ -146,9 +146,9 @@ async function run() {
             pkgId, requiresReboot, targets)
         fs.writeFileSync("./metadata.toml", data, "utf8")
     } else if (packageType === PackageType.WindowsExecutable) {
-        let productCode = core.getInput("windows-product-code", { required: true })
-        const kind = core.getInput("windows-kind") || null
-        const rawReqReboot = core.getInput('windows-requires-reboot')
+        let productCode = builder.getInput("windows-product-code", { required: true })
+        const kind = builder.getInput("windows-kind") || null
+        const rawReqReboot = builder.getInput('windows-requires-reboot')
         const requiresReboot: RebootSpec[] = rawReqReboot
             ? rawReqReboot.split(',').map(x => x.trim()) as RebootSpec[]
             : []
@@ -160,7 +160,7 @@ async function run() {
                 productCode = validateProductCode(kind, productCode)
                 break;
             case null:
-                core.debug("No Windows kind provided, not validating product code.")
+                builder.debug("No Windows kind provided, not validating product code.")
                 break;
             default:
                 throw new Error("Unhandled Windows executable kind: " + kind)
@@ -187,7 +187,7 @@ async function run() {
         throw new Error(`Unhandled package type: '${packageType}'`)
     }
     
-    core.debug(`Renaming from ${payloadPath} to ${artifactPath}`)
+    builder.debug(`Renaming from ${payloadPath} to ${artifactPath}`)
     fs.renameSync(payloadPath, artifactPath)
 
     await PahkatUploader.upload(artifactPath, artifactUrl, "./metadata.toml", repoPackageUrl)

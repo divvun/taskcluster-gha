@@ -1,5 +1,5 @@
-import * as core from "@actions/core"
 import fs from 'fs'
+import * as builder from "~/builder"
 
 export enum KeyboardType {
     iOS = "keyboard-ios",
@@ -12,7 +12,7 @@ export enum KeyboardType {
 }
 
 export function getBundle() {
-    const override = core.getInput("bundle-path")
+    const override = builder.getInput("bundle-path")
     if (override) {
         return override
     }

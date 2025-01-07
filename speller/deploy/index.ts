@@ -1,17 +1,17 @@
-import * as core from '@actions/core'
-import toml from 'toml'
 import fs from 'fs'
 import path from 'path'
+import toml from 'toml'
+import * as builder from "~/builder"
 
 import {
-    PahkatUploader,
-    WindowsExecutableKind,
-    RebootSpec,
     MacOSPackageTarget,
-    nonUndefinedProxy,
-    validateProductCode,
+    PahkatUploader,
+    RebootSpec,
     ReleaseRequest,
-    getArtifactSize
+    WindowsExecutableKind,
+    getArtifactSize,
+    nonUndefinedProxy,
+    validateProductCode
 } from '../../shared'
 
 import { SpellerManifest, SpellerType, derivePackageId } from '../manifest'
@@ -41,15 +41,15 @@ function releaseReq(version: string, platform: string, dependencies: any, channe
 
 async function run() {
     try {
-        const spellerType = core.getInput('speller-type', { required: true }) as SpellerType
-        const manifestPath = core.getInput('speller-manifest-path', { required: true })
+        const spellerType = builder.getInput('speller-type', { required: true }) as SpellerType
+        const manifestPath = builder.getInput('speller-manifest-path', { required: true })
         const manifest = loadManifest(manifestPath)
-        const payloadPath = core.getInput('payload-path', { required: true })
-        const version = core.getInput('version', { required: true });
-        const channel = core.getInput('channel') || null;
-        const nightlyChannel = core.getInput("nightly-channel", { required: true })
+        const payloadPath = builder.getInput('payload-path', { required: true })
+        const version = builder.getInput('version', { required: true });
+        const channel = builder.getInput('channel') || null;
+        const nightlyChannel = builder.getInput("nightly-channel", { required: true })
 
-        const pahkatRepo = core.getInput('repo', { required: true });
+        const pahkatRepo = builder.getInput('repo', { required: true });
         const packageId = derivePackageId(spellerType)
 
         const repoPackageUrl = `${pahkatRepo}packages/${packageId}`
@@ -150,7 +150,7 @@ async function run() {
             throw new Error("artifact url is null; this is a logic error.")
         }
 
-        core.debug(`Renaming from ${payloadPath} to ${artifactPath}`)
+        builder.debug(`Renaming from ${payloadPath} to ${artifactPath}`)
         fs.renameSync(payloadPath, artifactPath)
 
         await PahkatUploader.upload(
@@ -164,7 +164,7 @@ async function run() {
         );
     }
     catch (error: any) {
-        core.setFailed(error.message);
+        builder.setFailed(error.message);
     }
 }
 

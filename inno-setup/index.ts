@@ -1,9 +1,9 @@
-import * as core from '@actions/core'
+import * as builder from "~/builder"
 import { makeInstaller } from './lib'
 
 async function run() {
-    const issPath = core.getInput('path', { required: true })
-    const rawDefines = core.getInput('defines')
+    const issPath = builder.getInput('path', { required: true })
+    const rawDefines = builder.getInput('defines')
     
     let defines: string[] = []
     if (rawDefines != null) {
@@ -17,7 +17,7 @@ async function run() {
     // without checking it has a new line to write one.
     console.log("Installer generated.\n\n")
 
-    core.setOutput("installer-path", installerOutput)
+    builder.setOutput("installer-path", installerOutput)
 }
 
 run().catch(err => {

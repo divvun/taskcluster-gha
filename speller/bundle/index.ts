@@ -1,22 +1,21 @@
-import * as core from '@actions/core'
-import * as io from "@actions/io"
-import path from 'path'
 import toml from '@iarna/toml'
 import fs from 'fs'
+import path from 'path'
 
-import { ThfstTools, Tar, SpellerPaths, DivvunBundler, nonUndefinedProxy } from '../../shared'
-import { SpellerType, SpellerManifest, derivePackageId, deriveLangTag } from '../manifest'
-import { makeInstaller } from '../../inno-setup/lib'
+import * as builder from "~/builder"
 import { InnoSetupBuilder } from '../../inno'
+import { makeInstaller } from '../../inno-setup/lib'
+import { DivvunBundler, SpellerPaths, Tar, ThfstTools, nonUndefinedProxy } from '../../shared'
+import { SpellerManifest, SpellerType, deriveLangTag, derivePackageId } from '../manifest'
 
 async function run() {
-    const version = core.getInput("version", { required: true })
-    const spellerType = core.getInput("speller-type", { required: true }) as SpellerType
+    const version = builder.getInput("version", { required: true })
+    const spellerType = builder.getInput("speller-type", { required: true }) as SpellerType
     const manifest = toml.parse(fs.readFileSync(
-        core.getInput("speller-manifest-path", { required: true }), "utf8"
+        builder.getInput("speller-manifest-path", { required: true }), "utf8"
     )) as SpellerManifest
     const spellerPaths = nonUndefinedProxy(JSON.parse(
-        core.getInput("speller-paths", { required: true })
+        builder.getInput("speller-paths", { required: true })
     ), true) as SpellerPaths
 
     let { spellername } = manifest
@@ -30,16 +29,16 @@ async function run() {
             const bhfstPath = await ThfstTools.zhfstToBhfst(zhfstPath)
             const langTagBhfst = `${path.dirname(bhfstPath)}/${langTag}.bhfst`
 
-            core.debug(`Copying ${bhfstPath} to ${langTagBhfst}`)
-            await io.cp(bhfstPath, langTagBhfst)
+            builder.debug(`Copying ${bhfstPath} to ${langTagBhfst}`)
+            await builder.cp(bhfstPath, langTagBhfst)
             bhfstPaths.push(langTagBhfst)
         }
 
         const payloadPath = path.resolve(`./${packageId}_${version}_mobile.txz`)
-        core.debug(`Creating txz from [${bhfstPaths.join(", ")}] at ${payloadPath}`)
+        builder.debug(`Creating txz from [${bhfstPaths.join(", ")}] at ${payloadPath}`)
         await Tar.createFlatTxz(bhfstPaths, payloadPath)
 
-        core.setOutput("payload-path", payloadPath)
+        builder.setOutput("payload-path", payloadPath)
     } else if (spellerType == SpellerType.Windows) {
         if (manifest.windows.system_product_code == null) {
             throw new Error("Missing system_product_code")
@@ -54,9 +53,9 @@ async function run() {
             zhfstPaths.push(out)
         }
 
-        const builder = new InnoSetupBuilder()
+        const innoBuilder = new InnoSetupBuilder()
 
-        builder.name(`${spellername} Speller`)
+        innoBuilder.name(`${spellername} Speller`)
             .version(version)
             .publisher("Universitetet i Tromsø - Norges arktiske universitet")
             .url("http://divvun.no/")
@@ -93,8 +92,8 @@ async function run() {
                     }
                 }
 
-                core.debug("Writing speller.toml:")
-                core.debug(toml.stringify(spellerToml))
+                builder.debug("Writing speller.toml:")
+                builder.debug(toml.stringify(spellerToml))
                 fs.writeFileSync("./speller.toml", toml.stringify(spellerToml), "utf8")
 
                 code.execPostInstall(
@@ -110,16 +109,15 @@ async function run() {
             })
             .write("./install.iss")
 
-        core.debug("generated install.iss:")
-        core.debug(builder.build())
+        builder.debug("generated install.iss:")
+        builder.debug(innoBuilder.build())
 
         const payloadPath = await makeInstaller("./install.iss")
-        core.setOutput("DON'T DELETE", "without this output, windows can't see the following 'payload-path' output and CI breaks for some reason")
-        core.setOutput("payload-path", payloadPath)
-        core.debug(`Installer created at ${payloadPath}`)
+        builder.setOutput("payload-path", payloadPath)
+        builder.debug(`Installer created at ${payloadPath}`)
     } else if (spellerType == SpellerType.MacOS) {
         const payloadPath = await DivvunBundler.bundleMacOS(spellername, version, packageId, langTag, spellerPaths)
-        core.setOutput("payload-path", payloadPath)
+        builder.setOutput("payload-path", payloadPath)
     }
 }
 

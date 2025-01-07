@@ -1,8 +1,8 @@
-import * as core from "@actions/core"
+import * as builder from "~/builder"
 import { Apt, Pip, Pipx, ProjectJJ, Ssh } from "../../shared"
 
 function getSudo() {
-    const x = core.getInput("sudo")
+    const x = builder.getInput("sudo")
 
     if (x === "true") {
         return true
@@ -17,8 +17,8 @@ function getSudo() {
 
 async function run() {
     const requiresSudo = getSudo()
-    const requiresApertium = !!core.getInput("apertium")
-    core.debug("Requires sudo? " + requiresSudo)
+    const requiresApertium = !!builder.getInput("apertium")
+    builder.debug("Requires sudo? " + requiresSudo)
 
     const basePackages = [
         "autoconf",

@@ -1,41 +1,39 @@
-import * as core from '@actions/core'
-import * as exec from '@actions/exec'
-
 import fs from "fs"
 import path from "path"
 
-import { secrets, DIVVUN_PFX, Bash, RFC3161_URL } from "../shared"
+import * as builder from "~/builder"
+import { Bash, secrets } from "../shared"
 
 const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(() => resolve(), ms))
 
 async function run() {
-    const filePath = path.resolve(core.getInput('path', { required: true }))
+    const filePath = path.resolve(builder.getInput('path', { required: true }))
     const fileName = filePath.split(path.sep).pop()
     const sec = await secrets()
-    const isInstaller = core.getInput('isInstaller') || false
+    const isInstaller = builder.getInput('isInstaller') || false
 
     if (process.platform == "win32") {
-        core.debug("  Windows platform");
+        builder.debug("  Windows platform");
         // Call our internal API to sign the file
         // This overwrites the unsigned file
-        exec.exec("curl", ["-v", "-X", "POST", "-F", `file=@${filePath}`, "http://192.168.122.1:5000", "-o", `${filePath}`]);
-        core.setOutput("signed-path", filePath);
+        builder.exec("curl", ["-v", "-X", "POST", "-F", `file=@${filePath}`, "http://192.168.122.1:5000", "-o", `${filePath}`]);
+        await builder.setOutput("signed-path", filePath);
     } else if (process.platform === "darwin") {
         const { developerAccount, appPassword, appCodeSignId, installerCodeSignId, teamId } = sec.macos
 
         // Codesign with hardene`${filePath}.signed`d runtime and timestamp
         if (isInstaller != "true") {
-            await exec.exec("codesign", ["-s", appCodeSignId, filePath, "--timestamp", "--options=runtime"])
+            await builder.exec("codesign", ["-s", appCodeSignId, filePath, "--timestamp", "--options=runtime"])
         } else {
-            await exec.exec("productsign", ["--timestamp", "--sign", installerCodeSignId, filePath, `${filePath}.signed`])
-            await exec.exec(`mv ${filePath}.signed ${filePath}`)
+            await builder.exec("productsign", ["--timestamp", "--sign", installerCodeSignId, filePath, `${filePath}.signed`])
+            await builder.exec(`mv ${filePath}.signed ${filePath}`)
         }
 
         // Do some notarization
         const zipPath = path.resolve(path.dirname(filePath), "upload.zip")
 
         // Create zip file the way that Apple demands
-        await exec.exec("ditto", ["-c", "-k", "--keepParent", filePath, zipPath])
+        await builder.exec("ditto", ["-c", "-k", "--keepParent", filePath, zipPath])
 
         // Upload the zip
         const [response, err] = await Bash.runScript(`

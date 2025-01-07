@@ -1,11 +1,11 @@
-import { Bash } from "../../shared"
-import * as core from "@actions/core"
 import * as path from "path"
+import * as builder from "~/builder"
+import { Bash } from "../../shared"
 
 async function run() {
     const githubWorkspace = process.env.GITHUB_WORKSPACE
     if (githubWorkspace == null) {
-        core.setFailed("GITHUB_WORKSPACE not set, failing.")
+        builder.setFailed("GITHUB_WORKSPACE not set, failing.")
         return
     }
     const directory = path.join(githubWorkspace, "lang")

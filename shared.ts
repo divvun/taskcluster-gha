@@ -1,16 +1,12 @@
-import { exec } from '@actions/exec'
-import * as core from '@actions/core'
-import * as github from '@actions/github'
-import * as tc from '@actions/tool-cache'
-import * as io from "@actions/io"
-import * as glob from "@actions/glob"
-import path from 'path'
-import fs from 'fs'
-import * as taskcluster from "taskcluster-client"
-import YAML from 'yaml'
-import * as tmp from 'tmp'
 import crypto from "crypto"
-import { Security, downloadAppleWWDRCA } from './security'
+import fs from 'fs'
+import path from 'path'
+import * as taskcluster from "taskcluster-client"
+import * as tmp from 'tmp'
+import YAML from 'yaml'
+import { Security } from './security'
+
+import * as builder from "~/builder"
 
 // export const WINDOWS_SIGNING_HASH_ALGORITHM = "sha256"
 export const RFC3161_URL = "http://ts.ssl.com"
@@ -26,10 +22,6 @@ export function tmpDir() {
 
 export function divvunConfigDir() {
     return path.resolve(tmpDir(), "divvun-ci-config")
-}
-
-export function shouldDeploy() {
-    return github.context.ref === 'refs/heads/master'
 }
 
 // Generates a random string of 64 characters in length (48 bytes converted to base64)
@@ -84,24 +76,24 @@ function env() {
 
 function assertExit0(code: number) {
     if (code !== 0) {
-        core.setFailed(`Process exited with exit code ${code}.`)
+        builder.setFailed(`Process exited with exit code ${code}.`)
     }
 }
 
 export class Apt {
     static async update(requiresSudo: boolean) {
         if (requiresSudo) {
-            assertExit0(await exec("sudo", ["apt-get", "-qy", "update"], { env: env() }))
+            assertExit0(await builder.exec("sudo", ["apt-get", "-qy", "update"], { env: env() }))
         } else {
-            assertExit0(await exec("apt-get", ["-qy", "update"], { env: env() }))
+            assertExit0(await builder.exec("apt-get", ["-qy", "update"], { env: env() }))
         }
     }
 
     static async install(packages: string[], requiresSudo: boolean) {
         if (requiresSudo) {
-            assertExit0(await exec("sudo", ["apt-get", "install", "-qfy", ...packages], { env: env() }))
+            assertExit0(await builder.exec("sudo", ["apt-get", "install", "-qfy", ...packages], { env: env() }))
         } else {
-            assertExit0(await exec("apt-get", ["install", "-qfy", ...packages], { env: env() }))
+            assertExit0(await builder.exec("apt-get", ["install", "-qfy", ...packages], { env: env() }))
 
         }
     }
@@ -109,18 +101,18 @@ export class Apt {
 
 export class Pip {
     static async install(packages: string[]) {
-        assertExit0(await exec("pip3", ["install", "--user", ...packages], { env: env() }))
-        core.addPath(path.join(process.env.HOME!, ".local", "bin"))
+        assertExit0(await builder.exec("pip3", ["install", "--user", ...packages], { env: env() }))
+        builder.addPath(path.join(process.env.HOME!, ".local", "bin"))
     }
 }
 
 export class Pipx {
     static async ensurepath() {
-        assertExit0(await exec("pipx", ["ensurepath"], { env: env() }))
+        assertExit0(await builder.exec("pipx", ["ensurepath"], { env: env() }))
     }
 
     static async install(packages: string[]) {
-        assertExit0(await exec("pipx", ["install", ...packages], { env: env() }))
+        assertExit0(await builder.exec("pipx", ["install", ...packages], { env: env() }))
     }
 }
 
@@ -143,7 +135,7 @@ export class Powershell {
             }
         }
 
-        assertExit0(await exec("pwsh", ["-c", script], { env: thisEnv, cwd: opts.cwd, listeners }))
+        assertExit0(await builder.exec("pwsh", ["-c", script], { env: thisEnv, cwd: opts.cwd, listeners }))
         return [out.join(""), err.join("")]
     }
 }
@@ -183,9 +175,9 @@ export class Bash {
         }
 
         if (args.sudo) {
-            assertExit0(await exec("sudo", ["bash", "-c", script], { env: thisEnv, cwd: args.cwd, listeners }))
+            assertExit0(await builder.exec("sudo", ["bash", "-c", script], { env: thisEnv, cwd: args.cwd, listeners }))
         } else {
-            assertExit0(await exec("bash", ["-c", script], { env: thisEnv, cwd: args.cwd, listeners }))
+            assertExit0(await builder.exec("bash", ["-c", script], { env: thisEnv, cwd: args.cwd, listeners }))
         }
 
         return [out.join(""), err.join("")]
@@ -205,29 +197,29 @@ export class Tar {
             return
         }
 
-        core.debug("Attempt to download xz tools")
-        const xzToolsZip = await tc.downloadTool(Tar.URL_XZ_WINDOWS)
-        await tc.extractZip(xzToolsZip, path.join(tmpDir(), "xz"))
-        core.addPath(outputPath)
+        builder.debug("Attempt to download xz tools")
+        const xzToolsZip = await builder.downloadTool(Tar.URL_XZ_WINDOWS)
+        await builder.extractZip(xzToolsZip, path.join(tmpDir(), "xz"))
+        builder.addPath(outputPath)
     }
 
     static async extractTxz(filePath: string, outputDir?: string) {
         const platform = process.platform
 
         if (platform === "linux") {
-            return await tc.extractTar(filePath, outputDir || tmpDir(), "Jx")
+            return await builder.extractTar(filePath, outputDir || tmpDir(), "Jx")
         } else if (platform === "darwin") {
-            return await tc.extractTar(filePath, outputDir || tmpDir())
+            return await builder.extractTar(filePath, outputDir || tmpDir())
         } else if (platform === "win32") {
             // Windows kinda can't deal with no xz.
             await Tar.bootstrap()
 
             // Now we unxz it
-            core.debug("Attempt to unxz")
-            await exec("xz", ["-d", filePath])
+            builder.debug("Attempt to unxz")
+            await builder.exec("xz", ["-d", filePath])
 
-            core.debug("Attempted to extract tarball")
-            return await tc.extractTar(`${path.dirname(filePath)}\\${path.basename(filePath, ".txz")}.tar`, outputDir || tmpDir())
+            builder.debug("Attempted to extract tarball")
+            return await builder.extractTar(`${path.dirname(filePath)}\\${path.basename(filePath, ".txz")}.tar`, outputDir || tmpDir())
         } else {
             throw new Error(`Unsupported platform: ${platform}`)
         }
@@ -238,21 +230,21 @@ export class Tar {
         const stagingDir = path.join(tmpDir.name, "staging")
         fs.mkdirSync(stagingDir)
 
-        core.debug(`Created tmp dir: ${tmpDir.name}`)
+        builder.debug(`Created tmp dir: ${tmpDir.name}`)
 
         for (const p of paths) {
-            core.debug(`Copying ${p} into ${stagingDir}`)
-            await io.cp(p, stagingDir, { recursive: true })
+            builder.debug(`Copying ${p} into ${stagingDir}`)
+            await builder.cp(p, stagingDir, { recursive: true })
         }
 
-        core.debug(`Tarring`)
+        builder.debug(`Tarring`)
         await Bash.runScript(`tar cf ../file.tar *`, { cwd: stagingDir })
 
-        core.debug("xz -9'ing")
+        builder.debug("xz -9'ing")
         await Bash.runScript(`xz -9 ../file.tar`, { cwd: stagingDir })
 
-        core.debug("Copying file.tar.xz to " + outputPath)
-        await io.cp(path.join(tmpDir.name, "file.tar.xz"), outputPath)
+        builder.debug("Copying file.tar.xz to " + outputPath)
+        await builder.cp(path.join(tmpDir.name, "file.tar.xz"), outputPath)
     }
 }
 
@@ -273,12 +265,12 @@ export class PahkatPrefix {
 
         let txz
         if (platform === "linux") {
-            txz = await tc.downloadTool(PahkatPrefix.URL_LINUX)
+            txz = await builder.downloadTool(PahkatPrefix.URL_LINUX)
         } else if (platform === "darwin") {
-            txz = await tc.downloadTool(PahkatPrefix.URL_MACOS)
+            txz = await builder.downloadTool(PahkatPrefix.URL_MACOS)
         } else if (platform === "win32") {
             // Now we can download things
-            txz = await tc.downloadTool(PahkatPrefix.URL_WINDOWS,
+            txz = await builder.downloadTool(PahkatPrefix.URL_WINDOWS,
                 path.join(tmpDir(), "pahkat-dl.txz"))
         } else {
             throw new Error(`Unsupported platform: ${platform}`)
@@ -289,11 +281,11 @@ export class PahkatPrefix {
         const binPath = path.resolve(outputPath, "bin")
 
         console.log(`Bin path: ${binPath}, platform: ${process.platform}`)
-        core.addPath(binPath)
+        builder.addPath(binPath)
 
         // Init the repo
         if (fs.existsSync(PahkatPrefix.path)) {
-            core.debug(`${PahkatPrefix.path} exists; deleting first.`)
+            builder.debug(`${PahkatPrefix.path} exists; deleting first.`)
             fs.rmdirSync(PahkatPrefix.path, { recursive: true })
         }
         await DefaultShell.runScript(`pahkat-prefix init -c ${PahkatPrefix.path}`)
@@ -311,7 +303,7 @@ export class PahkatPrefix {
         await DefaultShell.runScript(`pahkat-prefix install ${packages.join(" ")} -c ${PahkatPrefix.path}`)
 
         for (const pkg of packages) {
-            core.addPath(path.join(PahkatPrefix.path, "pkg", pkg.split("@").shift()!, "bin"))
+            builder.addPath(path.join(PahkatPrefix.path, "pkg", pkg.split("@").shift()!, "bin"))
         }
     }
 }
@@ -337,7 +329,7 @@ export class PahkatUploader {
 
     private static async run(args: string[]): Promise<string> {
         if (process.env["PAHKAT_NO_DEPLOY"] === "true") {
-            core.debug("Skipping deploy because `PAHKAT_NO_DEPLOY` is true")
+            builder.debug("Skipping deploy because `PAHKAT_NO_DEPLOY` is true")
             return ""
         }
         const sec = await secrets()
@@ -350,7 +342,7 @@ export class PahkatUploader {
             exe = "pahkat-uploader"
         }
 
-        assertExit0(await exec(exe, args, {
+        assertExit0(await builder.exec(exe, args, {
             env: Object.assign({}, env(), {
                 PAHKAT_API_KEY: sec.pahkat.apiKey
             }),
@@ -367,7 +359,7 @@ export class PahkatUploader {
         const fileName = path.parse(artifactPath).base
 
         if (process.env["PAHKAT_NO_DEPLOY"] === "true") {
-            core.debug("Skipping upload because `PAHKAT_NO_DEPLOY` is true. Creating artifact instead")
+            builder.debug("Skipping upload because `PAHKAT_NO_DEPLOY` is true. Creating artifact instead")
             process.stdout.write(`::create-artifact path=${fileName}::${artifactPath}`)
             return
         }
@@ -382,10 +374,10 @@ export class PahkatUploader {
         console.log(`Uploading ${artifactPath} to S3`)
 
         var retries = 0;
-        await exec("aws", ["configure", "set", "default.s3.multipart_threshold", "500MB"])
+        await builder.exec("aws", ["configure", "set", "default.s3.multipart_threshold", "500MB"])
         while (true) {
             try {
-                await exec("aws", ["s3", "cp", "--cli-connect-timeout", "6000", "--endpoint", "https://ams3.digitaloceanspaces.com", "--acl", "public-read", artifactPath, `s3://divvun/pahkat/artifacts/${fileName}`], {
+                await builder.exec("aws", ["s3", "cp", "--cli-connect-timeout", "6000", "--endpoint", "https://ams3.digitaloceanspaces.com", "--acl", "public-read", artifactPath, `s3://divvun/pahkat/artifacts/${fileName}`], {
                     env: Object.assign({}, env(), {
                         AWS_ACCESS_KEY_ID: sec.aws.accessKeyId,
                         AWS_SECRET_ACCESS_KEY: sec.aws.secretAccessKey,
@@ -588,7 +580,7 @@ export class Kbdgen {
     }
 
     private static async resolveOutput(p: string): Promise<string> {
-        const globber = await glob.create(p, {
+        const globber = await builder.globber(p, {
             followSymbolicLinks: false
         })
         const files = await globber.glob()
@@ -597,7 +589,7 @@ export class Kbdgen {
             throw new Error("No output found for build.")
         }
 
-        core.debug("Got file for bundle: " + files[0])
+        builder.debug("Got file for bundle: " + files[0])
         return files[0]
     }
 
@@ -617,7 +609,7 @@ export class Kbdgen {
     }
 
     static async loadLayouts(bundlePath: string) {
-        const globber = await glob.create(path.resolve(bundlePath, "layouts/*.yaml"), {
+        const globber = await builder.globber(path.resolve(bundlePath, "layouts/*.yaml"), {
             followSymbolicLinks: false
         })
         const layoutFiles = await globber.glob()
@@ -647,7 +639,7 @@ export class Kbdgen {
         // Set to run number
         const versionNumber = parseInt((await Bash.runScript("git rev-list --count HEAD"))[0], 10)
         targetData['build'] = start + versionNumber
-        core.debug("Set build number to " + targetData['build'])
+        builder.debug("Set build number to " + targetData['build'])
 
         fs.writeFileSync(path.resolve(
             bundlePath, "targets", `${target}.yaml`), YAML.stringify({ ...targetData }), 'utf8')
@@ -678,15 +670,15 @@ export class Kbdgen {
             "RUST_LOG": "kbdgen=debug",
         }
 
-        core.debug("Gonna import certificates")
-        core.debug("Deleting previous keychain for fastlane")
+        builder.debug("Gonna import certificates")
+        builder.debug("Deleting previous keychain for fastlane")
         try {
-            core.debug("Creating keychain for fastlane")
+            builder.debug("Creating keychain for fastlane")
         } catch (err) {
             // Ignore error here, the keychain probably doesn't exist
         }
 
-        core.debug("ok, next")
+        builder.debug("ok, next")
 
         // Initialise any missing languages first
         // XXX: this no longer works since changes to the API!
@@ -706,7 +698,7 @@ export class Kbdgen {
                 env
             }
         )
-        const globber = await glob.create(path.resolve(abs, "../output/ipa/*.ipa"), {
+        const globber = await builder.globber(path.resolve(abs, "../output/ipa/*.ipa"), {
             followSymbolicLinks: false
         })
         const files = await globber.glob()
@@ -724,7 +716,7 @@ export class Kbdgen {
         const sec = await secrets()
         // await Bash.runScript("brew install imagemagick")
 
-        core.debug(`ANDROID_HOME: ${process.env.ANDROID_HOME}`)
+        builder.debug(`ANDROID_HOME: ${process.env.ANDROID_HOME}`)
 
         await Bash.runScript(
             `kbdgen target --output-path output --bundle-path ${abs} android build`,
@@ -863,14 +855,14 @@ export class DivvunBundler {
             ...deriveBundlerArgs(spellerPaths)
         ]
 
-        assertExit0(await exec("divvun-bundler", args, {
+        assertExit0(await builder.exec("divvun-bundler", args, {
             env: Object.assign({}, env(), {
                 "RUST_LOG": "trace"
             })
         }))
 
         // FIXME: workaround bundler issue creating invalid files
-        await io.cp(
+        await builder.cp(
             path.resolve(`output/${langTag}-${version}.pkg`),
             path.resolve(`output/${packageId}-${version}.pkg`))
 
@@ -905,7 +897,7 @@ export class DivvunBundler {
     //         ...deriveBundlerArgs(spellerPaths)
     //     ]
 
-    //     assertExit0(await exec(exe, args, {
+    //     assertExit0(await builder.exec(exe, args, {
     //         env: Object.assign({}, env(), {
     //             "RUST_LOG": "trace",
     //             "SIGN_PFX_PASSWORD": sec.windows.pfxPassword,
@@ -913,14 +905,14 @@ export class DivvunBundler {
     //     }))
 
     //     try {
-    //         core.debug(fs.readdirSync("output").join(", "))
+    //         builder.debug(fs.readdirSync("output").join(", "))
     //     } catch (err) {
-    //         core.debug("Failed to read output dir")
-    //         core.debug(err)
+    //         builder.debug("Failed to read output dir")
+    //         builder.debug(err)
     //     }
 
     //     // FIXME: workaround bundler issue creating invalid files
-    //     await io.cp(
+    //     await builder.cp(
     //         path.resolve(`output/${langTag}-${version}.exe`),
     //         path.resolve(`output/${packageId}-${version}.exe`))
 
@@ -951,49 +943,49 @@ export function nonUndefinedProxy(obj: any, withNull: boolean = false): any {
 
 export function validateProductCode(kind: WindowsExecutableKind, code: string): string {
     if (kind === null) {
-        core.debug("Found no kind, returning original code")
+        builder.debug("Found no kind, returning original code")
         return code
     }
 
     if (kind === WindowsExecutableKind.Inno) {
         if (code.startsWith("{") && code.endsWith("}_is1")) {
-            core.debug("Found valid product code for Inno installer: " + code);
+            builder.debug("Found valid product code for Inno installer: " + code);
             return code
         }
 
         let updatedCode = code;
 
         if (!code.endsWith("}_is1") && !code.startsWith("{")) {
-            core.debug("Found plain UUID for Inno installer, wrapping in {...}_is1")
+            builder.debug("Found plain UUID for Inno installer, wrapping in {...}_is1")
             updatedCode = `{${code}}_is1`
         }
         else if (code.endsWith("}") && code.startsWith("{")) {
-            core.debug("Found wrapped GUID for Inno installer, adding _is1")
+            builder.debug("Found wrapped GUID for Inno installer, adding _is1")
             updatedCode = `${code}_is1`
         } else {
             throw new Error(`Could not handle invalid Inno product code: ${code}`)
         }
 
-        core.debug(`'${code}' -> '${updatedCode}`)
+        builder.debug(`'${code}' -> '${updatedCode}`)
         return updatedCode
     }
 
     if (kind === WindowsExecutableKind.Nsis) {
         if (code.startsWith("{") && code.endsWith("}")) {
-            core.debug("Found valid product code for Nsis installer: " + code)
+            builder.debug("Found valid product code for Nsis installer: " + code)
             return code
         }
 
         let updatedCode = code
 
         if (!code.endsWith("}") && !code.startsWith("{")) {
-            core.debug("Found plain UUID for Nsis installer, wrapping in {...}")
+            builder.debug("Found plain UUID for Nsis installer, wrapping in {...}")
             updatedCode = `{${code}}`
         } else {
             throw new Error(`Could not handle invalid Nsis product code: ${code}`)
         }
 
-        core.debug(`'${code}' -> '${updatedCode}`)
+        builder.debug(`'${code}' -> '${updatedCode}`)
         return updatedCode
     }
 
@@ -1003,8 +995,8 @@ export function validateProductCode(kind: WindowsExecutableKind, code: string): 
 export function isCurrentBranch(names: string[]) {
     const value = process.env.GITHUB_REF
 
-    core.debug(`names: ${names}`)
-    core.debug(`GITHUB_REF: '${value}'`)
+    builder.debug(`names: ${names}`)
+    builder.debug(`GITHUB_REF: '${value}'`)
 
     if (value == null) {
         return false
@@ -1022,8 +1014,8 @@ export function isCurrentBranch(names: string[]) {
 export function isMatchingTag(tagPattern: RegExp) {
     let value = process.env.GITHUB_REF
 
-    core.debug(`tag pattern: ${tagPattern}`)
-    core.debug(`GITHUB_REF: '${value}'`)
+    builder.debug(`tag pattern: ${tagPattern}`)
+    builder.debug(`GITHUB_REF: '${value}'`)
 
     if (value == null) {
         return false

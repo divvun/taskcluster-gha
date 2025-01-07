@@ -1,28 +1,27 @@
-import * as tc from "@actions/tool-cache"
-import * as core from '@actions/core'
+import * as builder from "~/builder"
 import { Bash } from './shared'
 
 export async function downloadAppleWWDRCA(version?: string) {
   if (version == undefined) {
-    return await tc.downloadTool("https://developer.apple.com/certificationauthority/AppleWWDRCA.cer")
+    return await builder.downloadTool("https://developer.apple.com/certificationauthority/AppleWWDRCA.cer")
   } else {
-    return await tc.downloadTool(`https://www.apple.com/certificateauthority/AppleWWDRCA${version}.cer`)
+    return await builder.downloadTool(`https://www.apple.com/certificateauthority/AppleWWDRCA${version}.cer`)
   }
 }
 
 export async function downloadAppleRootCA(version?: string) {
   if (version == undefined) {
-    return await tc.downloadTool("https://www.apple.com/appleca/AppleIncRootCertificate.cer")
+    return await builder.downloadTool("https://www.apple.com/appleca/AppleIncRootCertificate.cer")
   } else {
-    return await tc.downloadTool(`https://www.apple.com/certificateauthority/AppleRootCA-${version}.cer`)
+    return await builder.downloadTool(`https://www.apple.com/certificateauthority/AppleRootCA-${version}.cer`)
   }
 }
 
 export async function downloadAppleDevIdCA(version?: string) {
   if (version == undefined) {
-    return await tc.downloadTool("https://www.apple.com/certificateauthority/DeveloperIDCA.cer")
+    return await builder.downloadTool("https://www.apple.com/certificateauthority/DeveloperIDCA.cer")
   } else {
-    return await tc.downloadTool(`https://www.apple.com/certificateauthority/DeveloperID${version}CA.cer`)
+    return await builder.downloadTool(`https://www.apple.com/certificateauthority/DeveloperID${version}CA.cer`)
   }
 }
 
@@ -38,7 +37,7 @@ export class Security {
   }
 
   public static async createKeychain(name: string, password: string) {
-    core.setSecret(password)
+    builder.setSecret(password)
     return await Security.run("create-keychain", ["-p", `"${password}"`, `${name}.keychain`])
   }
 
@@ -48,7 +47,7 @@ export class Security {
   }
 
   public static async unlockKeychain(name: string, password: string) {
-    core.setSecret(password)
+    builder.setSecret(password)
     return await Security.run("unlock-keychain", ["-p", `"${password}"`, `${name}.keychain`])
   }
 
@@ -59,7 +58,7 @@ export class Security {
 
   public static async import(keychainName: string, certOrKeyPath: string, keyPassword?: string) {
     if (keyPassword != null) {
-      core.setSecret(keyPassword)
+      builder.setSecret(keyPassword)
       return await Security.run("import", [certOrKeyPath, "-k", `~/Library/Keychains/${keychainName}.keychain`, "-P", `"${keyPassword}"`, "-A", "-T", "/usr/bin/codesign", "-T", "/usr/bin/security", "-T", "/usr/bin/productbuild"])
     } else {
       return await Security.run("import", [certOrKeyPath, "-k", `~/Library/Keychains/${keychainName}.keychain`, "-A"])
@@ -67,7 +66,7 @@ export class Security {
   }
 
   public static async setKeyPartitionList(keychainName: string, password: string, partitionList: string[]) {
-    core.setSecret(password)
+    builder.setSecret(password)
     return await Security.run(
       "set-key-partition-list",
       ["-S", partitionList.join(","), "-s", "-k", `"${password}"`, `${keychainName}.keychain`]

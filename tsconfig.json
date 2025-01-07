@@ -1,5 +1,9 @@
 {
     "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "~/*": ["*.ts"],
+        },
         "module": "commonjs",
         "target": "es2018",
         "moduleResolution": "node",

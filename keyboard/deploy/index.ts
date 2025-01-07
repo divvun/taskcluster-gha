@@ -1,29 +1,28 @@
-import * as core from '@actions/core'
-import * as github from '@actions/github'
 import fs from 'fs'
 import path from 'path'
+import * as builder from "~/builder"
 
-import { 
-    PahkatUploader,
-    WindowsExecutableKind,
-    RebootSpec,
-    MacOSPackageTarget,
+import {
     Kbdgen,
-    validateProductCode,
+    MacOSPackageTarget,
+    PahkatUploader,
+    RebootSpec,
     ReleaseRequest,
-    getArtifactSize
+    WindowsExecutableKind,
+    getArtifactSize,
+    validateProductCode
 } from "../../shared"
 
 import { KeyboardType, getBundle } from '../types'
 
 
 export function derivePackageId() {
-    const repo = github.context.repo.repo
+    const repo = builder.context.repo.repo
     if (!repo.startsWith("keyboard-")) {
         throw new Error("Repository is not prefixed with 'keyboard")
     }
 
-    const lang = github.context.repo.repo.split("keyboard-")[1]
+    const lang = builder.context.repo.repo.split("keyboard-")[1]
     return `keyboard-${lang}`
 }
 
@@ -51,11 +50,11 @@ function releaseReq(version: string, platform: string, channel: string | null): 
 }
 
 async function run() {
-    const payloadPath = core.getInput('payload-path', { required: true })
-    const keyboardType = core.getInput('keyboard-type', { required: true }) as KeyboardType
+    const payloadPath = builder.getInput('payload-path', { required: true })
+    const keyboardType = builder.getInput('keyboard-type', { required: true }) as KeyboardType
     const bundlePath = getBundle()
-    const channel = core.getInput('channel') || null;
-    const pahkatRepo = core.getInput('repo', { required: true });
+    const channel = builder.getInput('channel') || null;
+    const pahkatRepo = builder.getInput('repo', { required: true });
     const packageId = derivePackageId()
 
     const repoPackageUrl = `${pahkatRepo}packages/${packageId}`
@@ -70,7 +69,7 @@ async function run() {
     if (keyboardType === KeyboardType.MacOS) {
         const target = Kbdgen.loadTarget(bundlePath, "macos")
         var pkgId = target.packageId
-        const lang = github.context.repo.repo.split("keyboard-")[1]
+        const lang = builder.context.repo.repo.split("keyboard-")[1]
         // On macos kbdgen does magic with the keyboard id to match this:
         // `no.giella.keyboard.%lang%.keyboardLayout.%lang%` because macos.
         // Since kbdgen currently relies on the packageId to not contain the
@@ -143,7 +142,7 @@ async function run() {
 
     const metadataJsonPath = writeMetadataJson()
 
-    core.debug(`Renaming from ${payloadPath} to ${artifactPath}`)
+    builder.debug(`Renaming from ${payloadPath} to ${artifactPath}`)
     fs.renameSync(payloadPath, artifactPath)
 
     await PahkatUploader.upload(artifactPath, artifactUrl, "./metadata.toml", repoPackageUrl, metadataJsonPath)

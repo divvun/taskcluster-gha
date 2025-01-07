@@ -1,8 +1,8 @@
-import * as core from '@actions/core'
-import path from "path"
-import { Security, downloadAppleWWDRCA, downloadAppleRootCA, downloadAppleDevIdCA } from '../security'
 import * as fs from 'fs'
+import path from "path"
 import * as tmp from 'tmp'
+import * as builder from "~/builder"
+import { downloadAppleDevIdCA, Security } from '../security'
 
 import { Bash, divvunConfigDir, randomHexBytes, randomString64, secrets, Tar, tmpDir } from '../shared'
 
@@ -10,11 +10,11 @@ function debug(input: string[]) {
   const [out, err] = input
 
   if (out.trim() != '') {
-    core.debug(out)
+    builder.debug(out)
   }
 
   if (err.trim() != '') {
-    core.error(err)
+    builder.error(err)
   }
 }
 
@@ -66,7 +66,7 @@ async function setupMacOSKeychain() {
 }
 
 async function cloneConfigRepo(password: string) {
-  core.setSecret(password)
+  builder.setSecret(password)
 
   const dir = tmpDir()
   await Bash.runScript("git clone --depth=1 https://github.com/divvun/divvun-ci-config.git", { cwd: dir })
@@ -80,17 +80,17 @@ async function cloneConfigRepo(password: string) {
 async function bootstrapDependencies() {
   // try {
   //   const svnPath = await io.which("svn")
-  //   core.debug(`SVN path: ${svnPath}`)
+  //   builder.debug(`SVN path: ${svnPath}`)
   // } catch (_) {
-    // core.debug("Installing subversion")
+    // builder.debug("Installing subversion")
     // debug(await Bash.runScript("brew install subversion"))
   // }
 }
 
 async function run() {
   try {
-    const divvunKey = core.getInput("key", { required: true })
-    core.setSecret(divvunKey)
+    const divvunKey = await builder.getInput("key", { required: true })
+    builder.setSecret(divvunKey)
     console.log("Setting up environment")
 
     await cloneConfigRepo(divvunKey)
@@ -100,11 +100,11 @@ async function run() {
       await bootstrapDependencies()
     }
 
-    core.exportVariable("DIVVUN_CI_CONFIG", divvunConfigDir())
-    core.debug(divvunConfigDir())
+    builder.exportVariable("DIVVUN_CI_CONFIG", divvunConfigDir())
+    builder.debug(divvunConfigDir())
   }
   catch (error: any) {
-    core.setFailed(error.message);
+    builder.setFailed(error.message);
   }
 }
 

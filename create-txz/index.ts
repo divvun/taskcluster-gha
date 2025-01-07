@@ -1,14 +1,13 @@
-import * as core from '@actions/core'
-import * as glob from "@actions/glob"
 import path from "path"
 import tmp from "tmp"
 
+import * as builder from "~/builder"
 import { Tar } from "../shared"
 
 async function run() {
-    const filesPath = core.getInput('path', { required: true })
+    const filesPath = builder.getInput('path', { required: true })
 
-    const globber = await glob.create(path.join(filesPath, "*"), {
+    const globber = await builder.globber(path.join(filesPath, "*"), {
         followSymbolicLinks: false,
         implicitDescendants: false
     })
@@ -22,7 +21,7 @@ async function run() {
     }).name
 
     await Tar.createFlatTxz(files, outputTxz)
-    core.setOutput("txz-path", outputTxz)
+    builder.setOutput("txz-path", outputTxz)
 }
 
 run().catch(err => {

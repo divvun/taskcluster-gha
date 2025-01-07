@@ -1,8 +1,6 @@
-import * as exec from "@actions/exec"
-import tmp from "tmp"
 import path from "path"
-
-import { DIVVUN_PFX, RFC3161_URL, secrets } from "../shared"
+import tmp from "tmp"
+import * as builder from "~/builder"
 
 const ISCC_PATH = `"C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe"`
 
@@ -16,7 +14,7 @@ export async function makeInstaller(issPath: string, defines: string[] = []): Pr
       `http://192.168.122.1:5000 ` +
       `-o $f"`;
     
-    await exec.exec(`${ISCC_PATH} ${signCmd}`, [
+    await builder.exec(`${ISCC_PATH} ${signCmd}`, [
         "/Qp", `/O${installerOutput}`, ...defines, issPath
     ])
 
