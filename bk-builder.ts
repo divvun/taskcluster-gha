@@ -305,6 +305,16 @@ export function warning(message: string) {
   console.warn(`⚠️  ${message}`);
 }
 
+export function error(message: string | Error) {
+  const errorMessage = message instanceof Error ? message.message : message;
+  console.error(`❌ ${errorMessage}`);
+}
+
+export function exportVariable(name: string, value: string) {
+  process.env[name] = value;
+  console.log(`Setting environment variable ${name}=${value}`);
+}
+
 export const context: Context = {
   ref: process.env.BUILDKITE_COMMIT || "",
 };
