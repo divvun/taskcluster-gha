@@ -151,12 +151,12 @@ async function run() {
 
     // Begin build
 
-    core.startGroup("Build giella-core and giella-shared")
+    core.startGroup("Build giella-core and shared-mul")
     await Bash.runScript("./autogen.sh && ./configure && make", {
         cwd: path.join(githubWorkspace, "giella-core")
     })
     await Bash.runScript("./autogen.sh && ./configure && make", {
-        cwd: path.join(githubWorkspace, "giella-shared")
+        cwd: path.join(githubWorkspace, "shared-mul")
     })
     core.endGroup()
 

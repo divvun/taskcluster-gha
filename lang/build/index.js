@@ -141,12 +141,12 @@ async function run() {
     if (config["minimised-spellers"]) {
         flags.push("--enable-minimised-spellers");
     }
-    core.startGroup("Build giella-core and giella-shared");
+    core.startGroup("Build giella-core and shared-mul");
     await shared_1.Bash.runScript("./autogen.sh && ./configure && make", {
         cwd: path.join(githubWorkspace, "giella-core")
     });
     await shared_1.Bash.runScript("./autogen.sh && ./configure && make", {
-        cwd: path.join(githubWorkspace, "giella-shared")
+        cwd: path.join(githubWorkspace, "shared-mul")
     });
     core.endGroup();
     const builder = new Autotools(path.join(githubWorkspace, "lang"));
