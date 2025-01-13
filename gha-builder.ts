@@ -230,3 +230,11 @@ export async function secrets() {
   loadedSecrets = secrets.secret
   return loadedSecrets
 }
+
+export function tempDir() {
+  const dir = process.env["RUNNER_TEMP"]
+  if (dir == null || dir.trim() == "") {
+    throw new Error("RUNNER_TEMP was not defined")
+  }
+  return dir
+}

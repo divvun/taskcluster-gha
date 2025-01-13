@@ -14,11 +14,7 @@ const delay = (ms: number) =>
   new Promise<void>((resolve) => setTimeout(() => resolve(), ms))
 
 export function tmpDir() {
-  const dir = process.env["RUNNER_TEMP"]
-  if (dir == null || dir.trim() == "") {
-    throw new Error("RUNNER_TEMP was not defined")
-  }
-  return dir
+  return builder.tempDir()
 }
 
 export function divvunConfigDir() {

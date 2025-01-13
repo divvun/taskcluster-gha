@@ -9,17 +9,19 @@ import type {
   InputOptions,
 } from "./gha-builder"
 
-const isDivvunCI = process.env.DIVVUN_CI
-export let isGHA = false
+const isTaskcluster = process.env.TASKCLUSTER_ROOT_URL
+const isBuildkite = process.env.BUILDKITE
+export let isGHA = !!isTaskcluster
 
 // Ensure we get the proper types from the implementations
 let selectedBuilder: typeof import("./gha-builder")
 
-if (isDivvunCI) {
+if (isBuildkite) {
   selectedBuilder = require("./bk-builder")
-} else {
-  isGHA = true
+} else if (isTaskcluster) {
   selectedBuilder = require("./gha-builder")
+} else {
+  selectedBuilder = require("./local-builder")
 }
 
 // Re-export everything with proper typing
@@ -42,13 +44,17 @@ export const {
   warning,
   exportVariable,
   context,
-  secrets
+  secrets,
+  tempDir,
 } = selectedBuilder
 
 // Re-export types
 export type {
-  Context, CopyOptions, ExecListeners,
-  ExecOptions, GlobOptions,
+  Context,
+  CopyOptions,
+  ExecListeners,
+  ExecOptions,
+  GlobOptions,
   Globber,
   InputOptions
 }
