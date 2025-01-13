@@ -15,13 +15,17 @@ export let isGHA = !!isTaskcluster
 
 // Ensure we get the proper types from the implementations
 let selectedBuilder: typeof import("./gha-builder")
+export let mode: string
 
 if (isBuildkite) {
   selectedBuilder = require("./bk-builder")
+  mode = "buildkite"
 } else if (isTaskcluster) {
   selectedBuilder = require("./gha-builder")
+  mode = "taskcluster"
 } else {
   selectedBuilder = require("./local-builder")
+  mode = "local"
 }
 
 // Re-export everything with proper typing

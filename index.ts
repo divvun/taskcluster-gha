@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { Command } from "commander"
+import * as builder from "~/builder"
 import { version } from "./package.json"
 
 import deploy from "./deploy"
@@ -16,6 +17,8 @@ import spellerDeploy from "./speller/deploy"
 import versionCmd from "./version"
 
 const program = new Command()
+
+console.log("Environment: " + builder.mode)
 
 program
   .name("divvun-actions")
