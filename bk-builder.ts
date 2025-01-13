@@ -316,3 +316,7 @@ export function exportVariable(name: string, value: string) {
 export const context: Context = {
   ref: process.env.BUILDKITE_COMMIT || "",
 }
+
+export function secrets() {
+  throw new Error("Secrets are not available in Buildkite")
+}

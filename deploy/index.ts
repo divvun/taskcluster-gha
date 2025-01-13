@@ -18,13 +18,13 @@ enum PackageType {
   TarballPackage = "TarballPackage",
 }
 
-async function getPlatformAndType(): Promise<{
+async function getPlatformAndType(
+  platform: string | null,
+  givenType: string | null
+): Promise<{
   packageType: PackageType
   platform: string
 }> {
-  let platform = (await builder.getInput("platform")) || null
-  const givenType = (await builder.getInput("type")) || null
-
   builder.debug(`Platform: '${platform}', Type: '${givenType}'`)
 
   if (givenType == null) {
@@ -79,9 +79,7 @@ async function getPlatformAndType(): Promise<{
   }
 }
 
-async function getDependencies() {
-  const deps = (await builder.getInput("dependencies")) || null
-
+async function getDependencies(deps: string | null) {
   if (deps == null) {
     return null
   }
@@ -89,18 +87,44 @@ async function getDependencies() {
   return JSON.parse(deps)
 }
 
-async function run() {
-  const packageId = await builder.getInput("package-id", { required: true })
-  const { packageType, platform } = await getPlatformAndType()
-  const payloadPath = await builder.getInput("payload-path", { required: true })
-  const arch = (await builder.getInput("arch")) || null
-  const channel = (await builder.getInput("channel")) || null
-  const dependencies = await getDependencies()
-  const pahkatRepo = await builder.getInput("repo", { required: true })
+export type Props = {
+  packageId: string
+  // packageType: PackageType
+  platform: string
+  payloadPath: string
+  arch: string | null
+  channel: string | null
+  dependencies: { [key: string]: string } | null
+  pahkatRepo: string
+  version: string
+} & ({
+  packageType: PackageType.MacOSPackage
+  pkgId: string
+  requiresReboot: RebootSpec[]
+  targets: MacOSPackageTarget[]
+} | {
+  packageType: PackageType.WindowsExecutable
+  productCode: string
+  kind: WindowsExecutableKind | null
+  requiresReboot: RebootSpec[]
+} | {
+  packageType: PackageType.TarballPackage
+})
 
+export default async function deploy({
+  packageId,
+  // packageType,
+  platform,
+  payloadPath,
+  arch,
+  channel,
+  dependencies,
+  pahkatRepo,
+  version,
+  ...props
+}: Props) {
   const repoPackageUrl = `${pahkatRepo}/packages/${packageId}`
 
-  let version = await builder.getInput("version", { required: true })
   builder.debug("Version: " + version)
 
   const ext = path.extname(payloadPath)
@@ -136,17 +160,8 @@ async function run() {
     releaseReq.dependencies = dependencies
   }
 
-  if (packageType === PackageType.MacOSPackage) {
-    const pkgId = await builder.getInput("macos-pkg-id", { required: true })
-    const rawReqReboot = await builder.getInput("macos-requires-reboot")
-    const rawTargets = await builder.getInput("macos-targets")
-
-    const requiresReboot: RebootSpec[] = rawReqReboot
-      ? (rawReqReboot.split(",").map((x) => x.trim()) as RebootSpec[])
-      : []
-    const targets = rawTargets
-      ? (rawTargets.split(",").map((x) => x.trim()) as MacOSPackageTarget[])
-      : []
+  if (props.packageType === PackageType.MacOSPackage) {
+    const { pkgId, requiresReboot, targets } = props
 
     const data = await PahkatUploader.release.macosPackage(
       releaseReq,
@@ -158,24 +173,20 @@ async function run() {
       targets
     )
     fs.writeFileSync("./metadata.toml", data, "utf8")
-  } else if (packageType === PackageType.WindowsExecutable) {
-    let productCode = await builder.getInput("windows-product-code", {
-      required: true,
-    })
-    const kind = (await builder.getInput("windows-kind")) || null
-    const rawReqReboot = await builder.getInput("windows-requires-reboot")
-    const requiresReboot: RebootSpec[] = rawReqReboot
-      ? (rawReqReboot.split(",").map((x) => x.trim()) as RebootSpec[])
-      : []
+  } else if (props.packageType === PackageType.WindowsExecutable) {
+    const { productCode: rawProductCode, kind, requiresReboot} = props
+
+    let productCode
 
     switch (kind) {
       case WindowsExecutableKind.Inno:
       case WindowsExecutableKind.Nsis:
       case WindowsExecutableKind.Msi:
-        productCode = validateProductCode(kind, productCode)
+        productCode = validateProductCode(kind, rawProductCode)
         break
       case null:
         builder.debug("No Windows kind provided, not validating product code.")
+        productCode = rawProductCode
         break
       default:
         throw new Error("Unhandled Windows executable kind: " + kind)
@@ -191,7 +202,7 @@ async function run() {
       requiresReboot
     )
     fs.writeFileSync("./metadata.toml", data, "utf8")
-  } else if (packageType === PackageType.TarballPackage) {
+  } else if (props.packageType === PackageType.TarballPackage) {
     const data = await PahkatUploader.release.tarballPackage(
       releaseReq,
       artifactUrl,
@@ -200,7 +211,7 @@ async function run() {
     )
     fs.writeFileSync("./metadata.toml", data, "utf8")
   } else {
-    throw new Error(`Unhandled package type: '${packageType}'`)
+    throw new Error(`Unhandled package type: '${(props as any).packageType}'`)
   }
 
   builder.debug(`Renaming from ${payloadPath} to ${artifactPath}`)
@@ -212,6 +223,92 @@ async function run() {
     "./metadata.toml",
     repoPackageUrl
   )
+}
+
+async function run() {
+  const packageId = await builder.getInput("package-id", { required: true })
+  const { packageType, platform } = await getPlatformAndType(
+    await builder.getInput("platform"),
+    await builder.getInput("type")
+  )
+  const payloadPath = await builder.getInput("payload-path", { required: true })
+  const arch = (await builder.getInput("arch")) || null
+  const channel = (await builder.getInput("channel")) || null
+  const dependencies = await getDependencies(
+    await builder.getInput("dependencies")
+  )
+  const pahkatRepo = await builder.getInput("repo", { required: true })
+  let version = await builder.getInput("version", { required: true })
+
+  switch (packageType) {
+    case PackageType.TarballPackage:
+      await deploy({
+        packageId,
+        packageType,
+        platform,
+        payloadPath,
+        arch,
+        channel,
+        dependencies,
+        pahkatRepo,
+        version,
+      })
+      break
+    case PackageType.MacOSPackage: {
+      const pkgId = await builder.getInput("macos-pkg-id", { required: true })
+      const rawReqReboot = await builder.getInput("macos-requires-reboot")
+      const rawTargets = await builder.getInput("macos-targets")
+
+      const requiresReboot: RebootSpec[] = rawReqReboot
+        ? (rawReqReboot.split(",").map((x) => x.trim()) as RebootSpec[])
+        : []
+      const targets: MacOSPackageTarget[] = rawTargets
+        ? (rawTargets.split(",").map((x) => x.trim()) as MacOSPackageTarget[])
+        : []
+
+      await deploy({
+        packageId,
+        packageType,
+        platform,
+        payloadPath,
+        arch,
+        channel,
+        dependencies,
+        pahkatRepo,
+        version,
+        pkgId,
+        requiresReboot,
+        targets,
+      })
+      break
+    }
+    case PackageType.WindowsExecutable: {
+      const productCode = await builder.getInput("windows-product-code", {
+        required: true,
+      })
+      const kind = (await builder.getInput("windows-kind") as WindowsExecutableKind) || null
+      const rawReqReboot = await builder.getInput("windows-requires-reboot")
+      const requiresReboot: RebootSpec[] = rawReqReboot
+        ? (rawReqReboot.split(",").map((x) => x.trim()) as RebootSpec[])
+        : []
+      await deploy({
+        packageId,
+        packageType,
+        platform,
+        payloadPath,
+        arch,
+        channel,
+        dependencies,
+        pahkatRepo,
+        version,
+        productCode,
+        kind,
+        requiresReboot
+      })
+      break
+    }
+  }
+  
 }
 
 if (builder.isGHA) {

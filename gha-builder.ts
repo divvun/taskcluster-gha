@@ -4,6 +4,7 @@ import * as actionsGithub from "@actions/github"
 import * as actionsGlob from "@actions/glob"
 import * as actionsIo from "@actions/io"
 import * as actionsTc from "@actions/tool-cache"
+import * as taskcluster from "taskcluster-client"
 
 export type ExecListeners = {
   /** A call back for each buffer of stdout */
@@ -45,7 +46,7 @@ export {
   actionsCore as core,
   actionsGithub as github,
   actionsIo as io,
-  actionsTc as tc,
+  actionsTc as tc
 }
 
 export function exportVariable(name: string, value: string) {
@@ -209,3 +210,20 @@ export type Context = {
 }
 
 export const context: Context = actionsGithub.context
+
+let loadedSecrets: any = null
+
+export async function secrets() {
+  if (loadedSecrets != null) {
+    return loadedSecrets
+  }
+
+  const secretService = new taskcluster.Secrets({
+    rootUrl: process.env.TASKCLUSTER_PROXY_URL,
+  })
+
+  const secrets = await secretService.get("divvun")
+
+  loadedSecrets = secrets.secret
+  return loadedSecrets
+}

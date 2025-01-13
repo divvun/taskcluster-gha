@@ -4,9 +4,15 @@ import tmp from "tmp"
 import * as builder from "~/builder"
 import { Tar } from "../shared"
 
-async function run() {
-  const filesPath = await builder.getInput("path", { required: true })
+export type Props = {
+  filesPath: string
+}
 
+export type Output = {
+  txzPath: string
+}
+
+async function createTxz({ filesPath }: Props): Promise<Output> {
   const globber = await builder.globber(path.join(filesPath, "*"), {
     followSymbolicLinks: false,
     implicitDescendants: false,
@@ -21,7 +27,13 @@ async function run() {
   }).name
 
   await Tar.createFlatTxz(files, outputTxz)
-  await builder.setOutput("txz-path", outputTxz)
+  return { txzPath: outputTxz }
+}
+
+async function run() {
+  const filesPath = await builder.getInput("path", { required: true })
+  const { txzPath } = await createTxz({ filesPath })
+  await builder.setOutput("txz-path", txzPath)
 }
 
 if (builder.isGHA) {

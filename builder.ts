@@ -42,6 +42,7 @@ export const {
   warning,
   exportVariable,
   context,
+  secrets
 } = selectedBuilder
 
 // Re-export types

@@ -37,23 +37,6 @@ export function randomHexBytes(count: number) {
 
 export const DIVVUN_PFX = `${divvunConfigDir()}\\enc\\creds\\windows\\divvun.pfx`
 
-let loadedSecrets: any = null
-
-export async function secrets() {
-  if (loadedSecrets != null) {
-    return loadedSecrets
-  }
-
-  const secretService = new taskcluster.Secrets({
-    rootUrl: process.env.TASKCLUSTER_PROXY_URL,
-  })
-
-  const secrets = await secretService.get("divvun")
-
-  loadedSecrets = secrets.secret
-  return loadedSecrets
-}
-
 function env() {
   let langs = {
     LANG: "C.UTF-8",
@@ -1238,3 +1221,6 @@ export function getArtifactSize(path: string): number {
     return 0
   }
 }
+
+const secrets = builder.secrets
+export { secrets }

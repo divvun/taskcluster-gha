@@ -4,16 +4,21 @@ import path from "path"
 import * as builder from "~/builder"
 import { Bash, secrets } from "../shared"
 
-const delay = (ms: number) =>
-  new Promise<void>((resolve) => setTimeout(() => resolve(), ms))
+export type Props = {
+  filePath: string
+  isInstaller: boolean
+}
 
 async function run() {
   const filePath = path.resolve(
     await builder.getInput("path", { required: true })
   )
-  const fileName = filePath.split(path.sep).pop()
+  const isInstaller = Boolean(await builder.getInput("isInstaller")) || false
+  await codesign({ filePath, isInstaller })
+}
+
+export default async function codesign({ filePath, isInstaller }: Props) {
   const sec = await secrets()
-  const isInstaller = (await builder.getInput("isInstaller")) || false
 
   if (process.platform == "win32") {
     builder.debug("  Windows platform")
@@ -40,7 +45,7 @@ async function run() {
     } = sec.macos
 
     // Codesign with hardene`${filePath}.signed`d runtime and timestamp
-    if (isInstaller != "true") {
+    if (!isInstaller) {
       await builder.exec("codesign", [
         "-s",
         appCodeSignId,
