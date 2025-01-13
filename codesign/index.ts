@@ -9,16 +9,29 @@ export type Props = {
   isInstaller: boolean
 }
 
+export type Output = {
+  signedPath: string | null
+}
+
 async function run() {
   const filePath = path.resolve(
     await builder.getInput("path", { required: true })
   )
   const isInstaller = Boolean(await builder.getInput("isInstaller")) || false
-  await codesign({ filePath, isInstaller })
+  const { signedPath } = await codesign({ filePath, isInstaller })
+
+  if (signedPath != null) {
+    await builder.setOutput("signed-path", signedPath)
+  }
 }
 
-export default async function codesign({ filePath, isInstaller }: Props) {
+export default async function codesign({
+  filePath,
+  isInstaller,
+}: Props): Promise<Output> {
   const sec = await secrets()
+
+  let signedPath: string | null = null
 
   if (process.platform == "win32") {
     builder.debug("  Windows platform")
@@ -34,7 +47,7 @@ export default async function codesign({ filePath, isInstaller }: Props) {
       "-o",
       `${filePath}`,
     ])
-    await builder.setOutput("signed-path", filePath)
+    signedPath = filePath
   } else if (process.platform === "darwin") {
     const {
       developerAccount,
@@ -44,7 +57,7 @@ export default async function codesign({ filePath, isInstaller }: Props) {
       teamId,
     } = sec.macos
 
-    // Codesign with hardene`${filePath}.signed`d runtime and timestamp
+    // Codesign with hardened runtime and timestamp
     if (!isInstaller) {
       await builder.exec("codesign", [
         "-s",
@@ -92,6 +105,8 @@ xcrun notarytool submit -v \
 
     fs.unlinkSync(zipPath)
   }
+
+  return { signedPath }
 }
 
 if (builder.isGHA) {

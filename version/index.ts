@@ -109,7 +109,7 @@ async function run() {
     required: true,
   })
 
-  await version({
+  const { channel, version: v } = await version({
     isXcode,
     isNightly,
     cargoToml,
@@ -120,6 +120,17 @@ async function run() {
     instaStable,
     nightlyChannel,
   })
+
+  if (channel != null) {
+    await builder.setOutput("channel", channel)
+  }
+
+  await builder.setOutput("version", v)
+}
+
+export type Output = {
+  version: string
+  channel: string | null
 }
 
 export default async function version({
@@ -134,6 +145,8 @@ export default async function version({
   nightlyChannel,
 }: Props) {
   let version
+
+  let channel: string | null = null
 
   if (cargoToml != null) {
     builder.debug("Getting version from TOML")
@@ -174,20 +187,25 @@ export default async function version({
     builder.debug(`Generating nightly version for channel ${nightlyChannel}`)
     version = await versionAsNightly(version)
 
-    await builder.setOutput("channel", nightlyChannel)
+    // await builder.setOutput("channel", nightlyChannel)
+    channel = nightlyChannel
   } else {
     if (!instaStable) {
-      await builder.setOutput("channel", "beta")
+      // await builder.setOutput("channel", "beta")
+      channel = "beta"
     } else {
       // An insta-stable package that is pre-1.0.0 will still be released to beta
       if (version.startsWith("0")) {
-        await builder.setOutput("channel", "beta")
+        // await builder.setOutput("channel", "beta")
+        channel = "beta"
       }
     }
   }
 
   builder.debug("Setting version to: " + version)
-  await builder.setOutput("version", version)
+  // await builder.setOutput("version", version)
+
+  return { channel, version }
 }
 
 if (builder.isGHA) {
