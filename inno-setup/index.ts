@@ -33,7 +33,10 @@ async function run() {
   const issPath = await builder.getInput("path", { required: true })
   const rawDefines = await builder.getInput("defines")
 
-  const { installerPath } = await innoSetup({ path: issPath, defines: rawDefines.split(" ") })
+  const { installerPath } = await innoSetup({
+    path: issPath,
+    defines: rawDefines.split(" "),
+  })
 
   await builder.setOutput("installer-path", installerPath)
 }

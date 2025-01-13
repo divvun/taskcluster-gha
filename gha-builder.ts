@@ -46,7 +46,7 @@ export {
   actionsCore as core,
   actionsGithub as github,
   actionsIo as io,
-  actionsTc as tc
+  actionsTc as tc,
 }
 
 export function exportVariable(name: string, value: string) {

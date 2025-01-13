@@ -56,6 +56,5 @@ export type {
   ExecOptions,
   GlobOptions,
   Globber,
-  InputOptions
+  InputOptions,
 }
-

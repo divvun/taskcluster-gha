@@ -15,7 +15,6 @@ import spellerBundle from "./speller/bundle"
 import spellerDeploy from "./speller/deploy"
 import versionCmd from "./version"
 
-
 const program = new Command()
 
 program

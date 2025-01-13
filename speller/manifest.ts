@@ -1,4 +1,4 @@
-import * as builder from "~/builder";
+import * as builder from "~/builder"
 
 export enum SpellerType {
   MacOS = "speller-macos",

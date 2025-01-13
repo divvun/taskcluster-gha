@@ -97,19 +97,23 @@ export type Props = {
   dependencies: { [key: string]: string } | null
   pahkatRepo: string
   version: string
-} & ({
-  packageType: PackageType.MacOSPackage
-  pkgId: string
-  requiresReboot: RebootSpec[]
-  targets: MacOSPackageTarget[]
-} | {
-  packageType: PackageType.WindowsExecutable
-  productCode: string
-  kind: WindowsExecutableKind | null
-  requiresReboot: RebootSpec[]
-} | {
-  packageType: PackageType.TarballPackage
-})
+} & (
+  | {
+      packageType: PackageType.MacOSPackage
+      pkgId: string
+      requiresReboot: RebootSpec[]
+      targets: MacOSPackageTarget[]
+    }
+  | {
+      packageType: PackageType.WindowsExecutable
+      productCode: string
+      kind: WindowsExecutableKind | null
+      requiresReboot: RebootSpec[]
+    }
+  | {
+      packageType: PackageType.TarballPackage
+    }
+)
 
 export default async function deploy({
   packageId,
@@ -174,7 +178,7 @@ export default async function deploy({
     )
     fs.writeFileSync("./metadata.toml", data, "utf8")
   } else if (props.packageType === PackageType.WindowsExecutable) {
-    const { productCode: rawProductCode, kind, requiresReboot} = props
+    const { productCode: rawProductCode, kind, requiresReboot } = props
 
     let productCode
 
@@ -286,7 +290,9 @@ async function run() {
       const productCode = await builder.getInput("windows-product-code", {
         required: true,
       })
-      const kind = (await builder.getInput("windows-kind") as WindowsExecutableKind) || null
+      const kind =
+        ((await builder.getInput("windows-kind")) as WindowsExecutableKind) ||
+        null
       const rawReqReboot = await builder.getInput("windows-requires-reboot")
       const requiresReboot: RebootSpec[] = rawReqReboot
         ? (rawReqReboot.split(",").map((x) => x.trim()) as RebootSpec[])
@@ -303,12 +309,11 @@ async function run() {
         version,
         productCode,
         kind,
-        requiresReboot
+        requiresReboot,
       })
       break
     }
   }
-  
 }
 
 if (builder.isGHA) {

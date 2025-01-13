@@ -7,7 +7,11 @@ export type Props = {
   packages: string[]
 }
 
-export default async function pahkatInit({repoUrl, channel, packages}: Props) {
+export default async function pahkatInit({
+  repoUrl,
+  channel,
+  packages,
+}: Props) {
   await PahkatPrefix.bootstrap()
   await PahkatPrefix.addRepo(repoUrl, channel ?? undefined)
   await PahkatPrefix.install(packages)
