@@ -4,7 +4,8 @@
   "description": "",
   "scripts": {
     "build": "tsc",
-    "validate": "tsc --noEmit"
+    "validate": "tsc --noEmit",
+    "start": "tsx index.ts"
   },
   "keywords": [],
   "author": "",
@@ -27,6 +28,7 @@
     "glob": "^10.3.10",
     "kebab-case": "^2.0.1",
     "node-fetch": "^3.3.2",
+    "pretty-error": "^4.0.0",
     "taskcluster-client": "^44.2.2",
     "tmp": "^0.2.1",
     "toml": "^3.0.0",

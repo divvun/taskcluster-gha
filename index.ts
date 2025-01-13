@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { Command } from "commander"
+import PrettyError from "pretty-error"
 import * as builder from "~/builder"
 import { version } from "./package.json"
 
@@ -16,9 +17,21 @@ import spellerBundle from "./speller/bundle"
 import spellerDeploy from "./speller/deploy"
 import versionCmd from "./version"
 
+const pe = new PrettyError()
+pe.skipNodeFiles()
+pe.skipPackage('commander')
+pe.skip((x)=> {
+    return x.what === 'Command.<anonymous>'
+})
+
 const program = new Command()
 
 console.log("Environment: " + builder.mode)
+
+process.on('unhandledRejection', (err: Error) => {
+  console.error(pe.render(err))
+  process.exit(1)
+})
 
 program
   .name("divvun-actions")
