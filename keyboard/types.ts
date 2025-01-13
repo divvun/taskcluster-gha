@@ -1,5 +1,4 @@
 import fs from "fs"
-import * as builder from "~/builder"
 
 export enum KeyboardType {
   iOS = "keyboard-ios",
@@ -11,8 +10,7 @@ export enum KeyboardType {
   X11 = "keyboard-x11",
 }
 
-export async function getBundle() {
-  const override = await builder.getInput("bundle-path")
+export async function getBundle(override: string | null) {
   if (override) {
     return override
   }

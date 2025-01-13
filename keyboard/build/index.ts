@@ -9,15 +9,22 @@ import { generateKbdInnoFromBundle } from "./iss"
 const SEMVER_TAG_RE =
   /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
 
-async function run() {
-  const keyboardType = (await builder.getInput("keyboard-type", {
-    required: true,
-  })) as KeyboardType
-  const nightlyChannel = await builder.getInput("nightly-channel", {
-    required: true,
-  })
-  const bundlePath = await getBundle()
+export type Props = {
+  keyboardType: KeyboardType
+  nightlyChannel: string
+  bundlePath: string
+}
 
+export type Output = {
+  channel: string | null
+  payloadPath: string
+}
+
+export default async function keyboardBuild({
+  keyboardType,
+  nightlyChannel,
+  bundlePath,
+}: Props): Promise<Output> {
   // Testing how to get name and description fields
   const project = Kbdgen.loadProjectBundle(bundlePath)
   const locales = project.locales
@@ -37,12 +44,13 @@ async function run() {
   }
 
   let payloadPath
+  let channel: string | null = null
 
   if (keyboardType === KeyboardType.MacOS) {
     if (isMatchingTag(SEMVER_TAG_RE)) {
       builder.debug("Using version from kbdgen project")
     } else {
-      await builder.setOutput("channel", nightlyChannel)
+      channel = nightlyChannel
       builder.debug("Setting current version to nightly version")
       await Kbdgen.setNightlyVersion(bundlePath, "macos")
     }
@@ -51,7 +59,7 @@ async function run() {
     if (isMatchingTag(SEMVER_TAG_RE)) {
       builder.debug("Using version from kbdgen project")
     } else {
-      await builder.setOutput("channel", nightlyChannel)
+      channel = nightlyChannel
       builder.debug("Setting current version to nightly version")
       await Kbdgen.setNightlyVersion(bundlePath, "windows")
     }
@@ -81,7 +89,32 @@ async function run() {
     throw new Error(`Unhandled keyboard type: ${keyboardType}`)
   }
 
-  await builder.setOutput("payload-path", payloadPath)
+  return {
+    payloadPath,
+    channel,
+  }
+}
+
+async function run() {
+  const keyboardType = (await builder.getInput("keyboard-type", {
+    required: true,
+  })) as KeyboardType
+  const nightlyChannel = await builder.getInput("nightly-channel", {
+    required: true,
+  })
+  const override = await builder.getInput("bundle-path")
+  const bundlePath = await getBundle(override)
+
+  const output = await keyboardBuild({
+    keyboardType,
+    nightlyChannel,
+    bundlePath,
+  })
+
+  if (output.channel != null) {
+    await builder.setOutput("channel", output.channel)
+  }
+  await builder.setOutput("payload-path", output.payloadPath)
 }
 
 if (builder.isGHA) {

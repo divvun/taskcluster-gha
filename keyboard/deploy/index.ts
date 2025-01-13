@@ -52,16 +52,23 @@ function releaseReq(
   return req
 }
 
-async function run() {
-  const payloadPath = await builder.getInput("payload-path", { required: true })
-  const keyboardType = (await builder.getInput("keyboard-type", {
-    required: true,
-  })) as KeyboardType
-  const bundlePath = await getBundle()
-  const channel = (await builder.getInput("channel")) || null
-  const pahkatRepo = await builder.getInput("repo", { required: true })
-  const packageId = derivePackageId()
+export type Props = {
+  payloadPath: string
+  keyboardType: KeyboardType
+  bundlePath: string
+  channel: string | null
+  pahkatRepo: string
+  packageId: string
+}
 
+export default async function keyboardDeploy({
+  payloadPath,
+  keyboardType,
+  bundlePath,
+  channel,
+  pahkatRepo,
+  packageId,
+}: Props) {
   const repoPackageUrl = `${pahkatRepo}packages/${packageId}`
 
   let payloadMetadata: string | null = null
@@ -159,7 +166,7 @@ async function run() {
 
   fs.writeFileSync("./metadata.toml", payloadMetadata, "utf8")
 
-  const metadataJsonPath = await writeMetadataJson()
+  const metadataJsonPath = await writeMetadataJson(bundlePath)
 
   builder.debug(`Renaming from ${payloadPath} to ${artifactPath}`)
   fs.renameSync(payloadPath, artifactPath)
@@ -173,10 +180,30 @@ async function run() {
   )
 }
 
+async function run() {
+  const payloadPath = await builder.getInput("payload-path", { required: true })
+  const keyboardType = (await builder.getInput("keyboard-type", {
+    required: true,
+  })) as KeyboardType
+  const override = await builder.getInput("bundle-path")
+  const bundlePath = await getBundle(override)
+  const channel = (await builder.getInput("channel")) || null
+  const pahkatRepo = await builder.getInput("repo", { required: true })
+  const packageId = derivePackageId()
+
+  await keyboardDeploy({
+    payloadPath,
+    keyboardType,
+    bundlePath,
+    channel,
+    pahkatRepo,
+    packageId,
+  })
+}
+
 // Writes the name and description fields to a json file
 // Returns the path to the json file or null if unsuccessful
-async function writeMetadataJson(): Promise<string | null> {
-  const bundlePath = await getBundle()
+async function writeMetadataJson(bundlePath: string): Promise<string | null> {
   const project = Kbdgen.loadProjectBundleWithoutProxy(bundlePath)
   const locales = project.locales
   if (!locales) {

@@ -2,12 +2,15 @@ import * as builder from "~/builder"
 import { Kbdgen } from "../../shared"
 import { KeyboardType } from "../types"
 
-async function run() {
-  const keyboardType = (await builder.getInput("keyboard-type", {
-    required: true,
-  })) as KeyboardType
-  const bundlePath = await builder.getInput("bundle-path", { required: true })
+export type Props = {
+  keyboardType: KeyboardType
+  bundlePath: string
+}
 
+export default async function keyboardBuildMeta({
+  keyboardType,
+  bundlePath,
+}: Props) {
   if (
     keyboardType !== KeyboardType.iOS &&
     keyboardType !== KeyboardType.Android
@@ -42,6 +45,15 @@ async function run() {
   // In general, this will be unused, because iOS and Android builds are
   // submitted directly to their respective app stores.
   // await builder.setOutput("payload-path", payloadPath)
+}
+
+async function run() {
+  const keyboardType = (await builder.getInput("keyboard-type", {
+    required: true,
+  })) as KeyboardType
+  const bundlePath = await builder.getInput("bundle-path", { required: true })
+
+  await keyboardBuildMeta({ keyboardType, bundlePath })
 }
 
 if (builder.isGHA) {
