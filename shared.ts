@@ -1193,10 +1193,10 @@ export function validateProductCode(
 }
 
 export function isCurrentBranch(names: string[]) {
-  const value = process.env.GITHUB_REF
+  let value = builder.context.ref
 
   builder.debug(`names: ${names}`)
-  builder.debug(`GITHUB_REF: '${value}'`)
+  builder.debug(`GIT REF: '${value}'`)
 
   if (value == null) {
     return false
@@ -1212,10 +1212,10 @@ export function isCurrentBranch(names: string[]) {
 }
 
 export function isMatchingTag(tagPattern: RegExp) {
-  let value = process.env.GITHUB_REF
+  let value = builder.context.ref
 
   builder.debug(`tag pattern: ${tagPattern}`)
-  builder.debug(`GITHUB_REF: '${value}'`)
+  builder.debug(`GIT REF: '${value}'`)
 
   if (value == null) {
     return false
