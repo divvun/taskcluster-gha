@@ -19,25 +19,28 @@ import {
   derivePackageId,
 } from "../manifest"
 
-async function run() {
-  const version = await builder.getInput("version", { required: true })
-  const spellerType = (await builder.getInput("speller-type", {
-    required: true,
-  })) as SpellerType
-  const manifest = toml.parse(
-    fs.readFileSync(
-      await builder.getInput("speller-manifest-path", { required: true }),
-      "utf8"
-    )
-  ) as SpellerManifest
-  const spellerPaths = nonUndefinedProxy(
-    JSON.parse(await builder.getInput("speller-paths", { required: true })),
-    true
-  ) as SpellerPaths
+export type Props = {
+  version: string
+  spellerType: SpellerType
+  manifest: SpellerManifest
+  spellerPaths: SpellerPaths
+}
 
+export type Output = {
+  payloadPath: string
+}
+
+export default async function spellerBundle({
+  version,
+  spellerType,
+  manifest,
+  spellerPaths,
+}: Props): Promise<Output> {
   let { spellername } = manifest
   const packageId = derivePackageId(spellerType)
   const langTag = deriveLangTag(false)
+
+  let payloadPath: string
 
   if (spellerType == SpellerType.Mobile) {
     const bhfstPaths = []
@@ -51,13 +54,11 @@ async function run() {
       bhfstPaths.push(langTagBhfst)
     }
 
-    const payloadPath = path.resolve(`./${packageId}_${version}_mobile.txz`)
+    payloadPath = path.resolve(`./${packageId}_${version}_mobile.txz`)
     builder.debug(
       `Creating txz from [${bhfstPaths.join(", ")}] at ${payloadPath}`
     )
     await Tar.createFlatTxz(bhfstPaths, payloadPath)
-
-    await builder.setOutput("payload-path", payloadPath)
   } else if (spellerType == SpellerType.Windows) {
     if (manifest.windows.system_product_code == null) {
       throw new Error("Missing system_product_code")
@@ -136,19 +137,48 @@ async function run() {
     builder.debug("generated install.iss:")
     builder.debug(innoBuilder.build())
 
-    const payloadPath = await makeInstaller("./install.iss")
-    await builder.setOutput("payload-path", payloadPath)
+    payloadPath = await makeInstaller("./install.iss")
     builder.debug(`Installer created at ${payloadPath}`)
   } else if (spellerType == SpellerType.MacOS) {
-    const payloadPath = await DivvunBundler.bundleMacOS(
+    payloadPath = await DivvunBundler.bundleMacOS(
       spellername,
       version,
       packageId,
       langTag,
       spellerPaths
     )
-    await builder.setOutput("payload-path", payloadPath)
+  } else {
+    throw new Error(`Unsupported speller type: ${spellerType}`)
   }
+
+  return {
+    payloadPath,
+  }
+}
+
+async function run() {
+  const version = await builder.getInput("version", { required: true })
+  const spellerType = (await builder.getInput("speller-type", {
+    required: true,
+  })) as SpellerType
+  const manifest = toml.parse(
+    fs.readFileSync(
+      await builder.getInput("speller-manifest-path", { required: true }),
+      "utf8"
+    )
+  ) as SpellerManifest
+  const spellerPaths = nonUndefinedProxy(
+    JSON.parse(await builder.getInput("speller-paths", { required: true })),
+    true
+  ) as SpellerPaths
+
+  const { payloadPath } = await spellerBundle({
+    version,
+    spellerType,
+    manifest,
+    spellerPaths,
+  })
+  await builder.setOutput("payload-path", payloadPath)
 }
 
 if (builder.isGHA) {

@@ -112,19 +112,12 @@ async function cloneConfigRepo(password: string) {
   await Tar.extractTxz(path.resolve(repoDir, "config.txz"), repoDir)
 }
 
-async function bootstrapDependencies() {
-  // try {
-  //   const svnPath = await io.which("svn")
-  //   builder.debug(`SVN path: ${svnPath}`)
-  // } catch (_) {
-  // builder.debug("Installing subversion")
-  // debug(await Bash.runScript("brew install subversion"))
-  // }
+export type Props = {
+  divvunKey: string
 }
 
-async function run() {
+export default async function setup({ divvunKey }: Props) {
   try {
-    const divvunKey = await builder.getInput("key", { required: true })
     builder.setSecret(divvunKey)
     console.log("Setting up environment")
 
@@ -132,7 +125,6 @@ async function run() {
 
     if (process.platform == "darwin") {
       await setupMacOSKeychain()
-      await bootstrapDependencies()
     }
 
     builder.exportVariable("DIVVUN_CI_CONFIG", divvunConfigDir())
@@ -140,6 +132,11 @@ async function run() {
   } catch (error: any) {
     builder.setFailed(error.message)
   }
+}
+
+async function run() {
+  const divvunKey = await builder.getInput("key", { required: true })
+  await setup({ divvunKey })
 }
 
 if (builder.isGHA) {

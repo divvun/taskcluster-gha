@@ -43,27 +43,28 @@ function releaseReq(
   return req
 }
 
-async function run() {
+export type Props = {
+  spellerType: SpellerType
+  manifestPath: string
+  payloadPath: string
+  version: string
+  channel: string | null
+  nightlyChannel: string
+  pahkatRepo: string
+}
+
+export default async function spellerDeploy({
+  spellerType,
+  manifestPath,
+  payloadPath,
+  version,
+  channel,
+  nightlyChannel,
+  pahkatRepo,
+}: Props) {
   try {
-    const spellerType = (await builder.getInput("speller-type", {
-      required: true,
-    })) as SpellerType
-    const manifestPath = await builder.getInput("speller-manifest-path", {
-      required: true,
-    })
-    const manifest = loadManifest(manifestPath)
-    const payloadPath = await builder.getInput("payload-path", {
-      required: true,
-    })
-    const version = await builder.getInput("version", { required: true })
-    const channel = (await builder.getInput("channel")) || null
-    const nightlyChannel = await builder.getInput("nightly-channel", {
-      required: true,
-    })
-
-    const pahkatRepo = await builder.getInput("repo", { required: true })
     const packageId = derivePackageId(spellerType)
-
+    const manifest = loadManifest(manifestPath)
     const repoPackageUrl = `${pahkatRepo}packages/${packageId}`
 
     let payloadMetadata: string | null = null
@@ -197,6 +198,34 @@ async function run() {
   } catch (error: any) {
     builder.setFailed(error.message)
   }
+}
+
+async function run() {
+  const spellerType = (await builder.getInput("speller-type", {
+    required: true,
+  })) as SpellerType
+  const manifestPath = await builder.getInput("speller-manifest-path", {
+    required: true,
+  })
+  const payloadPath = await builder.getInput("payload-path", {
+    required: true,
+  })
+  const version = await builder.getInput("version", { required: true })
+  const channel = (await builder.getInput("channel")) || null
+  const nightlyChannel = await builder.getInput("nightly-channel", {
+    required: true,
+  })
+  const pahkatRepo = await builder.getInput("repo", { required: true })
+
+  await spellerDeploy({
+    spellerType,
+    manifestPath,
+    payloadPath,
+    version,
+    channel,
+    nightlyChannel,
+    pahkatRepo,
+  })
 }
 
 if (builder.isGHA) {
