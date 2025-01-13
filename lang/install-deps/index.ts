@@ -15,9 +15,15 @@ async function getSudo() {
   throw new Error("invalid value: " + x)
 }
 
-async function run() {
-  const requiresSudo = await getSudo()
-  const requiresApertium = !!(await builder.getInput("apertium"))
+export type Props = {
+  requiresSudo: boolean
+  requiresApertium: boolean
+}
+
+export default async function langInstallDeps({
+  requiresApertium,
+  requiresSudo,
+}: Props) {
   builder.debug("Requires sudo? " + requiresSudo)
 
   const basePackages = [
@@ -63,6 +69,13 @@ async function run() {
   await Pipx.ensurepath()
   await Pipx.install(pipxPackages)
   await Ssh.cleanKnownHosts()
+}
+
+async function run() {
+  const requiresSudo = await getSudo()
+  const requiresApertium = !!(await builder.getInput("apertium"))
+
+  await langInstallDeps({ requiresSudo, requiresApertium })
 }
 
 if (builder.isGHA) {

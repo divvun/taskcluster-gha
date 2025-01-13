@@ -41,6 +41,9 @@ importers:
       '@types/uuid':
         specifier: ^8.3.2
         version: 8.3.4
+      camelcase:
+        specifier: ^8.0.0
+        version: 8.0.0
       commander:
         specifier: ^13.0.0
         version: 13.0.0
@@ -50,6 +53,9 @@ importers:
       glob:
         specifier: ^10.3.10
         version: 10.4.5
+      kebab-case:
+        specifier: ^2.0.1
+        version: 2.0.1
       node-fetch:
         specifier: ^3.3.2
         version: 3.3.2
@@ -301,6 +307,10 @@ packages:
     resolution: {integrity: sha512-v+p6ongsrp0yTGbJXjgxPow2+DL93DASP4kXCDKb8/bwRtt9OEF3whggkkDkGNzgcWy2XaF4a8nZglC7uElscg==}
     engines: {node: '>=8'}
 
+  camelcase@8.0.0:
+    resolution: {integrity: sha512-8WB3Jcas3swSvjIeA2yvCJ+Miyz5l1ZmB6HFb9R1317dt9LCQoswg/BGrmAmkWVEszSrrg4RwmO46qIm2OEnSA==}
+    engines: {node: '>=16'}
+
   clone-response@1.0.3:
     resolution: {integrity: sha512-ROoL94jJH2dUVML2Y/5PEDNaSHgeOdSDicUyS7izcF63G6sTc/FTjLub4b8Il9S8S0beOfYt0TaA5qvFK+w0wA==}
 
@@ -521,6 +531,9 @@ packages:
 
   jsonfile@4.0.0:
     resolution: {integrity: sha512-m6F1R3z8jjlf2imQHS2Qez5sjKWQzbuuhuJ/FKYFRZvPE3PuHcSMVZzfsLhGVOkfd20obL5SWEBew5ShlquNxg==}
+
+  kebab-case@2.0.1:
+    resolution: {integrity: sha512-vwwEnpFH5hwkoK2pGnPmGUoRjpE1NRjvdWY6BLlqucF7zPBPwKNxv5bPbW3/Cq1S+nmnL4kLcArGYdKDD3w2Xw==}
 
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
@@ -1123,6 +1136,8 @@ snapshots:
       normalize-url: 6.1.0
       responselike: 2.0.1
 
+  camelcase@8.0.0: {}
+
   clone-response@1.0.3:
     dependencies:
       mimic-response: 1.0.1
@@ -1363,6 +1378,8 @@ snapshots:
   jsonfile@4.0.0:
     optionalDependencies:
       graceful-fs: 4.2.11
+
+  kebab-case@2.0.1: {}
 
   keyv@4.5.4:
     dependencies:

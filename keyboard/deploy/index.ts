@@ -16,12 +16,12 @@ import {
 import { KeyboardType, getBundle } from "../types"
 
 export function derivePackageId() {
-  const repo = builder.context.repo.repo
+  const repo = builder.context.repo
   if (!repo.startsWith("keyboard-")) {
     throw new Error("Repository is not prefixed with 'keyboard")
   }
 
-  const lang = builder.context.repo.repo.split("keyboard-")[1]
+  const lang = builder.context.repo.split("keyboard-")[1]
   return `keyboard-${lang}`
 }
 
@@ -81,7 +81,7 @@ export default async function keyboardDeploy({
   if (keyboardType === KeyboardType.MacOS) {
     const target = Kbdgen.loadTarget(bundlePath, "macos")
     var pkgId = target.packageId
-    const lang = builder.context.repo.repo.split("keyboard-")[1]
+    const lang = builder.context.repo.split("keyboard-")[1]
     // On macos kbdgen does magic with the keyboard id to match this:
     // `no.giella.keyboard.%lang%.keyboardLayout.%lang%` because macos.
     // Since kbdgen currently relies on the packageId to not contain the

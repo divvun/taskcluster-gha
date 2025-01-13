@@ -1,4 +1,4 @@
-import * as builder from "~/builder"
+import * as builder from "~/builder";
 
 export enum SpellerType {
   MacOS = "speller-macos",
@@ -26,7 +26,7 @@ export type SpellerManifest = {
 }
 
 export function deriveLangTag(force3: boolean) {
-  const lang = builder.context.repo.repo.split("lang-")[1]
+  const lang = builder.context.repo.split("lang-")[1]
 
   if (force3) {
     return lang
@@ -50,7 +50,7 @@ export function deriveLangTag(force3: boolean) {
 }
 
 export function derivePackageId(type: SpellerType) {
-  const lang = builder.context.repo.repo.split("lang-")[1]
+  const lang = builder.context.repo.split("lang-")[1]
 
   return `speller-${lang}`
 }

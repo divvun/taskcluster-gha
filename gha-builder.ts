@@ -204,12 +204,15 @@ export async function setOutput(name: string, value: any): Promise<void> {
 
 export type Context = {
   ref: string
-  repo: {
-    repo: string
-  }
+  workspace: string
+  repo: string
 }
 
-export const context: Context = actionsGithub.context
+export const context: Context = {
+  ...actionsGithub.context,
+  repo: process.env.GITHUB_REPOSITORY as string,
+  workspace: process.env.GITHUB_WORKSPACE as string,
+}
 
 let loadedSecrets: any = null
 

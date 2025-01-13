@@ -1,3 +1,4 @@
+import camelcase from "camelcase"
 import * as path from "path"
 import * as builder from "~/builder"
 import { Bash } from "../../shared"
@@ -40,8 +41,9 @@ class Autotools {
 async function deriveInputs(inputs: string[]): Promise<{ [key: string]: any }> {
   const o: { [key: string]: any } = {}
 
-  for (const input of inputs) {
-    const value: any = await builder.getInput(input)
+  for (const kebabInput of inputs) {
+    const value: any = await builder.getInput(kebabInput)
+    const input = camelcase(kebabInput)
 
     console.log(input, value)
 
@@ -63,32 +65,44 @@ async function deriveInputs(inputs: string[]): Promise<{ [key: string]: any }> {
   return o
 }
 
-async function run() {
-  const githubWorkspace = process.env.GITHUB_WORKSPACE
+export type Props = {
+  requiresDesktopAsMobileWorkaround: boolean
+  fst: string[]
+  generators: boolean
+  spellers: boolean
+  hyphenators: boolean
+  analysers: boolean
+  grammarCheckers: boolean
+  hyperminimalisation: boolean
+  reversedIntersect: boolean
+  twoStepIntersect: boolean
+  spellerOptimisation: boolean
+  backendFormat: string | null
+  minimisedSpellers: boolean
+  forceAllTools: boolean
+}
+
+export type Output = {
+  spellerPaths: {
+    mobile: {
+      [key: string]: string
+    }
+    desktop: {
+      [key: string]: string
+    }
+  } | null
+}
+
+export default async function langBuild({
+  requiresDesktopAsMobileWorkaround,
+  ...config
+}: Props): Promise<Output> {
+  const githubWorkspace = builder.context.workspace
 
   if (githubWorkspace == null) {
     builder.setFailed("GITHUB_WORKSPACE not set, failing.")
-    return
+    throw new Error("GITHUB_WORKSPACE not set, failing.")
   }
-
-  const requiresDesktopAsMobileWorkaround = await builder.getInput(
-    "force-desktop-spellers-as-mobile"
-  )
-
-  const config = await deriveInputs([
-    "fst",
-    "generators",
-    "spellers",
-    "hyphenators",
-    "analysers",
-    "grammar-checkers",
-    "hyperminimalisation",
-    "reversed-intersect",
-    "two-step-intersect",
-    "speller-optimisation",
-    "backend-format",
-    "force-all-tools",
-  ])
 
   console.log(JSON.stringify(config, null, 2))
 
@@ -122,13 +136,13 @@ async function run() {
     flags.push("--enable-fst-hyphenator")
   }
 
-  if (config.spellers || config["grammar-checkers"]) {
+  if (config.spellers || config.grammarCheckers) {
     flags.push("--enable-spellers")
     flags.push("--disable-hfst-desktop-spellers")
     flags.push("--enable-hfst-mobile-speller")
   }
 
-  if (config["grammar-checkers"]) {
+  if (config.grammarCheckers) {
     flags.push("--enable-grammarchecker")
   }
 
@@ -138,19 +152,19 @@ async function run() {
     flags.push("--enable-hyperminimalisation")
   }
 
-  if (config["reversed-intersect"]) {
+  if (config.reversedIntersect) {
     flags.push("--enable-reversed-intersect")
   }
 
-  if (config["twostep-intersect"]) {
+  if (config.twoStepIntersect) {
     flags.push("--enable-twostep-intersect")
   }
 
-  if (config["backend-format"]) {
-    flags.push(`--with-backend-format=${config["backend-format"]}`)
+  if (config.backendFormat) {
+    flags.push(`--with-backend-format=${config.backendFormat}`)
   }
 
-  if (config["minimised-spellers"]) {
+  if (config.minimisedSpellers) {
     flags.push("--enable-minimised-spellers")
   }
 
@@ -226,11 +240,49 @@ async function run() {
 
     console.log("Saving speller-paths")
 
-    await builder.setOutput("speller-paths", JSON.stringify(out, null, 0))
     console.log("Setting speller paths to:")
     console.log(JSON.stringify(out, null, 2))
+
+    return {
+      spellerPaths: out,
+    }
   } else {
     console.log("Not setting speller paths.")
+  }
+
+  return { spellerPaths: null }
+}
+
+async function run() {
+  const requiresDesktopAsMobileWorkaround = Boolean(
+    await builder.getInput("force-desktop-spellers-as-mobile")
+  )
+
+  const config = await deriveInputs([
+    "fst",
+    "generators",
+    "spellers",
+    "hyphenators",
+    "analysers",
+    "grammar-checkers",
+    "hyperminimalisation",
+    "reversed-intersect",
+    "two-step-intersect",
+    "speller-optimisation",
+    "backend-format",
+    "force-all-tools",
+    "minimised-spellers",
+  ])
+
+  const props = {
+    requiresDesktopAsMobileWorkaround,
+    ...config,
+  } as Props
+
+  const { spellerPaths: out } = await langBuild(props)
+
+  if (out != null) {
+    await builder.setOutput("speller-paths", JSON.stringify(out, null, 0))
   }
 }
 

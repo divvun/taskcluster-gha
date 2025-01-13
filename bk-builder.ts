@@ -110,6 +110,8 @@ export type InputOptions = {
 
 export type Context = {
   ref: string
+  repo: string
+  workspace: string
 }
 
 // Buildkite-specific implementations
@@ -315,6 +317,8 @@ export function exportVariable(name: string, value: string) {
 
 export const context: Context = {
   ref: process.env.BUILDKITE_COMMIT || "",
+  workspace: process.env.BUILDKITE_BUILD_CHECKOUT_PATH || "",
+  repo: process.env.BUILDKITE_REPO || "",
 }
 
 export function secrets() {

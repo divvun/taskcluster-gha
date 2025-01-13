@@ -2,8 +2,8 @@ import * as path from "path"
 import * as builder from "~/builder"
 import { Bash } from "../../shared"
 
-async function run() {
-  const githubWorkspace = process.env.GITHUB_WORKSPACE
+export default async function langCheck() {
+  const githubWorkspace = builder.context.workspace
   if (githubWorkspace == null) {
     builder.setFailed("GITHUB_WORKSPACE not set, failing.")
     return
@@ -13,6 +13,10 @@ async function run() {
     "make check -j$(nproc) || cat tools/spellcheckers/test/fstbased/desktop/hfst/test-suite.log",
     { cwd: path.join(directory, "build") }
   )
+}
+
+async function run() {
+  await langCheck()
 }
 
 if (builder.isGHA) {
