@@ -1,15 +1,16 @@
 // Re-export types
 import type {
+  Context,
+  CopyOptions,
   ExecListeners,
   ExecOptions,
-  CopyOptions,
   GlobOptions,
   Globber,
   InputOptions,
-  Context,
 } from "./gha-builder"
 
 const isDivvunCI = process.env.DIVVUN_CI
+export let isGHA = false
 
 // Ensure we get the proper types from the implementations
 let selectedBuilder: typeof import("./gha-builder")
@@ -17,6 +18,7 @@ let selectedBuilder: typeof import("./gha-builder")
 if (isDivvunCI) {
   selectedBuilder = require("./bk-builder")
 } else {
+  isGHA = true
   selectedBuilder = require("./gha-builder")
 }
 
@@ -44,11 +46,9 @@ export const {
 
 // Re-export types
 export type {
-  ExecListeners,
-  ExecOptions,
-  CopyOptions,
-  GlobOptions,
+  Context, CopyOptions, ExecListeners,
+  ExecOptions, GlobOptions,
   Globber,
-  InputOptions,
-  Context,
+  InputOptions
 }
+

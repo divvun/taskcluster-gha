@@ -19,7 +19,9 @@ async function run() {
   await builder.setOutput("installer-path", installerOutput)
 }
 
-run().catch((err) => {
-  console.error(err.stack)
-  process.exit(1)
-})
+if (builder.isGHA) {
+  run().catch((err) => {
+    console.error(err.stack)
+    process.exit(1)
+  })
+}

@@ -188,7 +188,9 @@ async function writeMetadataJson(): Promise<string | null> {
   return metadataJsonPath
 }
 
-run().catch((err) => {
-  console.error(err.stack)
-  process.exit(1)
-})
+if (builder.isGHA) {
+  run().catch((err) => {
+    console.error(err.stack)
+    process.exit(1)
+  })
+}
