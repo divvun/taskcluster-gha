@@ -7,24 +7,24 @@ import type {
   GlobOptions,
   Globber,
   InputOptions,
-} from "./gha-builder"
+} from "./builder/gha"
 
 const isTaskcluster = process.env.TASKCLUSTER_ROOT_URL
 const isBuildkite = process.env.BUILDKITE
 export let isGHA = !!isTaskcluster
 
 // Ensure we get the proper types from the implementations
-let selectedBuilder: typeof import("./gha-builder")
+let selectedBuilder: typeof import("./builder/gha")
 export let mode: string
 
 if (isBuildkite) {
-  selectedBuilder = require("./bk-builder")
+  selectedBuilder = require("./builder/buildkite")
   mode = "buildkite"
 } else if (isTaskcluster) {
-  selectedBuilder = require("./gha-builder")
+  selectedBuilder = require("./builder/gha")
   mode = "taskcluster"
 } else {
-  selectedBuilder = require("./local-builder")
+  selectedBuilder = require("./builder/local")
   mode = "local"
 }
 
@@ -61,6 +61,5 @@ export type {
   ExecOptions,
   GlobOptions,
   Globber,
-  InputOptions
+  InputOptions,
 }
-

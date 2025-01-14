@@ -4,31 +4,31 @@ import PrettyError from "pretty-error"
 import * as builder from "~/builder"
 import { version } from "./package.json"
 
-import deploy from "./deploy"
-import enableLanguages from "./enable-languages"
-import innoSetup from "./inno-setup"
-import keyboardBuild from "./keyboard/build"
-import keyboardBuildMeta from "./keyboard/build-meta"
-import keyboardDeploy from "./keyboard/deploy"
-import langInstallDeps from "./lang/install-deps"
-import pahkatInit from "./pahkat/init"
-import setup from "./setup"
-import spellerBundle from "./speller/bundle"
-import spellerDeploy from "./speller/deploy"
-import versionCmd from "./version"
+import deploy from "./tasks/deploy"
+import enableLanguages from "./tasks/enable-languages"
+import innoSetup from "./tasks/inno-setup"
+import keyboardBuild from "./tasks/keyboard/build"
+import keyboardBuildMeta from "./tasks/keyboard/build-meta"
+import keyboardDeploy from "./tasks/keyboard/deploy"
+import langInstallDeps from "./tasks/lang/install-deps"
+import pahkatInit from "./tasks/pahkat/init"
+import setup from "./tasks/setup"
+import spellerBundle from "./tasks/speller/bundle"
+import spellerDeploy from "./tasks/speller/deploy"
+import versionCmd from "./tasks/version"
 
 const pe = new PrettyError()
 pe.skipNodeFiles()
-pe.skipPackage('commander')
-pe.skip((x)=> {
-    return x.what === 'Command.<anonymous>'
+pe.skipPackage("commander")
+pe.skip((x) => {
+  return x.what === "Command.<anonymous>"
 })
 
 const program = new Command()
 
 console.log("Environment: " + builder.mode)
 
-process.on('unhandledRejection', (err: Error) => {
+process.on("unhandledRejection", (err: Error) => {
   console.error(pe.render(err))
   process.exit(1)
 })
