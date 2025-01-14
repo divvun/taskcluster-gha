@@ -213,7 +213,7 @@ export class Tar {
   static URL_XZ_WINDOWS = "https://tukaani.org/xz/xz-5.2.5-windows.zip"
 
   static async bootstrap() {
-    if (process.platform !== "win32") {
+    if (process.platform !== "win32" || builder.mode !== "taskcluster") {
       return
     }
 
@@ -421,9 +421,7 @@ export class PahkatUploader {
       builder.debug(
         "Skipping upload because `PAHKAT_NO_DEPLOY` is true. Creating artifact instead"
       )
-      process.stdout.write(
-        `::create-artifact path=${fileName}::${artifactPath}`
-      )
+      await builder.createArtifact(fileName, artifactPath)
       return
     }
 

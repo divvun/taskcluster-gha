@@ -328,3 +328,7 @@ export function secrets() {
 export function tempDir() {
   return tmpdir()
 }
+
+export function createArtifact(fileName: string, artifactPath: string) {
+  throw new Error("Artifacts are not available in Buildkite")
+}

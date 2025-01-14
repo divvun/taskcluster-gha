@@ -50,6 +50,7 @@ export const {
   context,
   secrets,
   tempDir,
+  createArtifact,
 } = selectedBuilder
 
 // Re-export types
@@ -60,5 +61,6 @@ export type {
   ExecOptions,
   GlobOptions,
   Globber,
-  InputOptions,
+  InputOptions
 }
+

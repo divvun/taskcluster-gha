@@ -322,9 +322,13 @@ export const context: Context = {
 }
 
 export function secrets() {
-  throw new Error("Secrets are not available in Buildkite")
+  throw new Error("Secrets are not available in local")
 }
 
 export function tempDir() {
   return tmpdir()
+}
+
+export function createArtifact(fileName: string, artifactPath: string) {
+  throw new Error("Artifacts are not available in local")
 }

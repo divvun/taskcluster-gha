@@ -46,7 +46,7 @@ export {
   actionsCore as core,
   actionsGithub as github,
   actionsIo as io,
-  actionsTc as tc,
+  actionsTc as tc
 }
 
 export function exportVariable(name: string, value: string) {
@@ -237,4 +237,8 @@ export function tempDir() {
     throw new Error("RUNNER_TEMP was not defined")
   }
   return dir
+}
+
+export async function createArtifact(fileName: string, artifactPath: string) {
+  process.stdout.write(`::create-artifact path=${fileName}::${artifactPath}`)
 }
