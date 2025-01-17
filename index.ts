@@ -287,7 +287,7 @@ async function localMain() {
       const cmd = `
         cd "${Tart.WORKSPACE_PATH}"
         echo $PWD
-        "${Tart.DIVVUN_ACTIONS_PATH}/bin/divvun-actions" ${process.argv.slice(2).join(" ")}"
+        "${Tart.DIVVUN_ACTIONS_PATH}/bin/divvun-actions" ${process.argv.slice(2).join(" ")}
       `
       console.log("WTF?", cmd)
 
