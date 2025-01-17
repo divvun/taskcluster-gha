@@ -166,13 +166,14 @@ export class DefaultShell {
 
 export class Bash {
   static async runScript(
-    script: string,
+    scriptInput: string | string[],
     args: {
       sudo?: boolean
       cwd?: string
       env?: { [key: string]: string }
     } = {}
   ) {
+    const script = typeof scriptInput === "string" ? scriptInput : scriptInput.join(";\n")
     const thisEnv = Object.assign({}, env(), args.env)
 
     const out: string[] = []

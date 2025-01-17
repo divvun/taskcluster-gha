@@ -5,10 +5,10 @@ import toml from "toml"
 import { SpellerManifest } from "~/actions/speller/manifest"
 import * as builder from "~/builder"
 import {
-    Bash,
-    isMatchingTag,
-    nonUndefinedProxy,
-    versionAsNightly,
+  Bash,
+  isMatchingTag,
+  nonUndefinedProxy,
+  versionAsNightly,
 } from "~/util/shared"
 
 async function getCargoToml(cargo: string | null) {
@@ -81,16 +81,17 @@ async function getVersionFromFile(filePath: string | null) {
 }
 
 export type Props = {
-  isXcode: string | null
-  isNightly: boolean
+  isXcode?: string | null
+  isNightly?: boolean
   cargoToml: any
-  spellerManifest: any
-  plistPath: string | null
-  csharp: string | null
-  versionFromFile: string | null
-  instaStable: boolean
-  nightlyChannel: string
+  spellerManifest?: any
+  plistPath?: string | null
+  csharp?: string | null
+  versionFromFile?: string | null
+  instaStable?: boolean
 }
+
+const NIGHTLY_CHANNEL = "nightly"
 
 async function run() {
   const isXcode = (await builder.getInput("xcode")) || null
@@ -118,7 +119,6 @@ async function run() {
     csharp,
     versionFromFile,
     instaStable,
-    nightlyChannel,
   })
 
   if (channel != null) {
@@ -135,14 +135,13 @@ export type Output = {
 
 export default async function version({
   isXcode,
-  isNightly,
+  isNightly = false,
   cargoToml,
-  spellerManifest,
+  spellerManifest = null,
   plistPath,
   csharp,
   versionFromFile,
-  instaStable,
-  nightlyChannel,
+  instaStable = false,
 }: Props) {
   let version
 
@@ -184,11 +183,11 @@ export default async function version({
   }
 
   if (isNightly) {
-    builder.debug(`Generating nightly version for channel ${nightlyChannel}`)
+    builder.debug(`Generating nightly version for channel ${NIGHTLY_CHANNEL}`)
     version = await versionAsNightly(version)
 
     // await builder.setOutput("channel", nightlyChannel)
-    channel = nightlyChannel
+    channel = NIGHTLY_CHANNEL
   } else {
     if (!instaStable) {
       // await builder.setOutput("channel", "beta")

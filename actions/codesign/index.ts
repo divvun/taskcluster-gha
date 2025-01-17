@@ -6,7 +6,7 @@ import { Bash, secrets } from "~/util/shared"
 
 export type Props = {
   filePath: string
-  isInstaller: boolean
+  isInstaller?: boolean
 }
 
 export type Output = {
@@ -27,7 +27,7 @@ async function run() {
 
 export default async function codesign({
   filePath,
-  isInstaller,
+  isInstaller = false,
 }: Props): Promise<Output> {
   const sec = await secrets()
 

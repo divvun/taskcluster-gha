@@ -12,7 +12,7 @@ export type Output = {
   txzPath: string
 }
 
-async function createTxz({ filesPath }: Props): Promise<Output> {
+export default async function createTxz({ filesPath }: Props): Promise<Output> {
   const globber = await builder.globber(path.join(filesPath, "*"), {
     followSymbolicLinks: false,
     implicitDescendants: false,

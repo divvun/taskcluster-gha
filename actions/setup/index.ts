@@ -7,11 +7,10 @@ import { downloadAppleDevIdCA, Security } from "~/util/security"
 import {
   Bash,
   divvunConfigDir,
-  randomHexBytes,
   randomString64,
   secrets,
   Tar,
-  tmpDir,
+  tmpDir
 } from "~/util/shared"
 
 function debug(input: string[]) {
@@ -29,7 +28,7 @@ function debug(input: string[]) {
 async function setupMacOSKeychain() {
   const sec = await secrets()
 
-  const name = `divvun-build-${randomHexBytes(6)}`
+  const name = `divvun-build`
   const password = randomString64()
 
   try {

@@ -12,7 +12,7 @@ import {
   WindowsExecutableKind,
 } from "~/util/shared"
 
-enum PackageType {
+export enum PackageType {
   MacOSPackage = "MacOSPackage",
   WindowsExecutable = "WindowsExecutable",
   TarballPackage = "TarballPackage",
@@ -92,9 +92,9 @@ export type Props = {
   // packageType: PackageType
   platform: string
   payloadPath: string
-  arch: string | null
-  channel: string | null
-  dependencies: { [key: string]: string } | null
+  arch?: string | null
+  channel?: string | null
+  dependencies?: { [key: string]: string } | null
   pahkatRepo: string
   version: string
 } & (
