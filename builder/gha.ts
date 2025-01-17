@@ -4,6 +4,7 @@ import * as actionsGithub from "@actions/github"
 import * as actionsGlob from "@actions/glob"
 import * as actionsIo from "@actions/io"
 import * as actionsTc from "@actions/tool-cache"
+import { ChildProcess } from "child_process"
 import * as taskcluster from "taskcluster-client"
 
 export type ExecListeners = {
@@ -89,7 +90,7 @@ export function spawn(
   commandLine: string,
   args?: string[],
   options?: ExecOptions
-) {
+): Promise<ChildProcess> {
   throw new Error("Spawn is not available in GHA")
 }
 

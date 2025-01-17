@@ -1,6 +1,6 @@
 import fs from "fs"
 import path from "path"
-import { exec } from "~/builder"
+import { exec, spawn } from "~/builder"
 
 type TartStatus = {
   CPU: number
@@ -27,24 +27,16 @@ export default class Tart {
       ([key, value]) => `--dir=${key}:${value}`
     )
 
+    const args = ["tart", "run", "--no-graphics", vmName, ...dirsArg]
+
+    // No await here because it runs forever...
+    const proc = await spawn("nohup", args, {
+      silent: true,
+    })
+
+    console.log("Waiting for VM to start...")
+
     return new Promise((resolve, reject) => {
-      const args = ["tart", "run", "--no-graphics", vmName, ...dirsArg]
-
-      // No await here because it runs forever...
-      exec("nohup", args, {
-       silent: true
-      })
-        .then((x) => {
-          if (x !== 0) {
-            reject(new Error("Failed to run VM (error code " + x + ")"))
-          }
-        })
-        .catch((e) => {
-          reject(e)
-        })
-
-      console.log("Waiting for VM to start...")
-
       const waiter = async () => {
         while (!(await Tart.isRunning(vmName))) {
           await new Promise((r) => setTimeout(r, 250))
@@ -53,6 +45,8 @@ export default class Tart {
       }
 
       waiter()
+
+      proc.kill("SIGHUP")
     })
   }
 
@@ -106,7 +100,9 @@ export default class Tart {
 
     console.log("Running divvun-actions...")
     const cmd = `
-      "${Tart.DIVVUN_ACTIONS_PATH}/bin/divvun-actions" ${process.argv.slice(2).join(" ")}
+      "${Tart.DIVVUN_ACTIONS_PATH}/bin/divvun-actions" ${process.argv
+      .slice(2)
+      .join(" ")}
     `
 
     await Tart.exec("runner", cmd)

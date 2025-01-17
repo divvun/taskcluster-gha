@@ -34,6 +34,7 @@ export const {
   setFailed,
   error,
   exec,
+  spawn,
   addPath,
   downloadTool,
   extractZip,
@@ -61,5 +62,6 @@ export type {
   ExecOptions,
   GlobOptions,
   Globber,
-  InputOptions,
+  InputOptions
 }
+
