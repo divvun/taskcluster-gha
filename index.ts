@@ -284,9 +284,11 @@ async function localMain() {
 
       console.log("Running divvun-actions...")
 
-      const cmd = `cd "${Tart.WORKSPACE_PATH}"; "${
-        Tart.DIVVUN_ACTIONS_PATH
-      }/bin/divvun-actions" "${process.argv.slice(2).join(" ")}"`
+      const cmd = `
+        cd "${Tart.WORKSPACE_PATH}"
+        echo $PWD
+        "${Tart.DIVVUN_ACTIONS_PATH}/bin/divvun-actions" "${process.argv.slice(2).join(" ")}"
+      `
       console.log(cmd)
 
       await Tart.exec("runner", cmd)
