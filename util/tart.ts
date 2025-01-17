@@ -134,7 +134,7 @@ export default class Tart {
     await exec("hdiutil", ["attach", imagePath])
 
     console.log("Copying workspace...")
-    await exec("ditto", ["-V", Tart.WORKSPACE_PATH, `/Volumes/${volName}`])
+    await exec("ditto", [Tart.WORKSPACE_PATH, `/Volumes/${volName}`])
 
     console.log(`Entering virtual workspace (/Volumes/${volName})...`)
     process.chdir(`/Volumes/${volName}`)
@@ -150,7 +150,7 @@ export default class Tart {
     const imagePath = `/tmp/${volName}.sparseimage`
 
     console.log("Copying workspace...")
-    await exec("ditto", ["-V", `/Volumes/${volName}`, Tart.WORKSPACE_PATH])
+    await exec("ditto", [`/Volumes/${volName}`, Tart.WORKSPACE_PATH])
 
     console.log("Detaching image...")
     await exec("hdiutil", ["detach", `/Volumes/${volName}`])
