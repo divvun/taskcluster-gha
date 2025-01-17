@@ -157,6 +157,8 @@ export default class Tart {
 
     console.log("Deleting image...")
     await exec("rm", ["-f", imagePath])
+
+    console.log("Image deleted.")
   }
 
   static ip(vmName: string) {
