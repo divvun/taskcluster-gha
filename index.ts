@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 
-if (process.env._DIVVUN_ACTIONS_PWD) {
-  process.chdir(process.env._DIVVUN_ACTIONS_PWD)
-}
+import path from "path"
 
 import { Command } from "commander"
 import PrettyError from "pretty-error"
@@ -10,6 +8,7 @@ import * as builder from "~/builder"
 import { version } from "./package.json"
 
 import divvunspellMacos from "./pipelines/divvunspell/macos"
+import Tart from "./util/tart"
 
 const pe = new PrettyError()
 pe.skipNodeFiles()
@@ -259,4 +258,46 @@ divvunspell
     )
   })
 
-program.parse()
+async function localMain() {
+  const realWorkingDir = process.env._DIVVUN_ACTIONS_PWD
+
+  if (realWorkingDir == null) {
+    console.error("index.ts cannot be run directly.")
+    process.exit(1)
+  }
+
+  if (process.platform === "darwin") {
+    const isInVirtualMachine = Tart.isInVirtualMachine()
+
+    if (isInVirtualMachine) {
+      Tart.enterWorkspace()
+    } else {
+      console.log("Moving into virtualised environment...")
+      await Tart.run("runner", {
+        workspace: realWorkingDir,
+        "divvun-actions": `${path.resolve(process.cwd())}:ro`,
+      })
+      return
+    }
+  } else {
+    process.chdir(realWorkingDir)
+  }
+}
+
+async function main() {
+  switch (builder.mode) {
+    case "local": {
+      await localMain()
+      break
+    }
+    default:
+      throw new Error(`Unknown mode: ${builder.mode}`)
+  }
+
+  program.parse()
+}
+
+main().catch((e) => {
+  console.error(e)
+  process.exit(1)
+})
