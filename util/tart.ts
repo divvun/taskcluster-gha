@@ -104,10 +104,10 @@ export default class Tart {
     })
   }
 
-  static async exec(vmName: string, line: string) {
+  static async exec(vmName: string, cmd: string) {
     const ip = await this.ip(vmName)
 
-    console.log("Running command (" + line + ")...")
+    console.log("Running command (" + cmd + ")...")
     const args = [
       "-p",
       "admin",
@@ -115,10 +115,10 @@ export default class Tart {
       "-o",
       "StrictHostKeyChecking no",
       `admin@${ip}`,
-      "zsh",
-      "-l",
-      "-c",
-      line,
+      // "zsh -l -c",
+      "<<EOF",
+      `\n${cmd}\n`,
+      "EOF",
     ]
     console.log("Args", args)
     return await exec("sshpass", args)
