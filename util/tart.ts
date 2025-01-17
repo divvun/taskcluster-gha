@@ -87,6 +87,8 @@ export default class Tart {
   static async exec(vmName: string, line: string) {
     const ip = await this.ip(vmName)
 
+    console.log("IP: " + ip)
+
     return await exec("sshpass", [
       "-p",
       "admin",
