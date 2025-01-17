@@ -1,5 +1,4 @@
 import fs from "fs"
-import os from "os"
 import { exec } from "~/builder"
 
 type TartStatus = {
@@ -95,9 +94,28 @@ export default class Tart {
     return fs.existsSync(Tart.DIVVUN_ACTIONS_PATH)
   }
 
-  static enterWorkspace() {
-    console.log("Entering virtual workspace (~/workspace)...")
-    process.chdir(os.homedir() + "/workspace")
+  static async enterWorkspace() {
+    const id = crypto.randomUUID()
+    const volName = `workspace-${id}`
+    const imagePath = `/tmp/${volName}.sparseimage`
+    
+    await exec("hdiutil", [
+      "create",
+      "-type",
+      "SPARSE",
+      "-size",
+      "100g",
+      "-fs",
+      "APFS",
+      "-volname",
+      volName,
+      imagePath,
+    ])
+    await exec("hdiutil", ["attach", imagePath])
+    await exec("ditto", ["-V", Tart.WORKSPACE_PATH, `/Volumes/${volName}`])
+    
+    console.log(`Entering virtual workspace (/Volumes/${volName})...`)
+    process.chdir(`/Volumes/${volName}`)
   }
 
   static ip(vmName: string) {
@@ -127,7 +145,7 @@ export default class Tart {
       "-o",
       "StrictHostKeyChecking no",
       `admin@${ip}`,
-      'zsh -l',
+      "zsh -l",
       // "<<EOF",
       `\n${cmd}\n`,
       // "EOF",
