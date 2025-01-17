@@ -277,6 +277,12 @@ async function localMain() {
         workspace: realWorkingDir,
         "divvun-actions": `${path.resolve(process.cwd())}:ro`,
       })
+      await Tart.exec(
+        "runner",
+        `cd ${Tart.WORKSPACE_PATH}; ${
+          Tart.DIVVUN_ACTIONS_PATH
+        }/bin/divvun-actions "${process.argv.slice(2).join(" ")}"`
+      )
       return
     }
   } else {

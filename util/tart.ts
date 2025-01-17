@@ -2,19 +2,20 @@ import fs from "fs"
 import { exec } from "~/builder"
 
 type TartStatus = {
-    "CPU": number,
-    "Display": string,
-    "OS": string,
-    "Size": string,
-    "Disk": number,
-    "State": string,
-    "Memory": number,
-    "Running": boolean
+  CPU: number
+  Display: string
+  OS: string
+  Size: string
+  Disk: number
+  State: string
+  Memory: number
+  Running: boolean
 }
 
 export default class Tart {
   static readonly WORKSPACE_PATH = "/Volumes/My Shared Files/workspace"
-  static readonly DIVVUN_ACTIONS_PATH = "/Volumes/My Shared Files/divvun-actions"
+  static readonly DIVVUN_ACTIONS_PATH =
+    "/Volumes/My Shared Files/divvun-actions"
 
   static async run(vmName: string, dirs: Record<string, string> = {}) {
     if (await Tart.isRunning(vmName)) {
@@ -63,5 +64,33 @@ export default class Tart {
 
   static enterWorkspace() {
     process.chdir(Tart.WORKSPACE_PATH)
+  }
+
+  static ip(vmName: string) {
+    let output = ""
+
+    return exec("tart", ["ip", vmName], {
+      listeners: {
+        stdout: (data) => {
+          output += data.toString()
+        },
+      },
+    }).then(() => {
+      return output
+    })
+  }
+
+  static async exec(vmName: string, line: string) {
+    const ip = await this.ip(vmName)
+
+    return await exec("sshpass", [
+      "-p",
+      "admin",
+      "ssh",
+      "-o",
+      "StrictHostKeyChecking no",
+      `admin@${ip}`,
+      line,
+    ])
   }
 }
