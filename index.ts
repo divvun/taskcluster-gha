@@ -289,7 +289,7 @@ async function localMain() {
         echo $PWD
         "${Tart.DIVVUN_ACTIONS_PATH}/bin/divvun-actions" "${process.argv.slice(2).join(" ")}"
       `
-      console.log(cmd)
+      console.log("WTF?", cmd)
 
       await Tart.exec("runner", cmd)
       return
