@@ -27,12 +27,12 @@ export default class Tart {
     )
 
     // No await here because it runs forever...
-    exec("tart", [
-      "run",
-      "--no-graphics",
-      vmName,
-      ...dirsArg,
-    ])
+    exec("tart", ["run", "--no-graphics", vmName, ...dirsArg])
+
+    console.log("Waiting for VM to start...")
+    while (!(await Tart.isRunning(vmName))) {
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+    }
   }
 
   static async stop(vmName: string) {
