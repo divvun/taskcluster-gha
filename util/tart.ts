@@ -31,7 +31,7 @@ export default class Tart {
 
     // No await here because it runs forever...
     const proc = await spawn("nohup", args, {
-      silent: true,
+      // silent: true,
     })
 
     console.log("Waiting for VM to start...")

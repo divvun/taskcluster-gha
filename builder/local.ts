@@ -272,8 +272,8 @@ export async function globber(
 
 export async function setSecret(secret: string) {
   return new Promise<void>((resolve, reject) => {
-    const echo = spawn("echo", [secret])
-    const redactor = spawn("buildkite-agent", ["redactor", "add"])
+    const echo = doSpawn("echo", [secret])
+    const redactor = doSpawn("buildkite-agent", ["redactor", "add"])
 
     echo.stdout.pipe(redactor.stdin)
 
