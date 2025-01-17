@@ -98,7 +98,8 @@ export default class Tart {
     const id = crypto.randomUUID()
     const volName = `workspace-${id}`
     const imagePath = `/tmp/${volName}.sparseimage`
-    
+
+    console.log("Creating sparse image at " + imagePath)
     await exec("hdiutil", [
       "create",
       "-type",
@@ -111,9 +112,13 @@ export default class Tart {
       volName,
       imagePath,
     ])
+
+    console.log("Attaching image...")
     await exec("hdiutil", ["attach", imagePath])
+
+    console.log("Copying workspace...")
     await exec("ditto", ["-V", Tart.WORKSPACE_PATH, `/Volumes/${volName}`])
-    
+
     console.log(`Entering virtual workspace (/Volumes/${volName})...`)
     process.chdir(`/Volumes/${volName}`)
   }
