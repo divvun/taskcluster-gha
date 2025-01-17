@@ -131,11 +131,15 @@ export async function exec(
   options?: ExecOptions
 ): Promise<number> {
   return new Promise((resolve, reject) => {
-    const stdio = (options?.listeners?.stdout || options?.listeners?.stderr)
-      ? "pipe"
-      : options?.silent
-      ? "ignore"
-      : "inherit"
+    const stdio =
+      options?.listeners?.stdout || options?.listeners?.stderr
+        ? "pipe"
+        : options?.silent
+        ? "ignore"
+        : "inherit"
+
+    console.log("Exec: " + stdio)
+
     const proc = spawn(commandLine, args || [], {
       cwd: options?.cwd,
       env: options?.env || process.env,
