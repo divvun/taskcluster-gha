@@ -116,6 +116,7 @@ export default class Tart {
       "StrictHostKeyChecking no",
       `admin@${ip}`,
       "zsh",
+      "-l",
       "-c",
       line,
     ]
