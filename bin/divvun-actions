@@ -2,11 +2,10 @@
 
 CWD=`pwd`
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
-cd $SCRIPT_DIR;
+cd "$SCRIPT_DIR";
 
 # Check if node_modules exists, otherwise pnpm install
 if [ ! -d "$SCRIPT_DIR/node_modules" ]; then
-    cd $SCRIPT_DIR;
     pnpm install -s;
 fi
 
