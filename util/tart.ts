@@ -156,7 +156,9 @@ export default class Tart {
     await exec("hdiutil", ["detach", `/Volumes/${volName}`])
 
     console.log("Deleting image...")
-    await exec("rm", ["-f", imagePath])
+    fs.rmSync(imagePath, {
+      force: true,
+    })
 
     console.log("Image deleted.")
   }
