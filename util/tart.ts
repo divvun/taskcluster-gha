@@ -26,13 +26,32 @@ export default class Tart {
       ([key, value]) => `--dir="${key}:${value}"`
     )
 
-    // No await here because it runs forever...
-    exec("tart", ["run", "--no-graphics", vmName, ...dirsArg])
+    return new Promise((resolve, reject) => {
+      const args = ["run", "--no-graphics", vmName, ...dirsArg]
+      console.log(args)
 
-    console.log("Waiting for VM to start...")
-    while (!(await Tart.isRunning(vmName))) {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-    }
+      // No await here because it runs forever...
+      exec("tart", args)
+        .then((x) => {
+          if (x !== 0) {
+            reject(new Error("Failed to run VM (error code " + x + ")"))
+          }
+        })
+        .catch((e) => {
+          reject(e)
+        })
+
+      console.log("Waiting for VM to start...")
+
+      const waiter = async () => {
+        while (!(await Tart.isRunning(vmName))) {
+          await new Promise((r) => setTimeout(r, 250))
+        }
+        resolve(undefined)
+      }
+
+      waiter()
+    })
   }
 
   static async stop(vmName: string) {
@@ -50,9 +69,8 @@ export default class Tart {
       },
     })
 
-    console.log(rawOutput)
-
     const output: TartStatus = JSON.parse(rawOutput)
+    console.log(output)
     return output
   }
 
