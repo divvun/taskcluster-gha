@@ -128,9 +128,9 @@ export default class Tart {
       "StrictHostKeyChecking no",
       `admin@${ip}`,
       'zsh -l',
-      "<<EOF",
+      // "<<EOF",
       `\n${cmd}\n`,
-      "EOF",
+      // "EOF",
     ]
     console.log("Args", args)
     return await exec("sshpass", args)
