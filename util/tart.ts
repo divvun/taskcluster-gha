@@ -56,6 +56,17 @@ export default class Tart {
 
   static async stop(vmName: string) {
     await exec("tart", ["stop", vmName])
+
+    return new Promise((resolve, reject) => {
+      const waiter = async () => {
+        while (await Tart.isRunning(vmName)) {
+          await new Promise((r) => setTimeout(r, 250))
+        }
+        resolve(undefined)
+      }
+
+      waiter()
+    })
   }
 
   static async status(vmName: string) {
