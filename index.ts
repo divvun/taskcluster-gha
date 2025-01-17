@@ -277,6 +277,7 @@ async function localMain() {
         workspace: realWorkingDir,
         "divvun-actions": `${path.resolve(process.cwd())}:ro`,
       })
+      console.log("Running divvun-actions...")
       await Tart.exec(
         "runner",
         `cd ${Tart.WORKSPACE_PATH}; ${

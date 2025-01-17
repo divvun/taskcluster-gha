@@ -71,6 +71,7 @@ export default class Tart {
 
   static ip(vmName: string) {
     let output = ""
+    console.log("Getting IP...")
 
     return exec("tart", ["ip", vmName], {
       listeners: {
