@@ -288,6 +288,8 @@ async function localMain() {
       await Tart.exec("runner", cmd)
       return
     }
+    
+    process.chdir(realWorkingDir)
   } else {
     process.chdir(realWorkingDir)
   }
