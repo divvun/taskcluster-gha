@@ -76,7 +76,7 @@ export default class Tart {
     })
 
     const output: TartStatus = JSON.parse(rawOutput)
-    console.log(output)
+    // console.log(output)
     return output
   }
 
@@ -172,7 +172,7 @@ export default class Tart {
         },
       },
     }).then(() => {
-      console.log("IP: " + output)
+      // console.log("IP: " + output)
       return output.trim()
     })
   }
