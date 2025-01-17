@@ -163,7 +163,7 @@ export default class Tart {
 
   static ip(vmName: string) {
     let output = ""
-    console.log("Getting IP...")
+    console.log("Getting virtual machine's IP...")
 
     return exec("tart", ["ip", vmName], {
       listeners: {
@@ -180,7 +180,7 @@ export default class Tart {
   static async exec(vmName: string, cmd: string) {
     const ip = await this.ip(vmName)
 
-    // console.log("Running command (" + cmd + ")...")
+    console.log("Running action...")
     const args = [
       "-p",
       "admin",
