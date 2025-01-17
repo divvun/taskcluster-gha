@@ -117,7 +117,7 @@ export default class Tart {
       `admin@${ip}`,
       "zsh",
       "-c",
-      "source ~/.zshrc; " + line,
+      line,
     ]
     console.log("Args", args)
     return await exec("sshpass", args)
