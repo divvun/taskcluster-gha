@@ -2,21 +2,21 @@ import toml from "@iarna/toml"
 import fs from "fs"
 import path from "path"
 
+import { makeInstaller } from "~/actions/inno-setup/lib"
 import * as builder from "~/builder"
-import { makeInstaller } from "~/tasks/inno-setup/lib"
 import { InnoSetupBuilder } from "~/util/inno"
 import {
-  DivvunBundler,
-  SpellerPaths,
-  Tar,
-  ThfstTools,
-  nonUndefinedProxy,
+    DivvunBundler,
+    SpellerPaths,
+    Tar,
+    ThfstTools,
+    nonUndefinedProxy,
 } from "~/util/shared"
 import {
-  SpellerManifest,
-  SpellerType,
-  deriveLangTag,
-  derivePackageId,
+    SpellerManifest,
+    SpellerType,
+    deriveLangTag,
+    derivePackageId,
 } from "../manifest"
 
 export type Props = {

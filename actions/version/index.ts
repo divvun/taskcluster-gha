@@ -2,13 +2,13 @@ import fs from "fs"
 import path from "path"
 
 import toml from "toml"
+import { SpellerManifest } from "~/actions/speller/manifest"
 import * as builder from "~/builder"
-import { SpellerManifest } from "~/tasks/speller/manifest"
 import {
-  Bash,
-  isMatchingTag,
-  nonUndefinedProxy,
-  versionAsNightly,
+    Bash,
+    isMatchingTag,
+    nonUndefinedProxy,
+    versionAsNightly,
 } from "~/util/shared"
 
 async function getCargoToml(cargo: string | null) {
