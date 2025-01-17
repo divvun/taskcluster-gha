@@ -285,8 +285,8 @@ async function localMain() {
       console.log("Running divvun-actions...")
 
       const cmd = `
-        cd "${Tart.WORKSPACE_PATH}"
-        echo $PWD
+        ditto -V "${Tart.WORKSPACE_PATH}" ~/workspace
+        cd ~/workspace
         "${Tart.DIVVUN_ACTIONS_PATH}/bin/divvun-actions" ${process.argv.slice(2).join(" ")}
       `
       console.log("WTF?", cmd)
