@@ -115,6 +115,8 @@ export default class Tart {
       "-o",
       "StrictHostKeyChecking no",
       `admin@${ip}`,
+      "zsh",
+      "-c",
       line,
     ]
     console.log("Args", args)
