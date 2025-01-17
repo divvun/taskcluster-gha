@@ -189,7 +189,6 @@ export default class Tart {
       "zsh -l",
       "<<- EOF",
       `\n${cmd}\n`,
-      "EOF",
     ]
     console.log("Args", args)
     return await exec("sshpass", args)
