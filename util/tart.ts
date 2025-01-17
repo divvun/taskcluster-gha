@@ -23,8 +23,7 @@ export default class Tart {
     }
 
     // No await here because it runs forever...
-    exec("nohup", [
-      "tart",
+    exec("tart", [
       "run",
       "--no-graphics",
       vmName,
