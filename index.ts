@@ -283,7 +283,7 @@ async function localMain() {
     process.chdir(realWorkingDir)
   }
 
-  program.parse()
+  await program.parseAsync()
 
   if (id) {
     await Tart.exitWorkspace(id)
