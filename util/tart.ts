@@ -1,4 +1,5 @@
 import fs from "fs"
+import os from "os"
 import { exec } from "~/builder"
 
 type TartStatus = {
@@ -95,8 +96,8 @@ export default class Tart {
   }
 
   static enterWorkspace() {
-    console.log("Entering virtual workspace (" + Tart.WORKSPACE_PATH + ")...")
-    process.chdir(Tart.WORKSPACE_PATH)
+    console.log("Entering virtual workspace (~/workspace)...")
+    process.chdir(os.homedir() + "/workspace")
   }
 
   static ip(vmName: string) {
