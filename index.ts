@@ -14,7 +14,11 @@ const pe = new PrettyError()
 pe.skipNodeFiles()
 pe.skipPackage("commander")
 pe.skip((x) => {
-  return x.what === "Command.<anonymous>"
+  return (
+    x.what === "Command.<anonymous>" ||
+    x.what.startsWith("node:") ||
+    x.what === "child_process"
+  )
 })
 
 const program = new Command()
@@ -288,7 +292,7 @@ async function localMain() {
       await Tart.exec("runner", cmd)
       return
     }
-    
+
     process.chdir(realWorkingDir)
   } else {
     process.chdir(realWorkingDir)
