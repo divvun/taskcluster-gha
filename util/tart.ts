@@ -84,6 +84,7 @@ export default class Tart {
   }
 
   static enterWorkspace() {
+    console.log("Entering virtual workspace (" + Tart.WORKSPACE_PATH + ")...")
     process.chdir(Tart.WORKSPACE_PATH)
   }
 
@@ -107,7 +108,7 @@ export default class Tart {
     const ip = await this.ip(vmName)
 
     console.log("Running command (" + line + ")...")
-    return await exec("sshpass", [
+    const args = [
       "-p",
       "admin",
       "ssh",
@@ -115,6 +116,8 @@ export default class Tart {
       "StrictHostKeyChecking no",
       `admin@${ip}`,
       line,
-    ])
+    ]
+    console.log("Args", args)
+    return await exec("sshpass", args)
   }
 }
