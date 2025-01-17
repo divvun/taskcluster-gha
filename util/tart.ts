@@ -49,6 +49,8 @@ export default class Tart {
       },
     })
 
+    console.log(rawOutput)
+
     const output: TartStatus = JSON.parse(rawOutput)
     return output
   }
