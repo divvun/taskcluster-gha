@@ -127,7 +127,9 @@ export default class Tart {
     ])
 
     console.log("Attaching image...")
-    await exec("hdiutil", ["attach", imagePath])
+    await exec("hdiutil", ["attach", imagePath], {
+      silent: true,
+    })
 
     console.log("Copying workspace...")
     await exec("ditto", [Tart.WORKSPACE_PATH, `/Volumes/${volName}`])

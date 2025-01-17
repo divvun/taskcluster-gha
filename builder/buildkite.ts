@@ -139,7 +139,7 @@ export async function spawn(
         ? "ignore"
         : "inherit"
 
-    console.log("Exec: " + stdio)
+    // console.log("Exec: " + stdio)
     const proc = doSpawn(commandLine, args || [], {
       cwd: options?.cwd,
       env: options?.env || process.env,
