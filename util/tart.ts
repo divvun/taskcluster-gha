@@ -1,4 +1,5 @@
 import fs from "fs"
+import path from "path"
 import { exec } from "~/builder"
 
 type TartStatus = {
@@ -92,6 +93,22 @@ export default class Tart {
 
   static isInVirtualMachine() {
     return fs.existsSync(Tart.DIVVUN_ACTIONS_PATH)
+  }
+
+  static async enterVirtualMachine(realWorkingDir: string) {
+    console.log("Moving into virtualised environment...")
+
+    await Tart.run("runner", {
+      workspace: realWorkingDir,
+      "divvun-actions": `${path.resolve(process.cwd())}:ro`,
+    })
+
+    console.log("Running divvun-actions...")
+    const cmd = `
+      "${Tart.DIVVUN_ACTIONS_PATH}/bin/divvun-actions" ${process.argv.slice(2).join(" ")}
+    `
+
+    await Tart.exec("runner", cmd)
   }
 
   static async enterWorkspace() {

@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import path from "path"
 
 import { Command } from "commander"
 import PrettyError from "pretty-error"
@@ -274,24 +273,11 @@ async function localMain() {
     const isInVirtualMachine = Tart.isInVirtualMachine()
 
     if (isInVirtualMachine) {
-      Tart.enterWorkspace()
+      await Tart.enterWorkspace()
     } else {
-      console.log("Moving into virtualised environment...")
-      await Tart.run("runner", {
-        workspace: realWorkingDir,
-        "divvun-actions": `${path.resolve(process.cwd())}:ro`,
-      })
-
-      console.log("Running divvun-actions...")
-      const cmd = `
-        "${Tart.DIVVUN_ACTIONS_PATH}/bin/divvun-actions" ${process.argv.slice(2).join(" ")}
-      `
-
-      await Tart.exec("runner", cmd)
+      await Tart.enterVirtualMachine(realWorkingDir)
       return
     }
-
-    process.chdir(realWorkingDir)
   } else {
     process.chdir(realWorkingDir)
   }
