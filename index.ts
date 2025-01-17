@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-
 import { Command } from "commander"
 import PrettyError from "pretty-error"
 import * as builder from "~/builder"

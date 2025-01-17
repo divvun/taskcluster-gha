@@ -1,6 +1,7 @@
 // Buildkite implementation of the builder interface
 
-import { spawn } from "child_process"
+import { ChildProcess, spawn as doSpawn } from "child_process"
+import fs from "fs"
 import { cp as fsCp, mkdtemp, writeFile } from "fs/promises"
 import { tmpdir } from "os"
 import { dirname, join } from "path"
@@ -125,25 +126,54 @@ export function setFailed(message: string) {
   process.exit(1)
 }
 
+export async function spawn(
+  commandLine: string,
+  args?: string[],
+  options?: ExecOptions
+): Promise<ChildProcess> {
+  return new Promise((resolve, reject) => {
+    const stdio =
+      options?.listeners?.stdout || options?.listeners?.stderr
+        ? "pipe"
+        : options?.silent
+        ? "ignore"
+        : "inherit"
+
+    console.log("Exec: " + stdio)
+    const proc = doSpawn(commandLine, args || [], {
+      cwd: options?.cwd,
+      env: options?.env || process.env,
+      stdio,
+    })
+
+    if (options?.silent) {
+      proc.stdout?.pipe(fs.createWriteStream("/dev/null"))
+      proc.stderr?.pipe(fs.createWriteStream("/dev/null"))
+    } else {
+      if (options?.listeners?.stdout) {
+        proc.stdout!.on("data", options.listeners.stdout)
+      }
+      if (options?.listeners?.stderr) {
+        proc.stderr!.on("data", options.listeners.stderr)
+      }
+    }
+
+    if (options?.input) {
+      proc.stdin?.write(options.input)
+      proc.stdin?.end()
+    }
+
+    resolve(proc)
+  })
+}
+
 export async function exec(
   commandLine: string,
   args?: string[],
   options?: ExecOptions
 ): Promise<number> {
+  const proc = await spawn(commandLine, args, options)
   return new Promise((resolve, reject) => {
-    const proc = spawn(commandLine, args || [], {
-      cwd: options?.cwd,
-      env: options?.env || process.env,
-      stdio: options?.silent ? "ignore" : "inherit",
-    })
-
-    if (options?.listeners?.stdout) {
-      proc.stdout?.on("data", options.listeners.stdout)
-    }
-    if (options?.listeners?.stderr) {
-      proc.stderr?.on("data", options.listeners.stderr)
-    }
-
     proc.on("error", reject)
     proc.on("close", (code) => {
       if (code !== 0 && !options?.ignoreReturnCode) {
@@ -242,8 +272,8 @@ export async function globber(
 
 export async function setSecret(secret: string) {
   return new Promise<void>((resolve, reject) => {
-    const echo = spawn("echo", [secret])
-    const redactor = spawn("buildkite-agent", ["redactor", "add"])
+    const echo = doSpawn("echo", [secret])
+    const redactor = doSpawn("buildkite-agent", ["redactor", "add"])
 
     echo.stdout.pipe(redactor.stdin)
 

@@ -46,7 +46,7 @@ export {
   actionsCore as core,
   actionsGithub as github,
   actionsIo as io,
-  actionsTc as tc,
+  actionsTc as tc
 }
 
 export function exportVariable(name: string, value: string) {
@@ -83,6 +83,14 @@ export function exec(
   options?: ExecOptions
 ): Promise<number> {
   return actionsExec(commandLine, args, options)
+}
+
+export function spawn(
+  commandLine: string,
+  args?: string[],
+  options?: ExecOptions
+) {
+  throw new Error("Spawn is not available in GHA")
 }
 
 export function addPath(path: string) {

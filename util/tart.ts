@@ -28,11 +28,12 @@ export default class Tart {
     )
 
     return new Promise((resolve, reject) => {
-      const args = ["run", "--no-graphics", vmName, ...dirsArg]
-      console.log(args)
+      const args = ["tart", "run", "--no-graphics", vmName, ...dirsArg]
 
       // No await here because it runs forever...
-      exec("tart", args)
+      exec("nohup", args, {
+       silent: true
+      })
         .then((x) => {
           if (x !== 0) {
             reject(new Error("Failed to run VM (error code " + x + ")"))

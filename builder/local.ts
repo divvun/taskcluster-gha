@@ -1,6 +1,7 @@
 // Buildkite implementation of the builder interface
 
-import { spawn } from "child_process"
+import { ChildProcess, spawn as doSpawn } from "child_process"
+import fs from "fs"
 import { cp as fsCp, mkdtemp, writeFile } from "fs/promises"
 import { tmpdir } from "os"
 import { dirname, join } from "path"
@@ -125,11 +126,11 @@ export function setFailed(message: string) {
   process.exit(1)
 }
 
-export async function exec(
+export async function spawn(
   commandLine: string,
   args?: string[],
   options?: ExecOptions
-): Promise<number> {
+): Promise<ChildProcess> {
   return new Promise((resolve, reject) => {
     const stdio =
       options?.listeners?.stdout || options?.listeners?.stderr
@@ -139,20 +140,40 @@ export async function exec(
         : "inherit"
 
     console.log("Exec: " + stdio)
-
-    const proc = spawn(commandLine, args || [], {
+    const proc = doSpawn(commandLine, args || [], {
       cwd: options?.cwd,
       env: options?.env || process.env,
       stdio,
     })
 
-    if (options?.listeners?.stdout) {
-      proc.stdout!.on("data", options.listeners.stdout)
-    }
-    if (options?.listeners?.stderr) {
-      proc.stderr!.on("data", options.listeners.stderr)
+    if (options?.silent) {
+      proc.stdout?.pipe(fs.createWriteStream("/dev/null"))
+      proc.stderr?.pipe(fs.createWriteStream("/dev/null"))
+    } else {
+      if (options?.listeners?.stdout) {
+        proc.stdout!.on("data", options.listeners.stdout)
+      }
+      if (options?.listeners?.stderr) {
+        proc.stderr!.on("data", options.listeners.stderr)
+      }
     }
 
+    if (options?.input) {
+      proc.stdin?.write(options.input)
+      proc.stdin?.end()
+    }
+
+    resolve(proc)
+  })
+}
+
+export async function exec(
+  commandLine: string,
+  args?: string[],
+  options?: ExecOptions
+): Promise<number> {
+  const proc = await spawn(commandLine, args, options)
+  return new Promise((resolve, reject) => {
     proc.on("error", reject)
     proc.on("close", (code) => {
       if (code !== 0 && !options?.ignoreReturnCode) {
