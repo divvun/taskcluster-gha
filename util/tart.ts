@@ -22,14 +22,16 @@ export default class Tart {
       await Tart.stop(vmName)
     }
 
+    const dirsArg = Object.entries(dirs ?? {}).map(
+      ([key, value]) => `--dir="${key}:${value}"`
+    )
+
     // No await here because it runs forever...
     exec("tart", [
       "run",
       "--no-graphics",
       vmName,
-      ...Object.entries(dirs ?? {}).map(
-        ([key, value]) => `--dir="${key}:${value}"`
-      ),
+      ...dirsArg,
     ])
   }
 
