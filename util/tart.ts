@@ -31,7 +31,7 @@ export default class Tart {
 
     // No await here because it runs forever...
     const proc = await spawn("nohup", args, {
-      // silent: true,
+      silent: true,
     })
 
     console.log("Waiting for VM to start...")
@@ -41,12 +41,11 @@ export default class Tart {
         while (!(await Tart.isRunning(vmName))) {
           await new Promise((r) => setTimeout(r, 250))
         }
+        proc.kill("SIGHUP")
         resolve(undefined)
       }
 
       waiter()
-
-      proc.kill("SIGHUP")
     })
   }
 
