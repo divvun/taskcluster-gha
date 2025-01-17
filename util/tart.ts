@@ -157,8 +157,6 @@ export default class Tart {
     fs.rmSync(imagePath, {
       force: true,
     })
-
-    console.log("Image deleted.")
   }
 
   static ip(vmName: string) {
