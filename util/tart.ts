@@ -100,7 +100,7 @@ export default class Tart {
       },
     }).then(() => {
       console.log("IP: " + output)
-      return output
+      return output.trim()
     })
   }
 
