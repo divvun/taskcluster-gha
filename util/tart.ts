@@ -23,7 +23,7 @@ export default class Tart {
     }
 
     const dirsArg = Object.entries(dirs ?? {}).map(
-      ([key, value]) => `--dir="${key}:${value}"`
+      ([key, value]) => `--dir=${key}:${value}`
     )
 
     return new Promise((resolve, reject) => {
