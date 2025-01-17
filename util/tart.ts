@@ -138,6 +138,25 @@ export default class Tart {
 
     console.log(`Entering virtual workspace (/Volumes/${volName})...`)
     process.chdir(`/Volumes/${volName}`)
+
+    return id
+  }
+
+  static async exitWorkspace(id: string) {
+    console.log("Leaving virtual workspace...")
+    process.chdir("/")
+
+    const volName = `workspace-${id}`
+    const imagePath = `/tmp/${volName}.sparseimage`
+
+    console.log("Copying workspace...")
+    await exec("ditto", ["-V", `/Volumes/${volName}`, Tart.WORKSPACE_PATH])
+
+    console.log("Detaching image...")
+    await exec("hdiutil", ["detach", `/Volumes/${volName}`])
+
+    console.log("Deleting image...")
+    await exec("rm", ["-f", imagePath])
   }
 
   static ip(vmName: string) {

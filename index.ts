@@ -263,6 +263,7 @@ divvunspell
 
 async function localMain() {
   const realWorkingDir = process.env._DIVVUN_ACTIONS_PWD
+  let id: string | undefined = undefined
 
   if (realWorkingDir == null) {
     console.error("index.ts cannot be run directly.")
@@ -272,14 +273,20 @@ async function localMain() {
   if (process.platform === "darwin") {
     const isInVirtualMachine = Tart.isInVirtualMachine()
 
-    if (isInVirtualMachine) {
-      await Tart.enterWorkspace()
-    } else {
+    if (!isInVirtualMachine) {
       await Tart.enterVirtualMachine(realWorkingDir)
       return
     }
+
+    id = await Tart.enterWorkspace()
   } else {
     process.chdir(realWorkingDir)
+  }
+
+  program.parse()
+
+  if (id) {
+    await Tart.exitWorkspace(id)
   }
 }
 
@@ -287,13 +294,11 @@ async function main() {
   switch (builder.mode) {
     case "local": {
       await localMain()
-      break
+      return
     }
     default:
       throw new Error(`Unknown mode: ${builder.mode}`)
   }
-
-  program.parse()
 }
 
 main().catch((e) => {
