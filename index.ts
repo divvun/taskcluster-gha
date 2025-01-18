@@ -184,10 +184,11 @@ divvunspell
   .description("Build divvunspell")
   .option("--divvun-key <key>", "Divvun key for authentication")
   .option("--skip-setup", "Skip setup step")
+  .option("--ignore-dependencies", "Ignore step dependencies", false)
   .action(async (options) => {
-    const { divvunKey, skipSetup } = options
+    const { divvunKey, skipSetup, ignoreDependencies } = options
     const platform = divvunspell.opts().platform.toLowerCase()
-    const props = { divvunKey, skipSetup }
+    const props = { divvunKey, skipSetup, ignoreDependencies }
 
     await enterEnvironment(platform, async () => {
       switch (platform) {
