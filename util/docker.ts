@@ -1,4 +1,5 @@
 import fs from "fs"
+import os from "os"
 import path from "path"
 import { exec } from "~/builder"
 
@@ -10,6 +11,23 @@ export default class Docker {
   }
 
   static async enterEnvironment(image: string, workingDir: string) {
+    if (process.platform === "win32") {
+      await exec("docker", [
+        "run",
+        "--rm",
+        "-it",
+        "-v",
+        `C:/${workingDir}:C:/workspace:ro`,
+        "-v",
+        `${Docker.DIVVUN_ACTIONS_PATH}:C:/actions`,
+        image + ":latest",
+        "pwsh",
+        "-Command",
+        `"C:/actions/bin/divvun-actions.ps1" ${process.argv.slice(2).join(" ")}`,
+      ])
+      return
+    }
+
     await exec("docker", [
       "run",
       "--rm",
@@ -24,10 +42,12 @@ export default class Docker {
       `"/actions/bin/divvun-actions" ${process.argv.slice(2).join(" ")}`,
     ])
   }
+
   static async enterWorkspace() {
     const id = crypto.randomUUID()
     const volName = `workspace-${id}`
-    const imagePath = `/tmp/${volName}`
+    const tmpDir = os.tmpdir()
+    const imagePath = path.join(tmpDir, volName)
 
     fs.mkdirSync(imagePath)
 
@@ -42,12 +62,13 @@ export default class Docker {
 
   static async exitWorkspace(id: string) {
     const volName = `workspace-${id}`
-    const imagePath = `/tmp/${volName}`
+    const tmpDir = os.tmpdir()
+    const imagePath = path.join(tmpDir, volName)
 
     console.log(`Exiting virtual workspace (${imagePath})...`)
-    process.chdir("/")
+    process.chdir(os.homedir())
 
-    console.log("Removing image...")
+    console.log("Removing workspace...")
     fs.rmSync(imagePath, { recursive: true, force: true })
   }
 }

@@ -287,13 +287,14 @@ async function enterEnvironment(
 
         id = await Tart.enterWorkspace()
       } else {
-        process.chdir(workingDir)
+        throw new Error("Unsupported platform. Can only build 'macos' on 'macos'.")
       }
       break
     }
-    case "linux": {
+    case "linux":
+    case "windows": {
       const isInContainer = await Docker.isInContainer()
-      // console.log("isInContainer", isInContainer)
+
       if (!isInContainer) {
         console.log("Running divvun-actions...")
         await Docker.enterEnvironment("divvun-actions", workingDir)
@@ -321,7 +322,8 @@ async function enterEnvironment(
       }
       break
     }
-    case "linux": {
+    case "linux": 
+    case "windows": {
       if (id) {
         await Docker.exitWorkspace(id)
       }
