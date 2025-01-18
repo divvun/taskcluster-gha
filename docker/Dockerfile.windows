@@ -1,4 +1,4 @@
-FROM --name=buildkite-agent mcr.microsoft.com/powershell:lts-windowsservercore-ltsc2022
+FROM mcr.microsoft.com/powershell:lts-windowsservercore-ltsc2022 AS buildkite-agent
 
 SHELL ["pwsh", "-Command"]
 

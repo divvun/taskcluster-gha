@@ -5,6 +5,7 @@ import PrettyError from "pretty-error"
 import * as builder from "~/builder.ts"
 // import { version } from "./package.json" with { "type": "json" };
 
+import process from "node:process"
 import divvunspellLinux from "./pipelines/divvunspell/linux.ts"
 import divvunspellMacos from "./pipelines/divvunspell/macos.ts"
 import divvunspellWindows from "./pipelines/divvunspell/windows.ts"
@@ -218,6 +219,7 @@ divvunspell
           break
         case "windows":
           await divvunspellWindows("build", props)
+          break
         default:
           console.error("Unsupported platform. Use 'macos' or 'linux'")
           process.exit(1)

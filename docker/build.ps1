@@ -1,0 +1,1 @@
+& docker build -t divvun-actions:latest -f .\Dockerfile.windows .
