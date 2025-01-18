@@ -1,9 +1,9 @@
 // deno-lint-ignore-file no-explicit-any ban-types
-import createTxz from "~/actions/create-txz/index.ts"
-import doDeploy, { PackageType } from "~/actions/deploy/index.ts"
-import pahkatInit from "~/actions/pahkat/init/index.ts"
-import doSetup from "~/actions/setup/index.ts"
-import getVersion from "~/actions/version/index.ts"
+import createTxz from "~/actions/create-txz/mod.ts"
+import doDeploy, { PackageType } from "~/actions/deploy/mod.ts"
+import pahkatInit from "~/actions/pahkat/init/mod.ts"
+import doSetup from "~/actions/setup/mod.ts"
+import getVersion from "~/actions/version/mod.ts"
 import { exec } from "~/builder.ts"
 import { Bash } from "~/util/shared.ts"
 
