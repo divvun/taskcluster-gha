@@ -297,6 +297,7 @@ async function enterEnvironment(
         await Docker.enterEnvironment("divvun-actions", workingDir)
         return
       }
+      console.log("Just doing a thing.")
       break
     }
     default:
