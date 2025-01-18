@@ -288,11 +288,11 @@ async function enterEnvironment(
 
         id = await Tart.enterWorkspace()
       } else {
-        throw new Error("Unsupported platform. Can only build 'macos' on 'macos'.")
+        throw new Error(`Unsupported platform: ${platform}`)
       }
       break
     }
-    case "linux":
+    // case "linux":
     case "windows": {
       const isInContainer = await Docker.isInContainer()
 
@@ -306,7 +306,7 @@ async function enterEnvironment(
       break
     }
     default:
-      console.error("Unsupported platform. Use 'macos' or 'linux'")
+      console.error(`Unsupported platform: ${platform}`)
       process.exit(1)
   }
 
