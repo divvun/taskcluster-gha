@@ -6,6 +6,7 @@ Set-Location -Path $SCRIPT_DIR
 # Check if node_modules exists, otherwise pnpm install
 if (!(Test-Path -Path "$SCRIPT_DIR/node_modules")) {
   Remove-Item -Path "$SCRIPT_DIR/node_modules" -Recurse -Force -ErrorAction SilentlyContinue
+  & pnpm config --global set node-linker hoisted
   & pnpm install -s
 }
 

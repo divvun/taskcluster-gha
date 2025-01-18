@@ -7,6 +7,9 @@ export default class Docker {
   static readonly DIVVUN_ACTIONS_PATH = path.resolve(__dirname + "/..")
 
   static async isInContainer() {
+    if (process.platform === "win32") {
+      return fs.existsSync("C:\\actions") && fs.existsSync("C:\\workspace")
+    }
     return fs.existsSync("/actions") && fs.existsSync("/workspace")
   }
 
@@ -21,9 +24,9 @@ export default class Docker {
         "-v",
         `${Docker.DIVVUN_ACTIONS_PATH}:C:\\actions`,
         image + ":latest",
-        "pwsh",
-        "-Command",
-        `"C:\\actions\\bin\\divvun-actions.ps1" ${process.argv.slice(2).join(" ")}`,
+        "pwsh.exe",
+        `C:\\actions\\bin\\divvun-actions.ps1`,
+        `${process.argv.slice(2).join(" ")}`,
       ])
       return
     }
@@ -52,7 +55,14 @@ export default class Docker {
     fs.mkdirSync(imagePath)
 
     console.log("Copying workspace...")
-    await exec("rsync", ["-ar", "/workspace/", imagePath])
+    if (process.platform === "win32") {
+      await exec("pwsh", [
+        "-Command",
+        `"Copy-Item -Path C:\\workspace\\* -Destination ${imagePath} -Recurse -Force`,
+      ])
+    } else {
+      await exec("rsync", ["-ar", "/workspace/", imagePath])
+    }
 
     console.log(`Entering virtual workspace (${imagePath})...`)
     process.chdir(imagePath)
