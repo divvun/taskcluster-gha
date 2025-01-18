@@ -292,12 +292,13 @@ async function enterEnvironment(
       break
     }
     case "linux": {
-      if (!Docker.isInContainer()) {
+      const isInContainer = await Docker.isInContainer()
+      console.log("isInContainer", isInContainer)
+      if (!isInContainer) {
         console.log("Running divvun-actions...")
         await Docker.enterEnvironment("divvun-actions", workingDir)
         return
       }
-      console.log("Just doing a thing.")
       break
     }
     default:
