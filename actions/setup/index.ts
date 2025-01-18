@@ -1,5 +1,4 @@
 // deno-lint-ignore-file no-explicit-any
-import * as fs from "node:fs"
 import path from "node:path"
 import * as builder from "~/builder.ts"
 import { downloadAppleDevIdCA, Security } from "~/util/security.ts"
@@ -49,12 +48,12 @@ async function setupMacOSKeychain() {
 
   const appP12Path = await Deno.makeTempFile({ suffix: ".p12" })
   const appP12Buff = Buffer.from(sec.macos.appP12, "base64")
-  fs.writeFileSync(appP12Path, appP12Buff)
+  await Deno.writeTextFile(appP12Path, appP12Buff)
   debug(await Security.import(name, appP12Path, sec.macos.appP12Password))
 
   const installerP12Path = await Deno.makeTempFile({ suffix: ".p12" })
   const installerP12Buff = Buffer.from(sec.macos.installerP12, "base64")
-  fs.writeFileSync(installerP12Path, installerP12Buff)
+  await Deno.writeTextFile(installerP12Path, installerP12Buff)
   debug(
     await Security.import(
       name,

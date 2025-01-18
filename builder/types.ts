@@ -1,10 +1,8 @@
-import type { Buffer } from "node:buffer"
-
 export type ExecListeners = {
   /** A call back for each buffer of stdout */
-  stdout?: (data: Buffer) => void
+  stdout?: (data: Uint8Array) => void
   /** A call back for each buffer of stderr */
-  stderr?: (data: Buffer) => void
+  stderr?: (data: Uint8Array) => void
   /** A call back for each line of stdout */
   stdline?: (data: string) => void
   /** A call back for each line of stderr */
@@ -31,7 +29,7 @@ export type ExecOptions = {
   /** optional. How long in ms to wait for STDIO streams to close after the exit event of the process before terminating. defaults to 10000 */
   delay?: number
   /** optional. input to write to the process on STDIN. */
-  input?: Buffer
+  input?: string
   /** optional. Listeners for output. Callback functions that will be called on these events */
   listeners?: ExecListeners
 }

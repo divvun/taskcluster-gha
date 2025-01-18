@@ -1,5 +1,4 @@
 import * as toml from "@std/toml"
-import fs from "node:fs"
 import path from "node:path"
 
 import { makeInstaller } from "~/actions/inno-setup/lib.ts"
@@ -60,10 +59,10 @@ export default async function spellerBundle({
 
     // Fix names of zhfst files to match their tag
     const zhfstPaths: string[] = []
-    fs.mkdirSync("./zhfst")
+    await Deno.mkdir("./zhfst")
     for (const [key, value] of Object.entries(spellerPaths.desktop)) {
       const out = path.resolve(path.join("./zhfst", `${key}.zhfst`))
-      fs.renameSync(value, out)
+      await Deno.rename(value, out)
       zhfstPaths.push(out)
     }
 
@@ -113,7 +112,10 @@ export default async function spellerBundle({
 
         builder.debug("Writing speller.toml:")
         builder.debug(toml.stringify(spellerToml))
-        fs.writeFileSync("./speller.toml", toml.stringify(spellerToml), "utf8")
+        Deno.writeTextFileSync(
+          "./speller.toml",
+          toml.stringify(spellerToml),
+        )
 
         code.execPostInstall(
           "{commonpf}\\WinDivvun\\i686\\spelli.exe",
@@ -158,7 +160,7 @@ export default async function spellerBundle({
 //     required: true,
 //   })) as SpellerType
 //   const manifest = toml.parse(
-//     fs.readFileSync(
+//     await Deno.readFile(
 //       await builder.getInput("speller-manifest-path", { required: true }),
 //       "utf8",
 //     ),

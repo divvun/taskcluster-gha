@@ -1,6 +1,5 @@
 // deno-lint-ignore-file no-explicit-any
 import * as toml from "@std/toml"
-import fs from "node:fs"
 import path from "node:path"
 import * as builder from "~/builder.ts"
 import {
@@ -15,8 +14,8 @@ import {
 } from "~/util/shared.ts"
 import { derivePackageId, SpellerManifest, SpellerType } from "../manifest.ts"
 
-function loadManifest(manifestPath: string): SpellerManifest {
-  const manifestString = fs.readFileSync(manifestPath, "utf8")
+async function loadManifest(manifestPath: string): Promise<SpellerManifest> {
+  const manifestString = await Deno.readFile(manifestPath, "utf8")
   return nonUndefinedProxy(toml.parse(manifestString), true)
 }
 
@@ -176,7 +175,7 @@ export default async function spellerDeploy({
       throw new Error("Payload is null; this is a logic error.")
     }
 
-    fs.writeFileSync("./metadata.toml", payloadMetadata, "utf8")
+    await Deno.writeTextFile("./metadata.toml", payloadMetadata, "utf8")
 
     if (platform == null) {
       throw new Error("Platform is null; this is a logic error.")
@@ -191,7 +190,7 @@ export default async function spellerDeploy({
     }
 
     builder.debug(`Renaming from ${payloadPath} to ${artifactPath}`)
-    fs.renameSync(payloadPath, artifactPath)
+    await Deno.rename(payloadPath, artifactPath)
 
     await PahkatUploader.upload(
       artifactPath,

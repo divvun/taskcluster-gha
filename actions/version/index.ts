@@ -10,11 +10,11 @@ import { Bash, versionAsNightly } from "~/util/shared.ts"
 
 //   if (cargo === "true") {
 //     return nonUndefinedProxy(
-//       toml.parse(fs.readFileSync("./Cargo.toml", "utf8")),
+//       toml.parse(await Deno.readFile("./Cargo.toml", "utf8")),
 //     )
 //   }
 
-//   return nonUndefinedProxy(toml.parse(fs.readFileSync(cargo, "utf8")))
+//   return nonUndefinedProxy(toml.parse(await Deno.readFile(cargo, "utf8")))
 // }
 
 // async function getSpellerManifestToml(
@@ -26,11 +26,11 @@ import { Bash, versionAsNightly } from "~/util/shared.ts"
 
 //   if (manifest === "true") {
 //     return nonUndefinedProxy(
-//       toml.parse(fs.readFileSync("./manifest.toml", "utf8")),
+//       toml.parse(await Deno.readFile("./manifest.toml", "utf8")),
 //     )
 //   }
 
-//   return nonUndefinedProxy(toml.parse(fs.readFileSync(manifest, "utf8")))
+//   return nonUndefinedProxy(toml.parse(await Deno.readFile(manifest, "utf8")))
 // }
 
 async function getXcodeMarketingVersion(input: string | null) {
@@ -68,7 +68,7 @@ async function getXcodeMarketingVersion(input: string | null) {
 //     return null
 //   }
 
-//   const version = fs.readFileSync(path.resolve(filePath), "utf-8").trimEnd()
+//   const version = await Deno.readFile(path.resolve(filePath), "utf-8").trimEnd()
 //   return version
 // }
 

@@ -1,6 +1,5 @@
 // deno-lint-ignore-file require-await no-explicit-any
-import * as YAML from "@std/yaml"
-import { Buffer } from "node:buffer"
+import * as yaml from "@std/yaml"
 import crypto from "node:crypto"
 import fs from "node:fs"
 import path from "node:path"
@@ -130,10 +129,10 @@ export class Powershell {
     const err: string[] = []
 
     const listeners = {
-      stdout: (data: Buffer) => {
+      stdout: (data: Uint8Array) => {
         out.push(data.toString())
       },
-      stderr: (data: Buffer) => {
+      stderr: (data: Uint8Array) => {
         err.push(data.toString())
       },
     }
@@ -184,10 +183,10 @@ export class Bash {
     const err: string[] = []
 
     const listeners = {
-      stdout: (data: Buffer) => {
+      stdout: (data: Uint8Array) => {
         out.push(data.toString())
       },
-      stderr: (data: Buffer) => {
+      stderr: (data: Uint8Array) => {
         err.push(data.toString())
       },
     }
@@ -240,7 +239,7 @@ export class Tar {
   static async createFlatTxz(paths: string[], outputPath: string) {
     const tmpDir = await Deno.makeTempDir()
     const stagingDir = path.join(tmpDir, "staging")
-    fs.mkdirSync(stagingDir)
+    await Deno.mkdir(stagingDir)
 
     builder.debug(`Created tmp dir: ${tmpDir}`)
 
@@ -381,7 +380,7 @@ export class PahkatUploader {
           PAHKAT_API_KEY: sec.pahkat.apiKey,
         }),
         listeners: {
-          stdout: (data: Buffer) => {
+          stdout: (data: Uint8Array) => {
             output += data.toString()
           },
         },
@@ -670,30 +669,29 @@ export class Kbdgen {
     return files[0]
   }
 
-  static loadTarget(bundlePath: string, target: string) {
+  static async loadTarget(bundlePath: string, target: string) {
     return nonUndefinedProxy(
-      YAML.parse(
-        fs.readFileSync(
+      yaml.parse(
+        await Deno.readTextFile(
           path.resolve(bundlePath, "targets", `${target}.yaml`),
-          "utf8",
         ),
       ),
       true,
     )
   }
 
-  static loadProjectBundle(bundlePath: string) {
+  static async loadProjectBundle(bundlePath: string) {
     return nonUndefinedProxy(
-      YAML.parse(
-        fs.readFileSync(path.resolve(bundlePath, "project.yaml"), "utf8"),
+      yaml.parse(
+        await Deno.readTextFile(path.resolve(bundlePath, "project.yaml")),
       ),
       true,
     )
   }
 
-  static loadProjectBundleWithoutProxy(bundlePath: string) {
-    return YAML.parse(
-      fs.readFileSync(path.resolve(bundlePath, "project.yaml"), "utf8"),
+  static async loadProjectBundleWithoutProxy(bundlePath: string) {
+    return yaml.parse(
+      await Deno.readTextFile(path.resolve(bundlePath, "project.yaml")),
     )
   }
 
@@ -708,21 +706,20 @@ export class Kbdgen {
     const layouts: { [locale: string]: any } = {}
     for (const layoutFile of layoutFiles) {
       const locale = path.parse(layoutFile).base.split(".", 1)[0]
-      layouts[locale] = YAML.parse(fs.readFileSync(layoutFile, "utf-8"))
+      layouts[locale] = yaml.parse(await Deno.readTextFile(layoutFile))
     }
     return layouts
   }
 
   static async setNightlyVersion(bundlePath: string, target: string) {
-    const targetData = Kbdgen.loadTarget(bundlePath, target)
+    const targetData = await Kbdgen.loadTarget(bundlePath, target)
 
     // Set to minute-based timestamp
     targetData["version"] = await versionAsNightly(targetData["version"])
 
-    fs.writeFileSync(
+    await Deno.writeTextFile(
       path.resolve(bundlePath, "targets", `${target}.yaml`),
-      YAML.stringify({ ...targetData }),
-      "utf8",
+      yaml.stringify({ ...targetData }),
     )
 
     return targetData["version"]
@@ -733,7 +730,7 @@ export class Kbdgen {
     target: string,
     start: number = 0,
   ) {
-    const targetData = Kbdgen.loadTarget(bundlePath, target)
+    const targetData = await Kbdgen.loadTarget(bundlePath, target)
 
     // Set to run number
     const versionNumber = parseInt(
@@ -743,10 +740,9 @@ export class Kbdgen {
     targetData["build"] = start + versionNumber
     builder.debug("Set build number to " + targetData["build"])
 
-    fs.writeFileSync(
+    await Deno.writeTextFile(
       path.resolve(bundlePath, "targets", `${target}.yaml`),
-      YAML.stringify({ ...targetData }),
-      "utf8",
+      yaml.stringify({ ...targetData }),
     )
 
     return targetData["build"]

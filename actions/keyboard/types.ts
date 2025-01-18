@@ -1,5 +1,4 @@
 // deno-lint-ignore-file require-await
-import fs from "node:fs"
 
 export enum KeyboardType {
   iOS = "keyboard-ios",
@@ -16,9 +15,9 @@ export async function getBundle(override: string | null) {
     return override
   }
 
-  for (const item of fs.readdirSync(".")) {
-    if (item.endsWith(".kbdgen")) {
-      return item
+  for (const item of Deno.readDirSync(".")) {
+    if (item.name.endsWith(".kbdgen")) {
+      return item.name
     }
   }
 

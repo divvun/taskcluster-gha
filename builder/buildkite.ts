@@ -1,8 +1,7 @@
 // deno-lint-ignore-file require-await no-explicit-any
 // Buildkite implementation of the builder interface
 
-import { ChildProcess, spawn as doSpawn } from "node:child_process"
-import fs from "node:fs"
+import { spawn as doSpawn } from "node:child_process"
 import { cp as fsCp, mkdtemp } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
@@ -30,40 +29,49 @@ export async function spawn(
   commandLine: string,
   args?: string[],
   options?: ExecOptions,
-): Promise<ChildProcess> {
-  return new Promise((resolve, _) => {
-    const stdio = options?.listeners?.stdout || options?.listeners?.stderr
-      ? "pipe"
+): Promise<Deno.ChildProcess> {
+  const stdio: "inherit" | "piped" | "null" =
+    options?.listeners?.stdout || options?.listeners?.stderr
+      ? "piped"
       : options?.silent
-      ? "ignore"
+      ? "null"
       : "inherit"
 
-    // console.log("Exec: " + stdio)
-    const proc = doSpawn(commandLine, args || [], {
-      cwd: options?.cwd,
-      env: options?.env || Deno.env.toObject(),
-      stdio,
-    })
-
-    if (options?.silent) {
-      proc.stdout?.pipe(fs.createWriteStream("/dev/null"))
-      proc.stderr?.pipe(fs.createWriteStream("/dev/null"))
-    } else {
-      if (options?.listeners?.stdout) {
-        proc.stdout!.on("data", options.listeners.stdout)
-      }
-      if (options?.listeners?.stderr) {
-        proc.stderr!.on("data", options.listeners.stderr)
-      }
-    }
-
-    if (options?.input) {
-      proc.stdin?.write(options.input)
-      proc.stdin?.end()
-    }
-
-    resolve(proc)
+  const command = new Deno.Command(commandLine, {
+    args: args || [],
+    cwd: options?.cwd,
+    env: options?.env,
+    stdin: options?.input ? "piped" : "inherit",
+    stdout: stdio,
+    stderr: stdio,
   })
+
+  const process = command.spawn()
+
+  if (options?.input != null) {
+    const encoder = new TextEncoder()
+    const writer = process.stdin.getWriter()
+    await writer.write(encoder.encode(options.input))
+    await writer.close()
+  }
+
+  if (options?.listeners?.stdout && process.stdout) {
+    ;(async () => {
+      for await (const chunk of process.stdout) {
+        options?.listeners?.stdout?.(chunk)
+      }
+    })()
+  }
+
+  if (options?.listeners?.stderr && process.stderr) {
+    ;(async () => {
+      for await (const chunk of process.stderr) {
+        options?.listeners?.stderr?.(chunk)
+      }
+    })()
+  }
+
+  return process
 }
 
 export async function exec(
@@ -72,30 +80,13 @@ export async function exec(
   options?: ExecOptions,
 ): Promise<number> {
   const proc = await spawn(commandLine, args, options)
-  return new Promise((resolve, reject) => {
-    proc.on("error", reject)
-    proc.on("close", (code) => {
-      if (code !== 0 && !options?.ignoreReturnCode) {
-        reject(new Error(`Process exited with code ${code}`))
-      } else {
-        resolve(code || 0)
-      }
-    })
+  const status = await proc.status
 
-    if (options?.input) {
-      proc.stdin?.write(options.input)
-      proc.stdin?.end()
-    }
-  })
-}
+  if (status.code !== 0 && !options?.ignoreReturnCode) {
+    throw new Error(`Process exited with code ${status.code}`)
+  }
 
-export function addPath(path: string) {
-  const sep = Deno.build.os === "windows" ? ";" : ":"
-  const p = Deno.env.get("PATH")
-  Deno.env.set(
-    "PATH",
-    `${path}${sep}${p}`,
-  )
+  return status.code
 }
 
 export async function downloadTool(

@@ -1,4 +1,3 @@
-import fs from "node:fs"
 import path from "node:path"
 
 import * as builder from "~/builder.ts"
@@ -103,7 +102,7 @@ xcrun notarytool submit -v \
       throw new Error(`Got failure status: ${response}.\n ${err}`)
     }
 
-    fs.unlinkSync(zipPath)
+    await Deno.remove(zipPath)
   }
 
   return { signedPath }

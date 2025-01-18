@@ -1,123 +1,17 @@
 // deno-lint-ignore-file require-await no-explicit-any
 // Local implementation of the builder interface
 
-import { Buffer } from "node:buffer"
-import { ChildProcess, spawn as doSpawn } from "node:child_process"
-import fs from "node:fs"
 import { cp as fsCp, mkdtemp } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-
-export type ExecListeners = {
-  /** A call back for each buffer of stdout */
-  stdout?: (data: Buffer) => void
-  /** A call back for each buffer of stderr */
-  stderr?: (data: Buffer) => void
-  /** A call back for each line of stdout */
-  stdline?: (data: string) => void
-  /** A call back for each line of stderr */
-  errline?: (data: string) => void
-  /** A call back for each debug log */
-  debug?: (data: string) => void
-}
-
-export type ExecOptions = {
-  /** optional working directory.  defaults to current */
-  cwd?: string
-  /** optional envvar dictionary.  defaults to current process's env */
-  env?: {
-    [key: string]: string
-  }
-  /** optional.  defaults to false */
-  silent?: boolean
-  /** optional. whether to skip quoting/escaping arguments if needed.  defaults to false. */
-  windowsVerbatimArguments?: boolean
-  /** optional.  whether to fail if output to stderr.  defaults to false */
-  failOnStdErr?: boolean
-  /** optional.  defaults to failing on non zero.  ignore will not fail leaving it up to the caller */
-  ignoreReturnCode?: boolean
-  /** optional. How long in ms to wait for STDIO streams to close after the exit event of the process before terminating. defaults to 10000 */
-  delay?: number
-  /** optional. input to write to the process on STDIN. */
-  input?: Buffer
-  /** optional. Listeners for output. Callback functions that will be called on these events */
-  listeners?: ExecListeners
-}
-
-export type CopyOptions = {
-  /** Optional. Whether to recursively copy all subdirectories. Defaults to false */
-  recursive?: boolean
-  /** Optional. Whether to overwrite existing files in the destination. Defaults to true */
-  force?: boolean
-  /** Optional. Whether to copy the source directory along with all the files. Only takes effect when recursive=true and copying a directory. Default is true*/
-  copySourceDirectory?: boolean
-}
-
-export type GlobOptions = {
-  /**
-   * Indicates whether to follow symbolic links. Generally should set to false
-   * when deleting files.
-   *
-   * @default true
-   */
-  followSymbolicLinks?: boolean
-  /**
-   * Indicates whether directories that match a glob pattern, should implicitly
-   * cause all descendant paths to be matched.
-   *
-   * For example, given the directory `my-dir`, the following glob patterns
-   * would produce the same results: `my-dir/**`, `my-dir/`, `my-dir`
-   *
-   * @default true
-   */
-  implicitDescendants?: boolean
-  /**
-   * Indicates whether broken symbolic should be ignored and omitted from the
-   * result set. Otherwise an error will be thrown.
-   *
-   * @default true
-   */
-  omitBrokenSymbolicLinks?: boolean
-}
-
-export type Globber = {
-  /**
-   * Returns the search path preceding the first glob segment, from each pattern.
-   * Duplicates and descendants of other paths are filtered out.
-   *
-   * Example 1: The patterns `/foo/*` and `/bar/*` returns `/foo` and `/bar`.
-   *
-   * Example 2: The patterns `/foo/*` and `/foo/bar/*` returns `/foo`.
-   */
-  getSearchPaths(): string[]
-  /**
-   * Returns files and directories matching the glob patterns.
-   *
-   * Order of the results is not guaranteed.
-   */
-  glob(): Promise<string[]>
-  /**
-   * Returns files and directories matching the glob patterns.
-   *
-   * Order of the results is not guaranteed.
-   */
-  globGenerator(): AsyncGenerator<string, void>
-}
-
-export type InputOptions = {
-  /** Optional. Whether the input is required. If required and not present, will throw. Defaults to false */
-  required?: boolean
-  /** Optional. Whether leading/trailing whitespace will be trimmed for the input. Defaults to true */
-  trimWhitespace?: boolean
-}
-
-export type Context = {
-  ref: string
-  repo: string
-  workspace: string
-}
-
-// Buildkite-specific implementations
+import type {
+  Context,
+  CopyOptions,
+  ExecOptions,
+  Globber,
+  GlobOptions,
+  InputOptions,
+} from "~/builder/types.ts"
 
 export function debug(message: string) {
   console.debug(message)
@@ -132,40 +26,49 @@ export async function spawn(
   commandLine: string,
   args?: string[],
   options?: ExecOptions,
-): Promise<ChildProcess> {
-  return new Promise((resolve, _reject) => {
-    const stdio = options?.listeners?.stdout || options?.listeners?.stderr
-      ? "pipe"
+): Promise<Deno.ChildProcess> {
+  const stdio: "inherit" | "piped" | "null" =
+    options?.listeners?.stdout || options?.listeners?.stderr
+      ? "piped"
       : options?.silent
-      ? "ignore"
+      ? "null"
       : "inherit"
 
-    // console.log("Exec: " + stdio)
-    const proc = doSpawn(commandLine, args || [], {
-      cwd: options?.cwd,
-      env: options?.env || Deno.env.toObject(),
-      stdio,
-    })
-
-    if (options?.silent) {
-      proc.stdout?.pipe(fs.createWriteStream("/dev/null"))
-      proc.stderr?.pipe(fs.createWriteStream("/dev/null"))
-    } else {
-      if (options?.listeners?.stdout) {
-        proc.stdout!.on("data", options.listeners.stdout)
-      }
-      if (options?.listeners?.stderr) {
-        proc.stderr!.on("data", options.listeners.stderr)
-      }
-    }
-
-    if (options?.input) {
-      proc.stdin?.write(options.input)
-      proc.stdin?.end()
-    }
-
-    resolve(proc)
+  const command = new Deno.Command(commandLine, {
+    args: args || [],
+    cwd: options?.cwd,
+    env: options?.env,
+    stdin: options?.input ? "piped" : "inherit",
+    stdout: stdio,
+    stderr: stdio,
   })
+
+  const process = command.spawn()
+
+  if (options?.input != null) {
+    const encoder = new TextEncoder()
+    const writer = process.stdin.getWriter()
+    await writer.write(encoder.encode(options.input))
+    await writer.close()
+  }
+
+  if (options?.listeners?.stdout && process.stdout) {
+    ;(async () => {
+      for await (const chunk of process.stdout) {
+        options?.listeners?.stdout?.(chunk)
+      }
+    })()
+  }
+
+  if (options?.listeners?.stderr && process.stderr) {
+    ;(async () => {
+      for await (const chunk of process.stderr) {
+        options?.listeners?.stderr?.(chunk)
+      }
+    })()
+  }
+
+  return process
 }
 
 export async function exec(
@@ -174,21 +77,13 @@ export async function exec(
   options?: ExecOptions,
 ): Promise<number> {
   const proc = await spawn(commandLine, args, options)
-  return new Promise((resolve, reject) => {
-    proc.on("error", reject)
-    proc.on("close", (code) => {
-      if (code !== 0 && !options?.ignoreReturnCode) {
-        reject(new Error(`Process exited with code ${code}`))
-      } else {
-        resolve(code || 0)
-      }
-    })
+  const status = await proc.status
 
-    if (options?.input) {
-      proc.stdin?.write(options.input)
-      proc.stdin?.end()
-    }
-  })
+  if (status.code !== 0 && !options?.ignoreReturnCode) {
+    throw new Error(`Process exited with code ${status.code}`)
+  }
+
+  return status.code
 }
 
 export function addPath(path: string) {
@@ -276,24 +171,25 @@ export async function globber(
   throw new Error("Glob is not available in Buildkite")
 }
 
-export async function setSecret(secret: string) {
-  return new Promise<void>((resolve, reject) => {
-    const echo = doSpawn("echo", [secret])
-    const redactor = doSpawn("buildkite-agent", ["redactor", "add"])
+export async function setSecret(_secret: string) {
+  // return new Promise<void>((resolve, reject) => {
+  //   const echo = doSpawn("echo", [secret])
+  //   const redactor = doSpawn("buildkite-agent", ["redactor", "add"])
 
-    echo.stdout.pipe(redactor.stdin)
+  //   echo.stdout.pipe(redactor.stdin)
 
-    redactor.on("error", reject)
-    redactor.on("close", (code) => {
-      if (code === 0) {
-        resolve()
-      } else {
-        reject(new Error(`Failed to add secret to redactor: exit code ${code}`))
-      }
-    })
+  //   redactor.on("error", reject)
+  //   redactor.on("close", (code) => {
+  //     if (code === 0) {
+  //       resolve()
+  //     } else {
+  //       reject(new Error(`Failed to add secret to redactor: exit code ${code}`))
+  //     }
+  //   })
 
-    echo.on("error", reject)
-  })
+  //   echo.on("error", reject)
+  // })
+  throw new Error("Secrets are not available in Buildkite")
 }
 
 export async function getInput(

@@ -1,4 +1,3 @@
-import fs from "node:fs"
 import path from "node:path"
 import * as builder from "~/builder.ts"
 
@@ -180,7 +179,7 @@ export default async function deploy({
       requiresReboot,
       targets,
     )
-    fs.writeFileSync("./metadata.toml", data, "utf8")
+    await Deno.writeTextFile("./metadata.toml", data, "utf8")
   } else if (props.packageType === PackageType.WindowsExecutable) {
     const { productCode: rawProductCode, kind, requiresReboot } = props
 
@@ -209,7 +208,7 @@ export default async function deploy({
       productCode,
       requiresReboot,
     )
-    fs.writeFileSync("./metadata.toml", data, "utf8")
+    await Deno.writeTextFile("./metadata.toml", data, "utf8")
   } else if (props.packageType === PackageType.TarballPackage) {
     const data = await PahkatUploader.release.tarballPackage(
       releaseReq,
@@ -217,14 +216,14 @@ export default async function deploy({
       1,
       artifactSize,
     )
-    fs.writeFileSync("./metadata.toml", data, "utf8")
+    await Deno.writeTextFile("./metadata.toml", data, "utf8")
   } else {
     // deno-lint-ignore no-explicit-any
     throw new Error(`Unhandled package type: '${(props as any).packageType}'`)
   }
 
   builder.debug(`Renaming from ${payloadPath} to ${artifactPath}`)
-  fs.renameSync(payloadPath, artifactPath)
+  await Deno.rename(payloadPath, artifactPath)
 
   await PahkatUploader.upload(
     artifactPath,

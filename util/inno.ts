@@ -1,5 +1,3 @@
-import fs from "node:fs"
-
 type InnoFile = {
   Source: string
   DestDir: string
@@ -201,8 +199,8 @@ export class InnoSetupBuilder {
     return out
   }
 
-  write(filePath: string) {
-    fs.writeFileSync(filePath, "\ufeff" + this.build(), "utf8")
+  async write(filePath: string) {
+    await Deno.writeTextFile(filePath, "\ufeff" + this.build())
   }
 }
 

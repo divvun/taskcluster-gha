@@ -1,5 +1,4 @@
-// deno-lint-ignore-file no-explicit-any require-await
-import fs from "node:fs"
+// deno-lint-ignore-file no-explicit-any
 import path from "node:path"
 import * as builder from "~/builder.ts"
 
@@ -169,12 +168,12 @@ export default async function keyboardDeploy({
     throw new Error("artifact url is null; this is a logic error.")
   }
 
-  fs.writeFileSync("./metadata.toml", payloadMetadata, "utf8")
+  await Deno.writeTextFile("./metadata.toml", payloadMetadata, "utf8")
 
   const metadataJsonPath = await writeMetadataJson(bundlePath)
 
   builder.debug(`Renaming from ${payloadPath} to ${artifactPath}`)
-  fs.renameSync(payloadPath, artifactPath)
+  await Deno.rename(payloadPath, artifactPath)
 
   await PahkatUploader.upload(
     artifactPath,
@@ -216,6 +215,6 @@ async function writeMetadataJson(bundlePath: string): Promise<string | null> {
   }
   const localesJson = JSON.stringify(locales)
   const metadataJsonPath = "./metadata.json"
-  fs.writeFileSync(metadataJsonPath, localesJson, "utf8")
+  await Deno.writeTextFile(metadataJsonPath, localesJson, "utf8")
   return metadataJsonPath
 }
