@@ -17,13 +17,13 @@ export default class Docker {
         "--rm",
         "-it",
         "-v",
-        `C:/${workingDir}:C:/workspace:ro`,
+        `${workingDir}:C:\\workspace:ro`,
         "-v",
-        `${Docker.DIVVUN_ACTIONS_PATH}:C:/actions`,
+        `${Docker.DIVVUN_ACTIONS_PATH}:C:\\actions`,
         image + ":latest",
         "pwsh",
         "-Command",
-        `"C:/actions/bin/divvun-actions.ps1" ${process.argv.slice(2).join(" ")}`,
+        `"C:\\actions\\bin\\divvun-actions.ps1" ${process.argv.slice(2).join(" ")}`,
       ])
       return
     }

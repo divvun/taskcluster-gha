@@ -11,4 +11,5 @@ if (!(Test-Path -Path "$SCRIPT_DIR/node_modules")) {
 
 # Set environment variable and run the TypeScript file
 $env:_DIVVUN_ACTIONS_PWD = $CWD
-& pnpm tsx index.ts $args
+$pnpm = (Get-Command pnpm).Path
+Start-Process -FilePath pwsh -ArgumentList $(@($pnpm, 'tsx', 'index.ts') + $args) -NoNewWindow -Wait
