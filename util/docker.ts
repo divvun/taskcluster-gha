@@ -21,6 +21,11 @@ export default class Docker {
   static async enterEnvironment(image: string, workingDir: string) {
     if (process.platform === "win32") {
       const dockerPath = await which("docker.exe")
+
+      if (dockerPath == null) {
+        throw new Error("Docker not found")
+      }
+
       await exec(
         dockerPath,
         [

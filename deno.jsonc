@@ -4,8 +4,9 @@
   },
   "compilerOptions": {
     "strict": true,
-    "lib": ["deno.window"],
-    "noImplicitAny": true
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
   },
   "fmt": {
     "indentWidth": 2,
