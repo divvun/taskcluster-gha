@@ -38,7 +38,7 @@ export default class Docker {
           image + ":latest",
           "pwsh.exe",
           `C:\\actions\\bin\\divvun-actions.ps1`,
-          `${Deno.args.join(" ")}`,
+          ...Deno.args,
         ],
       )
       return
