@@ -24,7 +24,7 @@ if (!(Test-Path -Path $envPath)) {
 
 # Set environment variable and run the TypeScript file
 $env:_DIVVUN_ACTIONS_PWD = $CWD
-$env:NODE_PATH = Join-Path $CWD $envPath
+$env:NODE_PATH = Join-Path $SCRIPT_DIR $envPath
 $scriptArgs = if ($args.Count -eq 0) { @('-h') } else { $args }
 $tsxPath = Join-Path $envPath '.bin' 'tsx.ps1'
 Start-Process -FilePath pwsh -ArgumentList (@($tsxPath, 'index.ts') + $scriptArgs) -NoNewWindow -Wait
