@@ -31,11 +31,6 @@ console.log(
 
 const program = new Command()
 
-globalThis.addEventListener("unhandledRejection", (err) => {
-  console.error(err)
-  Deno.exit(1)
-})
-
 program
   .name("divvun-actions")
   .description("CLI for Divvun Actions")
@@ -202,13 +197,19 @@ divvunspell
       await enterEnvironment(platform, async () => {
         switch (platform) {
           case "macos":
-            await divvunspellMacos("build", props)
+            await divvunspellMacos("build", props, {
+              ignoreDependencies,
+            })
             break
           case "linux":
-            await divvunspellLinux("build", props)
+            await divvunspellLinux("build", props, {
+              ignoreDependencies,
+            })
             break
           case "windows":
-            await divvunspellWindows("build", props)
+            await divvunspellWindows("build", props, {
+              ignoreDependencies,
+            })
             break
           default:
             console.error("Unsupported platform. Use 'macos' or 'linux'")
@@ -381,7 +382,6 @@ async function localMain() {
     Deno.exit(1)
   }
 
-  console.log(Deno.args)
   await program.parseAsync(Deno.args)
 }
 

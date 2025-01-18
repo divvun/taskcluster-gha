@@ -64,12 +64,15 @@ export default async function run(
     ignoreDependencies?: boolean
   } = {},
 ) {
+  console.log(step, inputs, options)
   let steps
   if (options.ignoreDependencies) {
     steps = [STEPS.get(step)!]
   } else {
     steps = recurseDependsOn(STEPS.get(step)!)
   }
+
+  console.log(steps)
 
   let output: any | undefined = inputs
   for (const step of steps) {

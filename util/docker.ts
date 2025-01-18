@@ -86,14 +86,10 @@ export default class Docker {
     console.log(`Entering virtual workspace (${imagePath})...`)
     Deno.chdir(imagePath)
 
-    return id
+    return imagePath
   }
 
-  static async exitWorkspace(id: string) {
-    const volName = `workspace-${id}`
-    const tmpDir = await Deno.makeTempDir()
-    const imagePath = path.join(tmpDir, volName)
-
+  static async exitWorkspace(imagePath: string) {
     console.log(`Exiting virtual workspace (${imagePath})...`)
     Deno.chdir(Deno.env.get("HOME")!)
 
