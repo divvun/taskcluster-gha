@@ -2,6 +2,7 @@ import fs from "fs"
 import os from "os"
 import path from "path"
 import { exec } from "~/builder"
+import { Powershell } from "./shared"
 
 export default class Docker {
   static readonly DIVVUN_ACTIONS_PATH = path.resolve(__dirname + "/..")
@@ -56,10 +57,7 @@ export default class Docker {
 
     console.log("Copying workspace...")
     if (process.platform === "win32") {
-      await exec("pwsh", [
-        "-Command",
-        `"Copy-Item -Path C:\\workspace\\* -Destination ${imagePath} -Recurse -Force`,
-      ])
+      await Powershell.runScript(`Copy-Item -Path C:\\workspace\\* -Destination ${imagePath} -Recurse -Force`)
     } else {
       await exec("rsync", ["-ar", "/workspace/", imagePath])
     }
