@@ -290,7 +290,6 @@ async function enterEnvironment(
 ) {
   const workingDir = process.env._DIVVUN_ACTIONS_PWD!
   let id: string | undefined = undefined
-  console.log("Platform:", platform)
 
   switch (platform) {
     case "macos": {

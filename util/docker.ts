@@ -25,6 +25,8 @@ export default class Docker {
         "-v",
         `${Docker.DIVVUN_ACTIONS_PATH}:C:\\actions`,
         image + ":latest",
+        "-e", "_DIVVUN_ACTIONS_PLATFORM=windows",
+        "-e", "_DIVVUN_ACTIONS_ENV=docker",
         "pwsh.exe",
         `C:\\actions\\bin\\divvun-actions.ps1`,
         `${process.argv.slice(2).join(" ")}`,
