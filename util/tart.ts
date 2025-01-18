@@ -1,6 +1,7 @@
 import fs from "node:fs"
 import path from "node:path"
-import { exec, spawn } from "~/builder"
+import process from "node:process"
+import { exec, spawn } from "~/builder.ts"
 
 type TartStatus = {
   CPU: number
@@ -36,7 +37,7 @@ export default class Tart {
 
     console.log("Waiting for VM to start...")
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _) => {
       const waiter = async () => {
         while (!(await Tart.isRunning(vmName))) {
           await new Promise((r) => setTimeout(r, 250))
@@ -52,7 +53,7 @@ export default class Tart {
   static async stop(vmName: string) {
     await exec("tart", ["stop", vmName])
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _) => {
       const waiter = async () => {
         while (await Tart.isRunning(vmName)) {
           await new Promise((r) => setTimeout(r, 250))

@@ -1,5 +1,5 @@
-import * as builder from "~/builder"
-import { Bash } from "./shared"
+import * as builder from "~/builder.ts"
+import { Bash } from "./shared.ts"
 
 export async function downloadAppleWWDRCA(version?: string) {
   if (version == undefined) {

@@ -1,7 +1,10 @@
+// deno-lint-ignore-file require-await no-explicit-any
+import * as YAML from "@std/yaml"
+import { Buffer } from "node:buffer"
 import crypto from "node:crypto"
 import fs from "node:fs"
 import path from "node:path"
-import * as YAML from "yaml"
+import process from "node:process"
 import * as builder from "~/builder.ts"
 import { Security } from "./security.ts"
 
@@ -32,7 +35,7 @@ export const DIVVUN_PFX =
   `${divvunConfigDir()}\\enc\\creds\\windows\\divvun.pfx`
 
 function env() {
-  let langs = {
+  const langs = {
     LANG: "C.UTF-8",
     LC_ALL: "C.UTF-8",
   }
@@ -213,24 +216,6 @@ export class Bash {
 }
 
 export class Tar {
-  static URL_XZ_WINDOWS = "https://tukaani.org/xz/xz-5.2.5-windows.zip"
-
-  static async bootstrap() {
-    if (process.platform !== "win32" || builder.mode !== "taskcluster") {
-      return
-    }
-
-    const outputPath = path.join(tmpDir(), "xz", "bin_x86-64")
-    if (fs.existsSync(path.join(outputPath, "xz.exe"))) {
-      return
-    }
-
-    builder.debug("Attempt to download xz tools")
-    const xzToolsZip = await builder.downloadTool(Tar.URL_XZ_WINDOWS)
-    await builder.extractZip(xzToolsZip, path.join(tmpDir(), "xz"))
-    builder.addPath(outputPath)
-  }
-
   static async extractTxz(filePath: string, outputDir?: string) {
     const platform = process.platform
 
@@ -239,9 +224,6 @@ export class Tar {
     } else if (platform === "darwin") {
       return await builder.extractTar(filePath, outputDir || tmpDir())
     } else if (platform === "win32") {
-      // Windows kinda can't deal with no xz.
-      await Tar.bootstrap()
-
       // Now we unxz it
       builder.debug("Attempt to unxz")
       await builder.exec("xz", ["-d", filePath])
@@ -411,7 +393,7 @@ export class PahkatUploader {
 
   static async upload(
     artifactPath: string,
-    artifactUrl: string,
+    _artifactUrl: string,
     releaseMetadataPath: string,
     repoUrl: string,
     metadataJsonPath: string | null = null,
@@ -724,7 +706,7 @@ export class Kbdgen {
       },
     )
     const layoutFiles = await globber.glob()
-    var layouts: { [locale: string]: any } = {}
+    const layouts: { [locale: string]: any } = {}
     for (const layoutFile of layoutFiles) {
       const locale = path.parse(layoutFile).base.split(".", 1)[0]
       layouts[locale] = YAML.parse(fs.readFileSync(layoutFile, "utf-8"))
@@ -801,7 +783,7 @@ export class Kbdgen {
     builder.debug("Deleting previous keychain for fastlane")
     try {
       builder.debug("Creating keychain for fastlane")
-    } catch (err) {
+    } catch (_) {
       // Ignore error here, the keychain probably doesn't exist
     }
 
@@ -1181,7 +1163,7 @@ export function validateProductCode(
 }
 
 export function isCurrentBranch(names: string[]) {
-  let value = builder.context.ref
+  const value = builder.context.ref
 
   builder.debug(`names: ${names}`)
   builder.debug(`GIT REF: '${value}'`)
@@ -1222,7 +1204,7 @@ export function getArtifactSize(path: string): number {
   try {
     const stats = fs.statSync(path)
     return stats.size
-  } catch (err) {
+  } catch (_) {
     return 0
   }
 }

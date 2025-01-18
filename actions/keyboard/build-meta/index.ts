@@ -1,6 +1,7 @@
-import * as builder from "~/builder"
-import { Kbdgen } from "~/util/shared"
-import { KeyboardType } from "../types"
+import process from "node:process"
+import * as builder from "~/builder.ts"
+import { Kbdgen } from "~/util/shared.ts"
+import { KeyboardType } from "../types.ts"
 
 export type Props = {
   keyboardType: KeyboardType

@@ -1,23 +1,24 @@
-import toml from "@iarna/toml"
+import * as toml from "@std/toml"
 import fs from "node:fs"
 import path from "node:path"
 
-import { makeInstaller } from "~/actions/inno-setup/lib"
-import * as builder from "~/builder"
-import { InnoSetupBuilder } from "~/util/inno"
+import process from "node:process"
+import { makeInstaller } from "~/actions/inno-setup/lib.ts"
+import * as builder from "~/builder.ts"
+import { InnoSetupBuilder } from "~/util/inno.ts"
 import {
   DivvunBundler,
   nonUndefinedProxy,
   SpellerPaths,
   Tar,
   ThfstTools,
-} from "~/util/shared"
+} from "~/util/shared.ts"
 import {
   deriveLangTag,
   derivePackageId,
   SpellerManifest,
   SpellerType,
-} from "../manifest"
+} from "../manifest.ts"
 
 export type Props = {
   version: string
@@ -36,7 +37,7 @@ export default async function spellerBundle({
   manifest,
   spellerPaths,
 }: Props): Promise<Output> {
-  let { spellername } = manifest
+  const { spellername } = manifest
   const packageId = derivePackageId(spellerType)
   const langTag = deriveLangTag(false)
 

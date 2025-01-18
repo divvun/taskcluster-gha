@@ -1,120 +1,20 @@
+// deno-lint-ignore-file require-await no-explicit-any
 // Buildkite implementation of the builder interface
 
-import { ChildProcess, spawn as doSpawn } from "child_process"
-import { cp as fsCp, mkdtemp, writeFile } from "fs/promises"
+import { ChildProcess, spawn as doSpawn } from "node:child_process"
 import fs from "node:fs"
+import { cp as fsCp, mkdtemp } from "node:fs/promises"
+import { tmpdir } from "node:os"
+import { join } from "node:path"
 import process from "node:process"
-import { tmpdir } from "os"
-import { dirname, join } from "path"
-
-export type ExecListeners = {
-  /** A call back for each buffer of stdout */
-  stdout?: (data: Buffer) => void
-  /** A call back for each buffer of stderr */
-  stderr?: (data: Buffer) => void
-  /** A call back for each line of stdout */
-  stdline?: (data: string) => void
-  /** A call back for each line of stderr */
-  errline?: (data: string) => void
-  /** A call back for each debug log */
-  debug?: (data: string) => void
-}
-
-export type ExecOptions = {
-  /** optional working directory.  defaults to current */
-  cwd?: string
-  /** optional envvar dictionary.  defaults to current process's env */
-  env?: {
-    [key: string]: string
-  }
-  /** optional.  defaults to false */
-  silent?: boolean
-  /** optional. whether to skip quoting/escaping arguments if needed.  defaults to false. */
-  windowsVerbatimArguments?: boolean
-  /** optional.  whether to fail if output to stderr.  defaults to false */
-  failOnStdErr?: boolean
-  /** optional.  defaults to failing on non zero.  ignore will not fail leaving it up to the caller */
-  ignoreReturnCode?: boolean
-  /** optional. How long in ms to wait for STDIO streams to close after the exit event of the process before terminating. defaults to 10000 */
-  delay?: number
-  /** optional. input to write to the process on STDIN. */
-  input?: Buffer
-  /** optional. Listeners for output. Callback functions that will be called on these events */
-  listeners?: ExecListeners
-}
-
-export type CopyOptions = {
-  /** Optional. Whether to recursively copy all subdirectories. Defaults to false */
-  recursive?: boolean
-  /** Optional. Whether to overwrite existing files in the destination. Defaults to true */
-  force?: boolean
-  /** Optional. Whether to copy the source directory along with all the files. Only takes effect when recursive=true and copying a directory. Default is true*/
-  copySourceDirectory?: boolean
-}
-
-export type GlobOptions = {
-  /**
-   * Indicates whether to follow symbolic links. Generally should set to false
-   * when deleting files.
-   *
-   * @default true
-   */
-  followSymbolicLinks?: boolean
-  /**
-   * Indicates whether directories that match a glob pattern, should implicitly
-   * cause all descendant paths to be matched.
-   *
-   * For example, given the directory `my-dir`, the following glob patterns
-   * would produce the same results: `my-dir/**`, `my-dir/`, `my-dir`
-   *
-   * @default true
-   */
-  implicitDescendants?: boolean
-  /**
-   * Indicates whether broken symbolic should be ignored and omitted from the
-   * result set. Otherwise an error will be thrown.
-   *
-   * @default true
-   */
-  omitBrokenSymbolicLinks?: boolean
-}
-
-export type Globber = {
-  /**
-   * Returns the search path preceding the first glob segment, from each pattern.
-   * Duplicates and descendants of other paths are filtered out.
-   *
-   * Example 1: The patterns `/foo/*` and `/bar/*` returns `/foo` and `/bar`.
-   *
-   * Example 2: The patterns `/foo/*` and `/foo/bar/*` returns `/foo`.
-   */
-  getSearchPaths(): string[]
-  /**
-   * Returns files and directories matching the glob patterns.
-   *
-   * Order of the results is not guaranteed.
-   */
-  glob(): Promise<string[]>
-  /**
-   * Returns files and directories matching the glob patterns.
-   *
-   * Order of the results is not guaranteed.
-   */
-  globGenerator(): AsyncGenerator<string, void>
-}
-
-export type InputOptions = {
-  /** Optional. Whether the input is required. If required and not present, will throw. Defaults to false */
-  required?: boolean
-  /** Optional. Whether leading/trailing whitespace will be trimmed for the input. Defaults to true */
-  trimWhitespace?: boolean
-}
-
-export type Context = {
-  ref: string
-  repo: string
-  workspace: string
-}
+import type {
+  Context,
+  CopyOptions,
+  ExecOptions,
+  Globber,
+  GlobOptions,
+  InputOptions,
+} from "~/builder/types.ts"
 
 // Buildkite-specific implementations
 
@@ -132,7 +32,7 @@ export async function spawn(
   args?: string[],
   options?: ExecOptions,
 ): Promise<ChildProcess> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _) => {
     const stdio = options?.listeners?.stdout || options?.listeners?.stderr
       ? "pipe"
       : options?.silent
@@ -200,26 +100,27 @@ export function addPath(path: string) {
 }
 
 export async function downloadTool(
-  url: string,
-  dest?: string,
-  auth?: string,
+  _url: string,
+  _dest?: string,
+  _auth?: string,
 ): Promise<string> {
-  const { default: fetch } = await import("node-fetch")
-  const headers: { [key: string]: string } = {}
-  if (auth) {
-    headers.Authorization = auth
-  }
+  // const { default: fetch } = await import("node-fetch")
+  // const headers: { [key: string]: string } = {}
+  // if (auth) {
+  //   headers.Authorization = auth
+  // }
 
-  const response = await fetch(url, { headers })
-  if (!response.ok) {
-    throw new Error(`Failed to download from ${url}: ${response.statusText}`)
-  }
+  // const response = await fetch(url, { headers })
+  // if (!response.ok) {
+  //   throw new Error(`Failed to download from ${url}: ${response.statusText}`)
+  // }
 
-  const finalDest = dest ||
-    join(tmpdir(), Math.random().toString(36).substring(7))
-  const buffer = await response.buffer()
-  await writeFile(finalDest, buffer)
-  return finalDest
+  // const finalDest = dest ||
+  //   join(tmpdir(), Math.random().toString(36).substring(7))
+  // const buffer = await response.buffer()
+  // await writeFile(finalDest, buffer)
+  // return finalDest
+  throw new Error("Download tool is not available in Buildkite")
 }
 
 export async function extractZip(file: string, dest?: string): Promise<string> {
@@ -249,28 +150,29 @@ export async function cp(source: string, dest: string, options?: CopyOptions) {
 }
 
 export async function globber(
-  pattern: string,
-  options?: GlobOptions,
+  _pattern: string,
+  _options?: GlobOptions,
 ): Promise<Globber> {
-  const { glob } = await import("glob")
-  const matches = (await glob(pattern, {
-    follow: options?.followSymbolicLinks,
-    dot: true,
-    nocase: true,
-  })) as string[]
+  // const { glob } = await import("glob")
+  // const matches = (await glob(pattern, {
+  //   follow: options?.followSymbolicLinks,
+  //   dot: true,
+  //   nocase: true,
+  // })) as string[]
 
-  return {
-    getSearchPaths: (): string[] => {
-      const paths = matches.map((m: string) => dirname(m))
-      return [...new Set(paths)]
-    },
-    glob: async () => matches,
-    globGenerator: async function* () {
-      for (const match of matches) {
-        yield match
-      }
-    },
-  }
+  // return {
+  //   getSearchPaths: (): string[] => {
+  //     const paths = matches.map((m: string) => dirname(m))
+  //     return [...new Set(paths)]
+  //   },
+  //   glob: async () => matches,
+  //   globGenerator: async function* () {
+  //     for (const match of matches) {
+  //       yield match
+  //     }
+  //   },
+  // }
+  throw new Error("Glob is not available in Buildkite")
 }
 
 export async function setSecret(secret: string) {
@@ -314,7 +216,7 @@ export async function getInput(
       return value.trim()
     }
     return value
-  } catch (error) {
+  } catch (_) {
     if (options?.required) {
       throw new Error(`Input required and not supplied: ${variable}`)
     }
@@ -362,6 +264,6 @@ export function tempDir() {
   return tmpdir()
 }
 
-export function createArtifact(fileName: string, artifactPath: string) {
+export function createArtifact(_fileName: string, _artifactPath: string) {
   throw new Error("Artifacts are not available in Buildkite")
 }

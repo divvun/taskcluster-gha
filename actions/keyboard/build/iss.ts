@@ -1,9 +1,9 @@
+import * as uuid from "@std/uuid"
 import path from "node:path"
-import { v5 as uuidv5 } from "uuid"
-import { InnoSetupBuilder } from "~/util/inno"
-import { Kbdgen } from "~/util/shared"
+import { InnoSetupBuilder } from "~/util/inno.ts"
+import { Kbdgen } from "~/util/shared.ts"
 
-const KBDGEN_NAMESPACE = uuidv5("divvun.no", uuidv5.DNS)
+const KBDGEN_NAMESPACE = "divvun.no"
 
 function layoutTarget(layout: { [key: string]: any }) {
   const targets = layout["windows"] || {}
@@ -21,11 +21,11 @@ export async function generateKbdInnoFromBundle(
   bundlePath: string,
   buildDir: string,
 ): Promise<string> {
-  var bundle = Kbdgen.loadTarget(bundlePath, "windows")
-  var project = Kbdgen.loadProjectBundle(bundlePath)
-  var layouts = await Kbdgen.loadLayouts(bundlePath)
+  const bundle = Kbdgen.loadTarget(bundlePath, "windows")
+  const project = Kbdgen.loadProjectBundle(bundlePath)
+  const layouts = await Kbdgen.loadLayouts(bundlePath)
 
-  var builder = new InnoSetupBuilder()
+  const builder = new InnoSetupBuilder()
 
   builder
     .name(bundle.appName)
@@ -72,7 +72,7 @@ export async function generateKbdInnoFromBundle(
 
   for (const [locale, layout] of Object.entries(layouts)) {
     if ("windows" in layout) {
-      addLayoutToInstaller(builder, locale, layout)
+      await addLayoutToInstaller(builder, locale, layout)
     }
   }
   const fileName = path.join(buildDir, `install.all.iss`)
@@ -81,7 +81,19 @@ export async function generateKbdInnoFromBundle(
   return fileName
 }
 
-function addLayoutToInstaller(
+function stringToBytes(str: string) {
+  const s = unescape(encodeURIComponent(str))
+
+  const bytes = new Uint8Array(s.length)
+
+  for (let i = 0; i < s.length; ++i) {
+    bytes[i] = str.charCodeAt(i)
+  }
+
+  return bytes
+}
+
+async function addLayoutToInstaller(
   builder: InnoSetupBuilder,
   locale: string,
   layout: { [key: string]: any },
@@ -92,7 +104,7 @@ function addLayoutToInstaller(
   const languageCode = target["locale"] || locale
   const languageName = target["languageName"]
   const layoutDisplayName = layout["displayNames"][locale]
-  const guidStr = uuidv5(kbdId, KBDGEN_NAMESPACE)
+  const guidStr = await uuid.v5.generate(KBDGEN_NAMESPACE, stringToBytes(kbdId))
   if (!layoutDisplayName) {
     throw new Error(`Display name for ${locale} not found`)
   }

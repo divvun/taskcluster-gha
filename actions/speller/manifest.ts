@@ -1,4 +1,4 @@
-import * as builder from "~/builder"
+import * as builder from "~/builder.ts"
 
 export enum SpellerType {
   MacOS = "speller-macos",

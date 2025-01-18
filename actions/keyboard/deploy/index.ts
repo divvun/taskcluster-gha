@@ -1,6 +1,6 @@
 import fs from "node:fs"
 import path from "node:path"
-import * as builder from "~/builder"
+import * as builder from "~/builder.ts"
 
 import {
   getArtifactSize,
@@ -11,9 +11,10 @@ import {
   ReleaseRequest,
   validateProductCode,
   WindowsExecutableKind,
-} from "~/util/shared"
+} from "~/util/shared.ts"
 
-import { getBundle, KeyboardType } from "../types"
+import process from "node:process"
+import { getBundle, KeyboardType } from "../types.ts"
 
 export function derivePackageId() {
   const repo = builder.context.repo
@@ -80,7 +81,7 @@ export default async function keyboardDeploy({
 
   if (keyboardType === KeyboardType.MacOS) {
     const target = Kbdgen.loadTarget(bundlePath, "macos")
-    var pkgId = target.packageId
+    let pkgId = target.packageId
     const lang = builder.context.repo.split("keyboard-")[1]
     // On macos kbdgen does magic with the keyboard id to match this:
     // `no.giella.keyboard.%lang%.keyboardLayout.%lang%` because macos.

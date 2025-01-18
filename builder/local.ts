@@ -1,10 +1,12 @@
 // Local implementation of the builder interface
 
+import { Buffer } from "node:buffer"
 import { ChildProcess, spawn as doSpawn } from "node:child_process"
 import fs from "node:fs"
 import { cp as fsCp, mkdtemp, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { dirname, join } from "node:path"
+import process from "node:process"
 
 export type ExecListeners = {
   /** A call back for each buffer of stdout */
@@ -353,8 +355,9 @@ export const context: Context = {
   repo: Deno.env.get("BUILDKITE_REPO"),
 }
 
-export function secrets() {
-  throw new Error("Secrets are not available in local")
+export function secrets(): any {
+  // throw new Error("Secrets are not available in local")
+  return {}
 }
 
 export function tempDir() {

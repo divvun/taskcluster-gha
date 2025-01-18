@@ -1,5 +1,6 @@
-import * as builder from "~/builder"
-import { Powershell } from "~/util/shared"
+import process from "node:process"
+import * as builder from "~/builder.ts"
+import { Powershell } from "~/util/shared.ts"
 
 export type Props = {
   tags: string[]

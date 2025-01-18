@@ -1,7 +1,8 @@
 import fs from "node:fs"
 import path from "node:path"
-import * as builder from "~/builder"
+import * as builder from "~/builder.ts"
 
+import process from "node:process"
 import {
   getArtifactSize,
   MacOSPackageTarget,
@@ -10,7 +11,7 @@ import {
   ReleaseRequest,
   validateProductCode,
   WindowsExecutableKind,
-} from "~/util/shared"
+} from "~/util/shared.ts"
 
 export enum PackageType {
   MacOSPackage = "MacOSPackage",
@@ -246,7 +247,7 @@ async function run() {
     await builder.getInput("dependencies"),
   )
   const pahkatRepo = await builder.getInput("repo", { required: true })
-  let version = await builder.getInput("version", { required: true })
+  const version = await builder.getInput("version", { required: true })
 
   switch (packageType) {
     case PackageType.TarballPackage:

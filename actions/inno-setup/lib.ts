@@ -1,5 +1,5 @@
 import path from "node:path"
-import * as builder from "~/builder"
+import * as builder from "~/builder.ts"
 
 const ISCC_PATH = `"C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe"`
 

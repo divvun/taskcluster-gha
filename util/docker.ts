@@ -1,5 +1,5 @@
-import { which } from "@david/which"
-import { exists } from "@std/fs"
+import { which } from "@david/which.ts"
+import { exists } from "@std/fs.ts"
 import os from "node:os"
 import path from "node:path"
 import process from "node:process"

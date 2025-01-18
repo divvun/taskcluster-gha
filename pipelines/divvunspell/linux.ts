@@ -1,10 +1,10 @@
-import createTxz from "~/actions/create-txz/index"
-import doDeploy, { PackageType } from "~/actions/deploy/index"
-import pahkatInit from "~/actions/pahkat/init/index"
-import doSetup from "~/actions/setup/index"
-import getVersion from "~/actions/version/index"
-import { exec } from "~/builder"
-import { Bash } from "~/util/shared"
+import createTxz from "~/actions/create-txz/index.ts"
+import doDeploy, { PackageType } from "~/actions/deploy/index.ts"
+import pahkatInit from "~/actions/pahkat/init/index.ts"
+import doSetup from "~/actions/setup/index.ts"
+import getVersion from "~/actions/version/index.ts"
+import { exec } from "~/builder.ts"
+import { Bash } from "~/util/shared.ts"
 
 const TARGETS = ["aarch64-unknown-linux-gnu", "x86_64-unknown-linux-gnu"]
 

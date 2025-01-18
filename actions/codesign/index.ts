@@ -1,8 +1,9 @@
 import fs from "node:fs"
 import path from "node:path"
 
-import * as builder from "~/builder"
-import { Bash, secrets } from "~/util/shared"
+import process from "node:process"
+import * as builder from "~/builder.ts"
+import { Bash, secrets } from "~/util/shared.ts"
 
 export type Props = {
   filePath: string

@@ -1,7 +1,8 @@
-import camelcase from "camelcase"
-import * as path from "path"
-import * as builder from "~/builder"
-import { Bash } from "~/util/shared"
+import { camelCase } from "case"
+import * as path from "node:path"
+import process from "node:process"
+import * as builder from "~/builder.ts"
+import { Bash } from "~/util/shared.ts"
 
 class Autotools {
   private directory: string
@@ -43,7 +44,7 @@ async function deriveInputs(inputs: string[]): Promise<{ [key: string]: any }> {
 
   for (const kebabInput of inputs) {
     const value: any = await builder.getInput(kebabInput)
-    const input = camelcase(kebabInput)
+    const input = camelCase(kebabInput)
 
     console.log(input, value)
 

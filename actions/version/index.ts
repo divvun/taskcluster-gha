@@ -1,15 +1,16 @@
 import fs from "node:fs"
 import path from "node:path"
 
-import toml from "toml"
-import { SpellerManifest } from "~/actions/speller/manifest"
-import * as builder from "~/builder"
+import * as toml from "@std/toml"
+import process from "node:process"
+import { SpellerManifest } from "~/actions/speller/manifest.ts"
+import * as builder from "~/builder.ts"
 import {
   Bash,
   isMatchingTag,
   nonUndefinedProxy,
   versionAsNightly,
-} from "~/util/shared"
+} from "~/util/shared.ts"
 
 async function getCargoToml(cargo: string | null) {
   if (cargo == null) {
@@ -106,9 +107,9 @@ async function run() {
     await builder.getInput("filepath"),
   )
   const instaStable = Boolean(await builder.getInput("insta-stable")) || false
-  const nightlyChannel = await builder.getInput("nightly-channel", {
-    required: true,
-  })
+  // const nightlyChannel = await builder.getInput("nightly-channel", {
+  //   required: true,
+  // })
 
   const { channel, version: v } = await version({
     isXcode,

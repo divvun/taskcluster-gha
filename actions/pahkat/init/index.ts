@@ -1,5 +1,6 @@
-import * as builder from "~/builder"
-import { PahkatPrefix } from "~/util/shared"
+import process from "node:process"
+import * as builder from "~/builder.ts"
+import { PahkatPrefix } from "~/util/shared.ts"
 
 export type Props = {
   repoUrl: string

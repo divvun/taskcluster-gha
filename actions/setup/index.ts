@@ -1,8 +1,10 @@
 import * as fs from "node:fs"
 import path from "node:path"
-import * as builder from "~/builder"
-import { downloadAppleDevIdCA, Security } from "~/util/security"
+import * as builder from "~/builder.ts"
+import { downloadAppleDevIdCA, Security } from "~/util/security.ts"
 
+import { Buffer } from "node:buffer"
+import process from "node:process"
 import {
   Bash,
   divvunConfigDir,
@@ -10,7 +12,7 @@ import {
   secrets,
   Tar,
   tmpDir,
-} from "~/util/shared"
+} from "~/util/shared.ts"
 
 function debug(input: string[]) {
   const [out, err] = input
@@ -32,7 +34,9 @@ async function setupMacOSKeychain() {
 
   try {
     debug(await Security.deleteKeychain(name))
-  } catch (_) {}
+  } catch (_) {
+    // Ignore
+  }
 
   debug(await Security.createKeychain(name, password))
   debug(await Security.defaultKeychain(name))
@@ -43,18 +47,18 @@ async function setupMacOSKeychain() {
   const certPath5 = await downloadAppleDevIdCA("G2")
   debug(await Security.import(name, certPath5))
 
-  const appP12Path = Deno.makeTempFile({ suffix: ".p12" })
+  const appP12Path = await Deno.makeTempFile({ suffix: ".p12" })
   const appP12Buff = Buffer.from(sec.macos.appP12, "base64")
-  fs.writeFileSync(appP12Path.name, appP12Buff)
-  debug(await Security.import(name, appP12Path.name, sec.macos.appP12Password))
+  fs.writeFileSync(appP12Path, appP12Buff)
+  debug(await Security.import(name, appP12Path, sec.macos.appP12Password))
 
-  const installerP12Path = Deno.makeTempFile({ suffix: ".p12" })
+  const installerP12Path = await Deno.makeTempFile({ suffix: ".p12" })
   const installerP12Buff = Buffer.from(sec.macos.installerP12, "base64")
-  fs.writeFileSync(installerP12Path.name, installerP12Buff)
+  fs.writeFileSync(installerP12Path, installerP12Buff)
   debug(
     await Security.import(
       name,
-      installerP12Path.name,
+      installerP12Path,
       sec.macos.installerP12Password,
     ),
   )
@@ -106,7 +110,6 @@ async function cloneConfigRepo(password: string) {
     `openssl aes-256-cbc -d -in ./config.txz.enc -pass pass:${password} -out config.txz -md md5`,
     { cwd: repoDir },
   )
-  await Tar.bootstrap()
   await Tar.extractTxz(path.resolve(repoDir, "config.txz"), repoDir)
 }
 

@@ -1,5 +1,6 @@
-import * as builder from "~/builder"
-import { makeInstaller } from "./lib"
+import process from "node:process"
+import * as builder from "~/builder.ts"
+import { makeInstaller } from "./lib.ts"
 
 export type Props = {
   path: string

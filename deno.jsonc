@@ -4,6 +4,7 @@
   },
   "compilerOptions": {
     "strict": true,
+    "noImplicitAny": true,
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true
@@ -17,9 +18,10 @@
   "imports": {
     "@david/which": "jsr:@david/which@^0.4.1",
     "@std/fs": "jsr:@std/fs@^1.0.9",
+    "@std/toml": "jsr:@std/toml@^1.0.2",
     "@std/uuid": "jsr:@std/uuid@^1.0.4",
     "@std/yaml": "jsr:@std/yaml@^1.0.5",
-    "camelcase": "jsr:case@2.2.0",
+    "case": "https://deno.land/x/case@2.2.0/mod.ts",
     "commander": "https://deno.land/x/cmd@v1.2.0/mod.ts",
     "extract-zip": "https://esm.sh/extract-zip@2.0.1",
     "pretty-error": "https://esm.sh/pretty-error@4.0.0",

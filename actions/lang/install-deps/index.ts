@@ -1,5 +1,6 @@
-import * as builder from "~/builder"
-import { Apt, Pip, Pipx, ProjectJJ, Ssh } from "~/util/shared"
+import process from "node:process"
+import * as builder from "~/builder.ts"
+import { Apt, Pip, Pipx, ProjectJJ, Ssh } from "~/util/shared.ts"
 
 async function getSudo() {
   const x = await builder.getInput("sudo")

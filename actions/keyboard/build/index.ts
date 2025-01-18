@@ -1,9 +1,10 @@
 import path from "node:path"
-import * as builder from "~/builder"
-import { isMatchingTag, Kbdgen, PahkatPrefix } from "~/util/shared"
-import { makeInstaller } from "../../inno-setup/lib"
-import { getBundle, KeyboardType } from "../types"
-import { generateKbdInnoFromBundle } from "./iss"
+import process from "node:process"
+import * as builder from "~/builder.ts"
+import { isMatchingTag, Kbdgen, PahkatPrefix } from "~/util/shared.ts"
+import { makeInstaller } from "../../inno-setup/lib.ts"
+import { getBundle, KeyboardType } from "../types.ts"
+import { generateKbdInnoFromBundle } from "./iss.ts"
 
 // Taken straight from semver.org, with added 'v'
 const SEMVER_TAG_RE =

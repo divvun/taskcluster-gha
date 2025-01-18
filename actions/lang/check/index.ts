@@ -1,6 +1,7 @@
+import process from "node:process"
 import * as path from "path"
-import * as builder from "~/builder"
-import { Bash } from "~/util/shared"
+import * as builder from "~/builder.ts"
+import { Bash } from "~/util/shared.ts"
 
 export default async function langCheck() {
   const githubWorkspace = builder.context.workspace

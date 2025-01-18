@@ -1,8 +1,8 @@
+import * as toml from "@std/toml"
 import fs from "node:fs"
 import path from "node:path"
-import toml from "toml"
-import * as builder from "~/builder"
-
+import process from "node:process"
+import * as builder from "~/builder.ts"
 import {
   getArtifactSize,
   MacOSPackageTarget,
@@ -12,9 +12,8 @@ import {
   ReleaseRequest,
   validateProductCode,
   WindowsExecutableKind,
-} from "~/util/shared"
-
-import { derivePackageId, SpellerManifest, SpellerType } from "../manifest"
+} from "~/util/shared.ts"
+import { derivePackageId, SpellerManifest, SpellerType } from "../manifest.ts"
 
 function loadManifest(manifestPath: string): SpellerManifest {
   const manifestString = fs.readFileSync(manifestPath, "utf8")
