@@ -1,0 +1,27 @@
+{
+  "tasks": {
+    "start": "deno run --allow-read --allow-write --allow-net --allow-run --allow-env index.ts"
+  },
+  "compilerOptions": {
+    "strict": true,
+    "lib": ["deno.window"],
+    "noImplicitAny": true
+  },
+  "fmt": {
+    "indentWidth": 2,
+    "semiColons": false,
+    "singleQuote": false,
+    "proseWrap": "preserve"
+  },
+  "imports": {
+    "@david/which": "jsr:@david/which@^0.4.1",
+    "@std/fs": "jsr:@std/fs@^1.0.9",
+    "@std/uuid": "jsr:@std/uuid@^1.0.4",
+    "@std/yaml": "jsr:@std/yaml@^1.0.5",
+    "camelcase": "jsr:case@2.2.0",
+    "commander": "https://deno.land/x/cmd@v1.2.0/mod.ts",
+    "extract-zip": "https://esm.sh/extract-zip@2.0.1",
+    "pretty-error": "https://esm.sh/pretty-error@4.0.0",
+    "~/": "./"
+  }
+}
