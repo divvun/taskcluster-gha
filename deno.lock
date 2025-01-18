@@ -5,6 +5,7 @@
     "jsr:@std/bytes@^1.0.2": "1.0.4",
     "jsr:@std/collections@^1.0.9": "1.0.9",
     "jsr:@std/crypto@^1.0.3": "1.0.3",
+    "jsr:@std/encoding@^1.0.6": "1.0.6",
     "jsr:@std/fs@^1.0.9": "1.0.9",
     "jsr:@std/path@^1.0.8": "1.0.8",
     "jsr:@std/toml@^1.0.2": "1.0.2",
@@ -24,6 +25,9 @@
     },
     "@std/crypto@1.0.3": {
       "integrity": "a2a32f51ddef632d299e3879cd027c630dcd4d1d9a5285d6e6788072f4e51e7f"
+    },
+    "@std/encoding@1.0.6": {
+      "integrity": "ca87122c196e8831737d9547acf001766618e78cd8c33920776c7f5885546069"
     },
     "@std/fs@1.0.9": {
       "integrity": "3eef7e3ed3d317b29432c7dcb3b20122820dbc574263f721cb0248ad91bad890",
@@ -368,7 +372,9 @@
   "workspace": {
     "dependencies": [
       "jsr:@david/which@~0.4.1",
+      "jsr:@std/encoding@^1.0.6",
       "jsr:@std/fs@^1.0.9",
+      "jsr:@std/path@^1.0.8",
       "jsr:@std/toml@^1.0.2",
       "jsr:@std/uuid@^1.0.4",
       "jsr:@std/yaml@^1.0.5"

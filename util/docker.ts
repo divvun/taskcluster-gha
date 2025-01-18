@@ -1,7 +1,6 @@
 import { which } from "@david/which"
 import { exists } from "@std/fs"
-import os from "node:os"
-import path from "node:path"
+import * as path from "@std/path"
 import { exec } from "~/builder.ts"
 import { Powershell } from "./shared.ts"
 
@@ -70,7 +69,7 @@ export default class Docker {
   static async enterWorkspace() {
     const id = crypto.randomUUID()
     const volName = `workspace-${id}`
-    const tmpDir = os.tmpdir()
+    const tmpDir = Deno.makeTempDirSync()
     const imagePath = path.join(tmpDir, volName)
 
     await Deno.mkdir(imagePath)

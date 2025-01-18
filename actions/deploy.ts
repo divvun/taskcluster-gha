@@ -1,4 +1,4 @@
-import path from "node:path"
+import * as path from "@std/path"
 import * as builder from "~/builder.ts"
 
 import {

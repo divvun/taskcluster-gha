@@ -1,5 +1,5 @@
+import * as path from "@std/path"
 import * as toml from "@std/toml"
-import path from "node:path"
 
 import { makeInstaller } from "~/actions/inno-setup/lib.ts"
 import * as builder from "~/builder.ts"

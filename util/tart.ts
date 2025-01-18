@@ -1,5 +1,5 @@
-import fs from "node:fs"
-import path from "node:path"
+import * as fs from "@std/fs"
+import * as path from "@std/path"
 import { exec, spawn } from "~/builder.ts"
 
 type TartStatus = {
@@ -152,9 +152,7 @@ export default class Tart {
     await exec("hdiutil", ["detach", `/Volumes/${volName}`])
 
     console.log("Deleting image...")
-    fs.rmSync(imagePath, {
-      force: true,
-    })
+    await Deno.remove(imagePath)
   }
 
   static ip(vmName: string) {

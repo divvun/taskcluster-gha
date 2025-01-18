@@ -1,4 +1,4 @@
-import path from "node:path"
+import * as path from "@std/path"
 import * as builder from "~/builder.ts"
 import { isMatchingTag, Kbdgen, PahkatPrefix } from "~/util/shared.ts"
 import { makeInstaller } from "../../inno-setup/lib.ts"

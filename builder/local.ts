@@ -1,9 +1,6 @@
 // deno-lint-ignore-file require-await no-explicit-any
 // Local implementation of the builder interface
 
-import { cp as fsCp, mkdtemp } from "node:fs/promises"
-import { tmpdir } from "node:os"
-import { join } from "node:path"
 import type {
   Context,
   CopyOptions,
@@ -119,30 +116,20 @@ export async function downloadTool(
   throw new Error("Download tool is not available in Buildkite")
 }
 
-export async function extractZip(file: string, dest?: string): Promise<string> {
-  const extract = (await import("extract-zip")).default
-  const finalDest = dest || (await mkdtemp(join(tmpdir(), "extract-")))
-  await extract(file, { dir: finalDest })
-  return finalDest
+export async function extractZip(_file: string, _dest?: string): Promise<string> {
+  throw new Error("Extract zip is not available in Buildkite")
 }
 
 export async function extractTar(
-  file: string,
-  dest?: string,
-  flags?: string | string[],
+  _file: string,
+  _dest?: string,
+  _flags?: string | string[],
 ): Promise<string> {
-  const finalDest = dest || (await mkdtemp(join(tmpdir(), "extract-")))
-  const flagsArray = typeof flags === "string" ? [flags] : flags || ["-xf"]
-
-  await exec("tar", [...flagsArray, file, "-C", finalDest])
-  return finalDest
+  throw new Error("Extract tar is not available in Buildkite")
 }
 
-export async function cp(source: string, dest: string, options?: CopyOptions) {
-  await fsCp(source, dest, {
-    recursive: options?.recursive,
-    force: options?.force,
-  })
+export async function cp(_source: string, _dest: string, _options?: CopyOptions) {
+  throw new Error("Copy is not available in Buildkite")
 }
 
 export async function globber(
@@ -260,7 +247,7 @@ export function secrets(): any {
 }
 
 export function tempDir() {
-  return tmpdir()
+  return Deno.makeTempDirSync()
 }
 
 export function createArtifact(_fileName: string, _artifactPath: string) {

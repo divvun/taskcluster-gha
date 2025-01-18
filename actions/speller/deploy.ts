@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-explicit-any
+import * as path from "@std/path"
 import * as toml from "@std/toml"
-import path from "node:path"
 import * as builder from "~/builder.ts"
 import {
   getArtifactSize,
