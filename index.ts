@@ -7,6 +7,7 @@ import { version } from "./package.json"
 
 import divvunspellLinux from "./pipelines/divvunspell/linux"
 import divvunspellMacos from "./pipelines/divvunspell/macos"
+import divvunspellWindows from "./pipelines/divvunspell/windows"
 import Docker from "./util/docker"
 import Tart from "./util/tart"
 
@@ -198,6 +199,8 @@ divvunspell
         case "linux":
           await divvunspellLinux("build", props)
           break
+        case "windows":
+          await divvunspellWindows("build", props)
         default:
           console.error("Unsupported platform. Use 'macos' or 'linux'")
           process.exit(1)
@@ -292,7 +295,7 @@ async function enterEnvironment(
       }
       break
     }
-    // case "linux":
+    case "linux":
     case "windows": {
       const isInContainer = await Docker.isInContainer()
 
