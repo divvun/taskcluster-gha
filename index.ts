@@ -5,7 +5,9 @@ import PrettyError from "pretty-error"
 import * as builder from "~/builder"
 import { version } from "./package.json"
 
+import divvunspellLinux from "./pipelines/divvunspell/linux"
 import divvunspellMacos from "./pipelines/divvunspell/macos"
+import Docker from "./util/docker"
 import Tart from "./util/tart"
 
 const pe = new PrettyError()
@@ -175,6 +177,32 @@ program
 const divvunspell = program
   .command("divvunspell")
   .description("Run divvunspell pipeline tasks")
+  .requiredOption("--platform <platform>", "Target platform (macos, linux)")
+
+divvunspell
+  .command("build")
+  .description("Build divvunspell")
+  .option("--divvun-key <key>", "Divvun key for authentication")
+  .option("--skip-setup", "Skip setup step")
+  .action(async (options) => {
+    const { divvunKey, skipSetup } = options
+    const platform = divvunspell.opts().platform.toLowerCase()
+    const props = { divvunKey, skipSetup }
+
+    await enterEnvironment(platform, async () => {
+      switch (platform) {
+        case "macos":
+          await divvunspellMacos("build", props)
+          break
+        case "linux":
+          await divvunspellLinux("build", props)
+          break
+        default:
+          console.error("Unsupported platform. Use 'macos' or 'linux'")
+          process.exit(1)
+      }
+    })
+  })
 
 divvunspell
   .command("setup")
@@ -186,27 +214,6 @@ divvunspell
   .action(async (options) => {
     await divvunspellMacos(
       "setup",
-      {
-        divvunKey: options.divvunKey,
-        skipSetup: options.skipSetup,
-        skipSigning: options.skipSigning,
-      },
-      {
-        ignoreDependencies: options.ignoreDependencies,
-      }
-    )
-  })
-
-divvunspell
-  .command("build")
-  .description("Run build step")
-  .option("-k, --divvun-key <key>", "Divvun key for signing")
-  .option("--skip-setup", "Skip setup step", false)
-  .option("--skip-signing", "Skip signing step", false)
-  .option("--ignore-dependencies", "Ignore step dependencies", false)
-  .action(async (options) => {
-    await divvunspellMacos(
-      "build",
       {
         divvunKey: options.divvunKey,
         skipSetup: options.skipSetup,
@@ -260,6 +267,49 @@ divvunspell
     )
   })
 
+async function enterEnvironment(
+  platform: string,
+  callback: () => Promise<void>
+) {
+  const workingDir = process.env._DIVVUN_ACTIONS_PWD!
+  let id: string | undefined = undefined
+
+  switch (platform) {
+    case "macos": {
+      if (process.platform === "darwin") {
+        const isInVirtualMachine = Tart.isInVirtualMachine()
+
+        if (!isInVirtualMachine) {
+          await Tart.enterVirtualMachine(workingDir)
+          return
+        }
+
+        id = await Tart.enterWorkspace()
+      } else {
+        process.chdir(workingDir)
+      }
+      break
+    }
+    case "linux": {
+      if (!Docker.isInContainer()) {
+        console.log("Running divvun-actions...")
+        await Docker.enterEnvironment("divvun-actions", workingDir)
+        return
+      }
+      break
+    }
+    default:
+      console.error("Unsupported platform. Use 'macos' or 'linux'")
+      process.exit(1)
+  }
+
+  await callback()
+
+  if (id) {
+    await Tart.exitWorkspace(id)
+  }
+}
+
 async function localMain() {
   const realWorkingDir = process.env._DIVVUN_ACTIONS_PWD
   let id: string | undefined = undefined
@@ -269,24 +319,20 @@ async function localMain() {
     process.exit(1)
   }
 
-  if (process.platform === "darwin") {
-    const isInVirtualMachine = Tart.isInVirtualMachine()
+  // if (process.platform === "darwin") {
+  //   const isInVirtualMachine = Tart.isInVirtualMachine()
 
-    if (!isInVirtualMachine) {
-      await Tart.enterVirtualMachine(realWorkingDir)
-      return
-    }
+  //   if (!isInVirtualMachine) {
+  //     await Tart.enterVirtualMachine(realWorkingDir)
+  //     return
+  //   }
 
-    id = await Tart.enterWorkspace()
-  } else {
-    process.chdir(realWorkingDir)
-  }
+  //   id = await Tart.enterWorkspace()
+  // } else {
+  //   process.chdir(realWorkingDir)
+  // }
 
   await program.parseAsync()
-
-  if (id) {
-    await Tart.exitWorkspace(id)
-  }
 }
 
 async function main() {

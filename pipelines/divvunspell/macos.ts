@@ -9,7 +9,7 @@ import { Bash } from "~/util/shared"
 
 const TARGETS = ["x86_64-apple-darwin", "aarch64-apple-darwin"]
 
-export type Step = "setup" | "build" | "codesign" | "tarball"
+export type Step = "setup" | "build" | "codesign" | "tarball" | "deploy"
 
 type Context = {}
 type Props = { divvunKey: string; skipSetup?: boolean; skipSigning?: boolean }
@@ -88,13 +88,6 @@ async function setup({ inputs: { divvunKey, skipSetup } }: DivvunSpellProps) {
 
   // Setup environment
   await doSetup({ divvunKey })
-
-  // Install required dependencies
-  await pahkatInit({
-    repoUrl: "https://pahkat.uit.no",
-    channel: null,
-    packages: ["pahkat-uploader"],
-  })
 }
 
 async function build(_: DivvunSpellProps) {
@@ -145,6 +138,13 @@ async function deploy({
 }: DivvunSpellProps<{ txzPath: string }>) {
   const { channel, version } = await getVersion({
     cargoToml: "divvunspell/Cargo.toml",
+  })
+
+  // Install required dependencies
+  await pahkatInit({
+    repoUrl: "https://pahkat.uit.no",
+    channel: null,
+    packages: ["pahkat-uploader"],
   })
 
   await doDeploy({

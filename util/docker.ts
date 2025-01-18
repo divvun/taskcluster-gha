@@ -1,3 +1,4 @@
+import fs from "fs"
 import path from "path"
 import { exec } from "~/builder"
 
@@ -9,16 +10,20 @@ export default class Docker {
 //     "divvun-actions": `${path.resolve(process.cwd())}:ro`,
 //   })
 
-  static async enterEnvironment(image: string, cmd: string) {
+  static async isInContainer() {
+    return fs.existsSync("/actions") && fs.existsSync("/workspace")
+  }
+
+  static async enterEnvironment(image: string, workingDir: string) {
     await exec("docker", [
       "run",
       "--rm",
       "-v",
-      `${process.cwd()}:/workspace:ro`,
+      `${workingDir}:/workspace:ro`,
       "-v",
       `${Docker.DIVVUN_ACTIONS_PATH}:/actions:ro`,
       image,
-      cmd,
+      `"/actions/bin/divvun-actions" ${process.argv.slice(2).join(" ")}`
     ])
   }
 }
