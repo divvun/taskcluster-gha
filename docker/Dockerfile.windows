@@ -1,0 +1,99 @@
+FROM --name=buildkite-agent mcr.microsoft.com/powershell:lts-windowsservercore-ltsc2022
+
+SHELL ["pwsh", "-Command"]
+
+# Download and install Git for Windows silently
+RUN Invoke-WebRequest -Uri https://github.com/git-for-windows/git/releases/download/v2.47.1.windows.1/Git-2.47.1-64-bit.exe -OutFile git-installer.exe ; \
+    Start-Process -FilePath git-installer.exe -ArgumentList '/VERYSILENT /NORESTART /NOCANCEL /SP- /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS /COMPONENTS="bash,bash_path"' -Wait ; \
+    Remove-Item git-installer.exe
+
+# Add Git to PATH
+RUN setx /M PATH $($Env:PATH + 'C:\Program Files\Git\cmd;C:\Program Files\Git\bin;');
+
+ENV buildkiteAgentToken "XXX"
+
+RUN Set-ExecutionPolicy Bypass -Scope Process -Force; \
+    iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/buildkite/agent/main/install.ps1')); \
+    setx /M PATH $($Env:PATH + 'C:\buildkite-agent\bin;');
+
+CMD ["buildkite-agent.exe", "start"]
+
+# Use Windows Server Core as the base image
+#FROM mcr.microsoft.com/powershell:lts-windowsservercore-ltsc2022
+
+FROM buildkite-agent
+
+SHELL ["pwsh", "-command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+
+# Install Inno Setup
+RUN Invoke-WebRequest -Uri https://jrsoftware.org/download.php/is.exe?site=2 -OutFile innosetup.exe; \
+    Start-Process -FilePath .\innosetup.exe -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-' -Wait; \
+    Remove-Item innosetup.exe; \
+    setx /M PATH $($Env:PATH + ';C:\Program Files (x86)\Inno Setup 6');
+
+# Install MSKLC
+RUN Invoke-WebRequest -Uri https://download.microsoft.com/download/6/f/5/6f5ce43a-e892-4fd1-b9a6-1a0cbb64e6e2/MSKLC.exe -OutFile MSKLC.exe ; \
+    Start-Process -FilePath tar -ArgumentList '-xf .\\MSKLC.exe' -Wait ; \
+    Start-Process -FilePath msiexec.exe -ArgumentList '/i .\\MSKLC\\msklc.msi /qn /norestart' -Wait ; \
+    Remove-Item MSKLC.exe
+
+# Install fnm
+RUN Invoke-WebRequest -Uri https://github.com/Schniz/fnm/releases/download/v1.38.1/fnm-windows.zip -OutFile fnm.zip ; \
+    Expand-Archive -Path fnm.zip -DestinationPath ($Env:APPDATA + '\fnm') -Force ; \
+    Remove-Item fnm.zip
+
+# Install Visual Studio components
+RUN $components = @( \
+        'Microsoft.VisualStudio.Component.VC.Tools.x86.x64', \
+        'Microsoft.VisualStudio.Workload.VCTools', \
+        'Microsoft.VisualStudio.Workload.MSBuildTools', \
+        'Microsoft.VisualStudio.Workload.NetCoreBuildTools', \
+        'Microsoft.VisualStudio.Workload.NativeDesktop', \
+        'Microsoft.VisualStudio.Workload.ManagedDesktop', \
+        'Microsoft.VisualStudio.Component.Windows11SDK.26100', \
+        'Microsoft.VisualStudio.Component.VC.CMake.Project' \
+    ); \
+    $args = '--wait --quiet --norestart --nocache install ' + ($components | ForEach-Object { '--add ' + $_ }) -join ' ' + ' --includeRecommended'; \
+    Invoke-WebRequest -Uri 'https://aka.ms/vs/17/release/vs_buildtools.exe' -OutFile 'vs_buildtools.exe' ; \
+    $VSId = Start-Process -FilePath '.\vs_buildtools.exe' -ArgumentList $args -NoNewWindow -PassThru ; \
+    $VSId.WaitForExit() ; \
+    $setupIds = (Get-Process -name 'setup' -ErrorAction SilentlyContinue).id ; \
+    foreach ($id in $setupIds) { \
+        Wait-Process -Id $id -ErrorAction SilentlyContinue \
+    } ; \
+    Remove-Item '.\vs_buildtools.exe'
+
+# Install CMake
+RUN Invoke-WebRequest -UseBasicParsing 'https://github.com/Kitware/CMake/releases/download/v3.28.1/cmake-3.28.1-windows-x86_64.msi' -OutFile cmake.msi ; \
+    Start-Process -Wait msiexec -ArgumentList '/i', 'cmake.msi', '/quiet', '/norestart' ; \
+    Remove-Item -Force cmake.msi ; \
+    $env:PATH = 'C:\Program Files\CMake\bin;' + $env:PATH ; \
+    [Environment]::SetEnvironmentVariable('PATH', $env:PATH, [EnvironmentVariableTarget]::Machine)
+
+# Install Rust using rustup
+RUN Invoke-WebRequest -Uri https://win.rustup.rs/x86_64 -OutFile rustup-init.exe; \
+    Start-Process -FilePath .\\rustup-init.exe -ArgumentList '-y' -NoNewWindow -Wait; \
+    Remove-Item -Force .\\rustup-init.exe
+
+# Install XZ
+RUN Invoke-WebRequest -Uri https://tukaani.org/xz/xz-5.2.9-windows.zip -OutFile xz.zip; \
+    Expand-Archive xz.zip -DestinationPath C:\xz ; \
+    Copy-Item 'C:\xz\bin_x86-64\xz.exe' 'C:\Windows\System32\' ; \
+    Remove-Item -Recurse -Force C:\xz ; \
+    Remove-Item -Force xz.zip
+    
+# Create powershell profile...
+RUN if (!(Test-Path -Path $PROFILE)) { \
+        New-Item -ItemType File -Path $PROFILE -Force ; \
+        New-Item -ItemType Directory -Path (Split-Path -Parent $PROFILE) -Force \
+    }
+
+# Install Deno
+RUN irm https://deno.land/install.ps1 | iex
+
+# Clear duplicates
+RUN $cleanPath = ($Env:PATH -split ';' | Select-Object -Unique) -join ';' ; \
+    setx /M PATH $cleanPath
+
+# Default shell
+CMD ["pwsh", "-NoLogo"]
