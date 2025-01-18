@@ -12,7 +12,7 @@ try {
 
     $env:_DIVVUN_ACTIONS_PWD = $CWD
     $scriptArgs = if ($args.Count -eq 0) { @('-h') } else { $args }
-    & deno run -A --unstable-sloppy-imports index.ts $scriptArgs
+    & deno run -A --unstable-sloppy-imports main.ts $scriptArgs
 } finally {
     Set-Location -Path $CWD
 }

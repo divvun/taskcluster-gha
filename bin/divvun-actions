@@ -12,4 +12,4 @@ cd "$SCRIPT_DIR";
 
 export _DIVVUN_ACTIONS_ENV=${_DIVVUN_ACTIONS_ENV:-native}
 export _DIVVUN_ACTIONS_PWD=$CWD;
-deno run -A --unstable-sloppy-imports index.ts "$@"
+deno run -A --unstable-sloppy-imports main.ts "$@"

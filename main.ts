@@ -377,7 +377,7 @@ async function localMain() {
   const realWorkingDir = Deno.env.get("_DIVVUN_ACTIONS_PWD")
 
   if (realWorkingDir == null) {
-    console.error("index.ts cannot be run directly.")
+    console.error("main.ts cannot be run directly.")
     Deno.exit(1)
   }
 
