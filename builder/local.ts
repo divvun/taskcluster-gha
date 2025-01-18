@@ -1,12 +1,12 @@
+// deno-lint-ignore-file require-await no-explicit-any
 // Local implementation of the builder interface
 
 import { Buffer } from "node:buffer"
 import { ChildProcess, spawn as doSpawn } from "node:child_process"
 import fs from "node:fs"
-import { cp as fsCp, mkdtemp, writeFile } from "node:fs/promises"
+import { cp as fsCp, mkdtemp } from "node:fs/promises"
 import { tmpdir } from "node:os"
-import { dirname, join } from "node:path"
-import process from "node:process"
+import { join } from "node:path"
 
 export type ExecListeners = {
   /** A call back for each buffer of stdout */
@@ -125,7 +125,7 @@ export function debug(message: string) {
 
 export function setFailed(message: string) {
   console.error(message)
-  process.exit(1)
+  Deno.exit(1)
 }
 
 export async function spawn(
@@ -133,7 +133,7 @@ export async function spawn(
   args?: string[],
   options?: ExecOptions,
 ): Promise<ChildProcess> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _reject) => {
     const stdio = options?.listeners?.stdout || options?.listeners?.stderr
       ? "pipe"
       : options?.silent
@@ -192,7 +192,7 @@ export async function exec(
 }
 
 export function addPath(path: string) {
-  const sep = process.platform === "win32" ? ";" : ":"
+  const sep = Deno.build.os === "windows" ? ";" : ":"
   const p = Deno.env.get("PATH")
   Deno.env.set(
     "PATH",
@@ -201,26 +201,27 @@ export function addPath(path: string) {
 }
 
 export async function downloadTool(
-  url: string,
-  dest?: string,
-  auth?: string,
+  _url: string,
+  _dest?: string,
+  _auth?: string,
 ): Promise<string> {
-  const { default: fetch } = await import("node-fetch")
-  const headers: { [key: string]: string } = {}
-  if (auth) {
-    headers.Authorization = auth
-  }
+  // const { default: fetch } = await import("node-fetch")
+  // const headers: { [key: string]: string } = {}
+  // if (auth) {
+  //   headers.Authorization = auth
+  // }
 
-  const response = await fetch(url, { headers })
-  if (!response.ok) {
-    throw new Error(`Failed to download from ${url}: ${response.statusText}`)
-  }
+  // const response = await fetch(url, { headers })
+  // if (!response.ok) {
+  //   throw new Error(`Failed to download from ${url}: ${response.statusText}`)
+  // }
 
-  const finalDest = dest ||
-    join(tmpdir(), Math.random().toString(36).substring(7))
-  const buffer = await response.buffer()
-  await writeFile(finalDest, buffer)
-  return finalDest
+  // const finalDest = dest ||
+  //   join(tmpdir(), Math.random().toString(36).substring(7))
+  // const buffer = await response.buffer()
+  // await writeFile(finalDest, buffer)
+  // return finalDest
+  throw new Error("Download tool is not available in Buildkite")
 }
 
 export async function extractZip(file: string, dest?: string): Promise<string> {
@@ -250,28 +251,29 @@ export async function cp(source: string, dest: string, options?: CopyOptions) {
 }
 
 export async function globber(
-  pattern: string,
-  options?: GlobOptions,
+  _pattern: string,
+  _options?: GlobOptions,
 ): Promise<Globber> {
-  const { glob } = await import("glob")
-  const matches = (await glob(pattern, {
-    follow: options?.followSymbolicLinks,
-    dot: true,
-    nocase: true,
-  })) as string[]
+  // const { glob } = await import("glob")
+  // const matches = (await glob(pattern, {
+  //   follow: options?.followSymbolicLinks,
+  //   dot: true,
+  //   nocase: true,
+  // })) as string[]
 
-  return {
-    getSearchPaths: (): string[] => {
-      const paths = matches.map((m: string) => dirname(m))
-      return [...new Set(paths)]
-    },
-    glob: async () => matches,
-    globGenerator: async function* () {
-      for (const match of matches) {
-        yield match
-      }
-    },
-  }
+  // return {
+  //   getSearchPaths: (): string[] => {
+  //     const paths = matches.map((m: string) => dirname(m))
+  //     return [...new Set(paths)]
+  //   },
+  //   glob: async () => matches,
+  //   globGenerator: async function* () {
+  //     for (const match of matches) {
+  //       yield match
+  //     }
+  //   },
+  // }
+  throw new Error("Glob is not available in Buildkite")
 }
 
 export async function setSecret(secret: string) {
@@ -295,32 +297,33 @@ export async function setSecret(secret: string) {
 }
 
 export async function getInput(
-  variable: string,
-  options?: InputOptions,
+  _variable: string,
+  _options?: InputOptions,
 ): Promise<string> {
-  try {
-    const value = await new Promise<string>((resolve, reject) => {
-      exec("buildkite-agent", ["meta-data", "get", variable])
-        .then((code) => {
-          if (code === 0) {
-            resolve(process.stdout.toString().trim())
-          } else {
-            reject(new Error(`Failed to get meta-data for ${variable}`))
-          }
-        })
-        .catch(reject)
-    })
+  // try {
+  //   const value = await new Promise<string>((resolve, reject) => {
+  //     exec("buildkite-agent", ["meta-data", "get", variable])
+  //       .then((code) => {
+  //         if (code === 0) {
+  //           resolve(process.stdout.toString().trim())
+  //         } else {
+  //           reject(new Error(`Failed to get meta-data for ${variable}`))
+  //         }
+  //       })
+  //       .catch(reject)
+  //   })
 
-    if (value && options?.trimWhitespace !== false) {
-      return value.trim()
-    }
-    return value
-  } catch (error) {
-    if (options?.required) {
-      throw new Error(`Input required and not supplied: ${variable}`)
-    }
-    return ""
-  }
+  //   if (value && options?.trimWhitespace !== false) {
+  //     return value.trim()
+  //   }
+  //   return value
+  // } catch (error) {
+  //   if (options?.required) {
+  //     throw new Error(`Input required and not supplied: ${variable}`)
+  //   }
+  //   return ""
+  // }
+  throw new Error("Input is not available in Buildkite")
 }
 
 export async function setOutput(name: string, value: any) {
@@ -350,9 +353,9 @@ export function exportVariable(name: string, value: string) {
 }
 
 export const context: Context = {
-  ref: Deno.env.get("BUILDKITE_COMMIT"),
-  workspace: Deno.env.get("BUILDKITE_BUILD_CHECKOUT_PATH"),
-  repo: Deno.env.get("BUILDKITE_REPO"),
+  ref: Deno.env.get("BUILDKITE_COMMIT")!,
+  workspace: Deno.env.get("BUILDKITE_BUILD_CHECKOUT_PATH")!,
+  repo: Deno.env.get("BUILDKITE_REPO")!,
 }
 
 export function secrets(): any {
@@ -364,6 +367,6 @@ export function tempDir() {
   return tmpdir()
 }
 
-export function createArtifact(fileName: string, artifactPath: string) {
+export function createArtifact(_fileName: string, _artifactPath: string) {
   throw new Error("Artifacts are not available in local")
 }

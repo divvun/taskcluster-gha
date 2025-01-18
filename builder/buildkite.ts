@@ -6,7 +6,6 @@ import fs from "node:fs"
 import { cp as fsCp, mkdtemp } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import process from "node:process"
 import type {
   Context,
   CopyOptions,
@@ -24,7 +23,7 @@ export function debug(message: string) {
 
 export function setFailed(message: string) {
   console.error(message)
-  process.exit(1)
+  Deno.exit(1)
 }
 
 export async function spawn(
@@ -91,7 +90,7 @@ export async function exec(
 }
 
 export function addPath(path: string) {
-  const sep = process.platform === "win32" ? ";" : ":"
+  const sep = Deno.build.os === "windows" ? ";" : ":"
   const p = Deno.env.get("PATH")
   Deno.env.set(
     "PATH",
@@ -196,32 +195,33 @@ export async function setSecret(secret: string) {
 }
 
 export async function getInput(
-  variable: string,
-  options?: InputOptions,
+  _variable: string,
+  _options?: InputOptions,
 ): Promise<string> {
-  try {
-    const value = await new Promise<string>((resolve, reject) => {
-      exec("buildkite-agent", ["meta-data", "get", variable])
-        .then((code) => {
-          if (code === 0) {
-            resolve(process.stdout.toString().trim())
-          } else {
-            reject(new Error(`Failed to get meta-data for ${variable}`))
-          }
-        })
-        .catch(reject)
-    })
+  // try {
+  //   const value = await new Promise<string>((resolve, reject) => {
+  //     exec("buildkite-agent", ["meta-data", "get", variable])
+  //       .then((code) => {
+  //         if (code === 0) {
+  //           resolve(process.stdout.toString().trim())
+  //         } else {
+  //           reject(new Error(`Failed to get meta-data for ${variable}`))
+  //         }
+  //       })
+  //       .catch(reject)
+  //   })
 
-    if (value && options?.trimWhitespace !== false) {
-      return value.trim()
-    }
-    return value
-  } catch (_) {
-    if (options?.required) {
-      throw new Error(`Input required and not supplied: ${variable}`)
-    }
-    return ""
-  }
+  //   if (value && options?.trimWhitespace !== false) {
+  //     return value.trim()
+  //   }
+  //   return value
+  // } catch (_) {
+  //   if (options?.required) {
+  //     throw new Error(`Input required and not supplied: ${variable}`)
+  //   }
+  //   return ""
+  // }
+  throw new Error("Input is not available in Buildkite")
 }
 
 export async function setOutput(name: string, value: any) {

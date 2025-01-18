@@ -1,5 +1,4 @@
-import process from "node:process"
-import * as path from "path"
+import * as path from "node:path"
 import * as builder from "~/builder.ts"
 import { Bash } from "~/util/shared.ts"
 
@@ -16,13 +15,6 @@ export default async function langCheck() {
   )
 }
 
-async function run() {
-  await langCheck()
-}
-
-if (builder.isGHA) {
-  run().catch((err) => {
-    console.error(err.stack)
-    process.exit(1)
-  })
-}
+// async function run() {
+//   await langCheck()
+// }

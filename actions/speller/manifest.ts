@@ -49,7 +49,7 @@ export function deriveLangTag(force3: boolean) {
   return lang
 }
 
-export function derivePackageId(type: SpellerType) {
+export function derivePackageId(_type: SpellerType) {
   const lang = builder.context.repo.split("lang-")[1]
 
   return `speller-${lang}`

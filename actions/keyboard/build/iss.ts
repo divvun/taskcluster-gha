@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-explicit-any
 import * as uuid from "@std/uuid"
 import path from "node:path"
 import { InnoSetupBuilder } from "~/util/inno.ts"

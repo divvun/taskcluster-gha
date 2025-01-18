@@ -1,6 +1,4 @@
-import { camelCase } from "case"
 import * as path from "node:path"
-import process from "node:process"
 import * as builder from "~/builder.ts"
 import { Bash } from "~/util/shared.ts"
 
@@ -39,32 +37,32 @@ class Autotools {
   }
 }
 
-async function deriveInputs(inputs: string[]): Promise<{ [key: string]: any }> {
-  const o: { [key: string]: any } = {}
+// async function deriveInputs(inputs: string[]): Promise<{ [key: string]: any }> {
+//   const o: { [key: string]: any } = {}
 
-  for (const kebabInput of inputs) {
-    const value: any = await builder.getInput(kebabInput)
-    const input = camelCase(kebabInput)
+//   for (const kebabInput of inputs) {
+//     const value: any = await builder.getInput(kebabInput)
+//     const input = camelCase(kebabInput)
 
-    console.log(input, value)
+//     console.log(input, value)
 
-    if (typeof value === "string") {
-      if (value.includes(",")) {
-        o[input] = value.split(",").map((x) => x.trim())
-      } else if (value === "false") {
-        o[input] = false
-      } else if (value === "true") {
-        o[input] = true
-      } else if (value === "") {
-        // Do nothing.
-      } else {
-        o[input] = value
-      }
-    }
-  }
+//     if (typeof value === "string") {
+//       if (value.includes(",")) {
+//         o[input] = value.split(",").map((x) => x.trim())
+//       } else if (value === "false") {
+//         o[input] = false
+//       } else if (value === "true") {
+//         o[input] = true
+//       } else if (value === "") {
+//         // Do nothing.
+//       } else {
+//         o[input] = value
+//       }
+//     }
+//   }
 
-  return o
-}
+//   return o
+// }
 
 export type Props = {
   requiresDesktopAsMobileWorkaround: boolean
@@ -254,42 +252,35 @@ export default async function langBuild({
   return { spellerPaths: null }
 }
 
-async function run() {
-  const requiresDesktopAsMobileWorkaround = Boolean(
-    await builder.getInput("force-desktop-spellers-as-mobile"),
-  )
+// async function run() {
+//   const requiresDesktopAsMobileWorkaround = Boolean(
+//     await builder.getInput("force-desktop-spellers-as-mobile"),
+//   )
 
-  const config = await deriveInputs([
-    "fst",
-    "generators",
-    "spellers",
-    "hyphenators",
-    "analysers",
-    "grammar-checkers",
-    "hyperminimalisation",
-    "reversed-intersect",
-    "two-step-intersect",
-    "speller-optimisation",
-    "backend-format",
-    "force-all-tools",
-    "minimised-spellers",
-  ])
+//   const config = await deriveInputs([
+//     "fst",
+//     "generators",
+//     "spellers",
+//     "hyphenators",
+//     "analysers",
+//     "grammar-checkers",
+//     "hyperminimalisation",
+//     "reversed-intersect",
+//     "two-step-intersect",
+//     "speller-optimisation",
+//     "backend-format",
+//     "force-all-tools",
+//     "minimised-spellers",
+//   ])
 
-  const props = {
-    requiresDesktopAsMobileWorkaround,
-    ...config,
-  } as Props
+//   const props = {
+//     requiresDesktopAsMobileWorkaround,
+//     ...config,
+//   } as Props
 
-  const { spellerPaths: out } = await langBuild(props)
+//   const { spellerPaths: out } = await langBuild(props)
 
-  if (out != null) {
-    await builder.setOutput("speller-paths", JSON.stringify(out, null, 0))
-  }
-}
-
-if (builder.isGHA) {
-  run().catch((err) => {
-    console.error(err.stack)
-    process.exit(1)
-  })
-}
+//   if (out != null) {
+//     await builder.setOutput("speller-paths", JSON.stringify(out, null, 0))
+//   }
+// }

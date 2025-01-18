@@ -4,7 +4,6 @@ import { Buffer } from "node:buffer"
 import crypto from "node:crypto"
 import fs from "node:fs"
 import path from "node:path"
-import process from "node:process"
 import * as builder from "~/builder.ts"
 import { Security } from "./security.ts"
 
@@ -40,7 +39,7 @@ function env() {
     LC_ALL: "C.UTF-8",
   }
 
-  if (process.platform === "darwin") {
+  if (Deno.build.os === "darwin") {
     langs.LANG = "en_US.UTF-8"
     langs.LC_ALL = "en_US.UTF-8"
   }
@@ -159,7 +158,7 @@ export class DefaultShell {
       env?: { [key: string]: string }
     } = {},
   ) {
-    if (process.platform === "win32") {
+    if (Deno.build.os === "windows") {
       return await Powershell.runScript(script, args)
     } else {
       return await Bash.runScript(script, args)
@@ -217,13 +216,13 @@ export class Bash {
 
 export class Tar {
   static async extractTxz(filePath: string, outputDir?: string) {
-    const platform = process.platform
+    const platform = Deno.build.os
 
     if (platform === "linux") {
       return await builder.extractTar(filePath, outputDir || tmpDir(), "Jx")
     } else if (platform === "darwin") {
       return await builder.extractTar(filePath, outputDir || tmpDir())
-    } else if (platform === "win32") {
+    } else if (platform === "windows") {
       // Now we unxz it
       builder.debug("Attempt to unxz")
       await builder.exec("xz", ["-d", filePath])
@@ -285,14 +284,14 @@ export class PahkatPrefix {
   }
 
   static async bootstrap() {
-    const platform = process.platform
+    const platform = Deno.build.os
 
     let txz
     if (platform === "linux") {
       txz = await builder.downloadTool(PahkatPrefix.URL_LINUX)
     } else if (platform === "darwin") {
       txz = await builder.downloadTool(PahkatPrefix.URL_MACOS)
-    } else if (platform === "win32") {
+    } else if (platform === "windows") {
       // Now we can download things
       txz = await builder.downloadTool(
         PahkatPrefix.URL_WINDOWS,
@@ -306,7 +305,7 @@ export class PahkatPrefix {
     const outputPath = await Tar.extractTxz(txz)
     const binPath = path.resolve(outputPath, "bin")
 
-    console.log(`Bin path: ${binPath}, platform: ${process.platform}`)
+    console.log(`Bin path: ${binPath}, platform: ${Deno.build.os}`)
     builder.addPath(binPath)
 
     // Init the repo
@@ -370,7 +369,7 @@ export class PahkatUploader {
     let output: string = ""
 
     let exe: string
-    if (process.platform === "win32") {
+    if (Deno.build.os === "windows") {
       exe = "pahkat-uploader.exe"
     } else {
       exe = "pahkat-uploader"
@@ -903,7 +902,7 @@ export class Kbdgen {
 
   static async buildWindows(bundlePath: string): Promise<string> {
     const abs = path.resolve(bundlePath)
-    const cwd = process.cwd()
+    const cwd = Deno.cwd()
 
     await Powershell.runScript(
       `kbdgen target --output-path output --bundle-path ${abs} windows`,
@@ -1027,7 +1026,7 @@ export class DivvunBundler {
   //     const sec = secrets();
 
   //     let exe: string
-  //     if (process.platform === "win32") {
+  //     if (Deno.build.os === "windows") {
   //         exe = path.join(PahkatPrefix.path, "pkg", "divvun-bundler", "bin", "divvun-bundler.exe")
   //     } else {
   //         exe = "divvun-bundler"

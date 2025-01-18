@@ -1,5 +1,3 @@
-import process from "node:process"
-import * as builder from "~/builder.ts"
 import { PahkatPrefix } from "~/util/shared.ts"
 
 export type Props = {
@@ -18,19 +16,12 @@ export default async function pahkatInit({
   await PahkatPrefix.install(packages)
 }
 
-async function run() {
-  const repoUrl = await builder.getInput("repo", { required: true })
-  const channel = await builder.getInput("channel")
-  const packages = (await builder.getInput("packages", { required: true }))
-    .split(",")
-    .map((x) => x.trim())
+// async function run() {
+//   const repoUrl = await builder.getInput("repo", { required: true })
+//   const channel = await builder.getInput("channel")
+//   const packages = (await builder.getInput("packages", { required: true }))
+//     .split(",")
+//     .map((x) => x.trim())
 
-  await pahkatInit({ repoUrl, channel, packages })
-}
-
-if (builder.isGHA) {
-  run().catch((err) => {
-    console.error(err.stack)
-    process.exit(1)
-  })
-}
+//   await pahkatInit({ repoUrl, channel, packages })
+// }

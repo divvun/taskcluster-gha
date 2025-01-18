@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-explicit-any require-await
 import fs from "node:fs"
 import path from "node:path"
 import * as builder from "~/builder.ts"
@@ -13,8 +14,7 @@ import {
   WindowsExecutableKind,
 } from "~/util/shared.ts"
 
-import process from "node:process"
-import { getBundle, KeyboardType } from "../types.ts"
+import { KeyboardType } from "../types.ts"
 
 export function derivePackageId() {
   const repo = builder.context.repo
@@ -185,31 +185,31 @@ export default async function keyboardDeploy({
   )
 }
 
-async function run() {
-  const payloadPath = await builder.getInput("payload-path", { required: true })
-  const keyboardType = (await builder.getInput("keyboard-type", {
-    required: true,
-  })) as KeyboardType
-  const override = await builder.getInput("bundle-path")
-  const bundlePath = await getBundle(override)
-  const channel = (await builder.getInput("channel")) || null
-  const pahkatRepo = await builder.getInput("repo", { required: true })
-  const packageId = derivePackageId()
+// async function run() {
+//   const payloadPath = await builder.getInput("payload-path", { required: true })
+//   const keyboardType = (await builder.getInput("keyboard-type", {
+//     required: true,
+//   })) as KeyboardType
+//   const override = await builder.getInput("bundle-path")
+//   const bundlePath = await getBundle(override)
+//   const channel = (await builder.getInput("channel")) || null
+//   const pahkatRepo = await builder.getInput("repo", { required: true })
+//   const packageId = derivePackageId()
 
-  await keyboardDeploy({
-    payloadPath,
-    keyboardType,
-    bundlePath,
-    channel,
-    pahkatRepo,
-    packageId,
-  })
-}
+//   await keyboardDeploy({
+//     payloadPath,
+//     keyboardType,
+//     bundlePath,
+//     channel,
+//     pahkatRepo,
+//     packageId,
+//   })
+// }
 
 // Writes the name and description fields to a json file
 // Returns the path to the json file or null if unsuccessful
 async function writeMetadataJson(bundlePath: string): Promise<string | null> {
-  const project = Kbdgen.loadProjectBundleWithoutProxy(bundlePath)
+  const project: any = Kbdgen.loadProjectBundleWithoutProxy(bundlePath)
   const locales = project.locales
   if (!locales) {
     return null
@@ -218,11 +218,4 @@ async function writeMetadataJson(bundlePath: string): Promise<string | null> {
   const metadataJsonPath = "./metadata.json"
   fs.writeFileSync(metadataJsonPath, localesJson, "utf8")
   return metadataJsonPath
-}
-
-if (builder.isGHA) {
-  run().catch((err) => {
-    console.error(err.stack)
-    process.exit(1)
-  })
 }

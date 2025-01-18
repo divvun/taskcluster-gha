@@ -1,5 +1,3 @@
-import process from "node:process"
-import * as builder from "~/builder.ts"
 import { Powershell } from "~/util/shared.ts"
 
 export type Props = {
@@ -16,17 +14,10 @@ export default async function enableLanguages({ tags }: Props) {
   await Powershell.runScript(script)
 }
 
-async function run() {
-  const tags = (await builder.getInput("tags", { required: true }))
-    .split(",")
-    .map((x) => x.trim())
+// async function run() {
+//   const tags = (await builder.getInput("tags", { required: true }))
+//     .split(",")
+//     .map((x) => x.trim())
 
-  await enableLanguages({ tags })
-}
-
-if (builder.isGHA) {
-  run().catch((err) => {
-    console.error(err.stack)
-    process.exit(1)
-  })
-}
+//   await enableLanguages({ tags })
+// }

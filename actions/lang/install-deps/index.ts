@@ -1,20 +1,19 @@
-import process from "node:process"
 import * as builder from "~/builder.ts"
 import { Apt, Pip, Pipx, ProjectJJ, Ssh } from "~/util/shared.ts"
 
-async function getSudo() {
-  const x = await builder.getInput("sudo")
+// async function getSudo() {
+//   const x = await builder.getInput("sudo")
 
-  if (x === "true") {
-    return true
-  }
+//   if (x === "true") {
+//     return true
+//   }
 
-  if (x === "false") {
-    return false
-  }
+//   if (x === "false") {
+//     return false
+//   }
 
-  throw new Error("invalid value: " + x)
-}
+//   throw new Error("invalid value: " + x)
+// }
 
 export type Props = {
   requiresSudo: boolean
@@ -72,16 +71,9 @@ export default async function langInstallDeps({
   await Ssh.cleanKnownHosts()
 }
 
-async function run() {
-  const requiresSudo = await getSudo()
-  const requiresApertium = !!(await builder.getInput("apertium"))
+// async function run() {
+//   const requiresSudo = await getSudo()
+//   const requiresApertium = !!(await builder.getInput("apertium"))
 
-  await langInstallDeps({ requiresSudo, requiresApertium })
-}
-
-if (builder.isGHA) {
-  run().catch((err) => {
-    console.error(err.stack)
-    process.exit(1)
-  })
-}
+//   await langInstallDeps({ requiresSudo, requiresApertium })
+// }

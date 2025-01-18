@@ -1,5 +1,4 @@
 import path from "node:path"
-import process from "node:process"
 import * as builder from "~/builder.ts"
 import { Tar } from "~/util/shared.ts"
 
@@ -26,15 +25,8 @@ export default async function createTxz({ filesPath }: Props): Promise<Output> {
   return { txzPath: outputTxz }
 }
 
-async function run() {
-  const filesPath = await builder.getInput("path", { required: true })
-  const { txzPath } = await createTxz({ filesPath })
-  await builder.setOutput("txz-path", txzPath)
-}
-
-if (builder.isGHA) {
-  run().catch((err) => {
-    console.error(err.stack)
-    process.exit(1)
-  })
-}
+// async function run() {
+//   const filesPath = await builder.getInput("path", { required: true })
+//   const { txzPath } = await createTxz({ filesPath })
+//   await builder.setOutput("txz-path", txzPath)
+// }

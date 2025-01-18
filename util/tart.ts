@@ -1,6 +1,5 @@
 import fs from "node:fs"
 import path from "node:path"
-import process from "node:process"
 import { exec, spawn } from "~/builder.ts"
 
 type TartStatus = {
@@ -95,16 +94,12 @@ export default class Tart {
 
     await Tart.run("runner", {
       workspace: realWorkingDir,
-      "divvun-actions": `${path.resolve(process.cwd())}:ro`,
+      "divvun-actions": `${path.resolve(Deno.cwd())}:ro`,
     })
 
     console.log("Running divvun-actions...")
     const cmd = `
-      "${Tart.DIVVUN_ACTIONS_PATH}/bin/divvun-actions" ${
-      process.argv
-        .slice(2)
-        .join(" ")
-    }
+      "${Tart.DIVVUN_ACTIONS_PATH}/bin/divvun-actions" ${Deno.args.join(" ")}
     `
 
     await Tart.exec("runner", cmd)
@@ -138,14 +133,14 @@ export default class Tart {
     await exec("ditto", [Tart.WORKSPACE_PATH, `/Volumes/${volName}`])
 
     console.log(`Entering virtual workspace (/Volumes/${volName})...`)
-    process.chdir(`/Volumes/${volName}`)
+    Deno.chdir(`/Volumes/${volName}`)
 
     return id
   }
 
   static async exitWorkspace(id: string) {
     console.log("Leaving virtual workspace...")
-    process.chdir("/")
+    Deno.chdir("/")
 
     const volName = `workspace-${id}`
     const imagePath = `/tmp/${volName}.sparseimage`

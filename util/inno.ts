@@ -26,6 +26,7 @@ function stringFromInnoFile(input: InnoFile): string {
 }
 
 export class InnoSetupBuilder {
+  // deno-lint-ignore no-explicit-any
   private data: { [key: string]: any } = {}
 
   name(input: string): InnoSetupBuilder {
@@ -147,6 +148,7 @@ export class InnoSetupBuilder {
       .map((x) => `${x[0]}=${x[1]}`)
       .join("\n")
 
+    // deno-lint-ignore no-explicit-any
     const iss: any = {
       setup,
       languages: INNO_LANGUAGES_SECTION,
@@ -173,7 +175,7 @@ export class InnoSetupBuilder {
     }
 
     if (run != null) {
-      var runScript = ""
+      let runScript = ""
       for (const runBuilder of run) {
         runScript += `${runBuilder.build()}\n`
       }
@@ -181,7 +183,7 @@ export class InnoSetupBuilder {
     }
 
     if (uninstallRun != null) {
-      var uninstallRunScript = ""
+      let uninstallRunScript = ""
       for (const uninstallRunBuilder of uninstallRun) {
         uninstallRunScript += `${uninstallRunBuilder.build()}\n`
       }
@@ -189,7 +191,7 @@ export class InnoSetupBuilder {
     }
 
     if (icons != null) {
-      var iconsScript = ""
+      let iconsScript = ""
       for (const iconsBuilder of icons) {
         iconsScript += `${iconsBuilder.build()}\n`
       }
@@ -306,7 +308,7 @@ begin
     end;
 end;
 
-function PrepareToInstall(var NeedsRestart: Boolean): String;
+function PrepareToInstall(let NeedsRestart: Boolean): String;
 begin
     Result := RunPreInstall();
 end;
@@ -515,14 +517,14 @@ class InnoCommandBuilder {
   }
 
   build(): string {
-    var parameters = this.parameters.join(" ")
-    var ret = ""
+    const parameters = this.parameters.join(" ")
+    let ret = ""
     if (this.name) {
       ret += `Name: ${this.name}; `
     }
     ret += `Filename: ${this.executableName}; Parameters: "${parameters}"`
     if (this.flags) {
-      var flags = this.flags.join(" ")
+      const flags = this.flags.join(" ")
       ret += `; Flags: ${flags}`
     }
     return ret

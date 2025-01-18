@@ -1,5 +1,3 @@
-import process from "node:process"
-import * as builder from "~/builder.ts"
 import { makeInstaller } from "./lib.ts"
 
 export type Props = {
@@ -30,21 +28,14 @@ export default async function innoSetup(props: Props) {
   }
 }
 
-async function run() {
-  const issPath = await builder.getInput("path", { required: true })
-  const rawDefines = await builder.getInput("defines")
+// async function run() {
+//   const issPath = await builder.getInput("path", { required: true })
+//   const rawDefines = await builder.getInput("defines")
 
-  const { installerPath } = await innoSetup({
-    path: issPath,
-    defines: rawDefines.split(" "),
-  })
+//   const { installerPath } = await innoSetup({
+//     path: issPath,
+//     defines: rawDefines.split(" "),
+//   })
 
-  await builder.setOutput("installer-path", installerPath)
-}
-
-if (builder.isGHA) {
-  run().catch((err) => {
-    console.error(err.stack)
-    process.exit(1)
-  })
-}
+//   await builder.setOutput("installer-path", installerPath)
+// }

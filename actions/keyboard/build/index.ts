@@ -1,9 +1,8 @@
 import path from "node:path"
-import process from "node:process"
 import * as builder from "~/builder.ts"
 import { isMatchingTag, Kbdgen, PahkatPrefix } from "~/util/shared.ts"
 import { makeInstaller } from "../../inno-setup/lib.ts"
-import { getBundle, KeyboardType } from "../types.ts"
+import { KeyboardType } from "../types.ts"
 import { generateKbdInnoFromBundle } from "./iss.ts"
 
 // Taken straight from semver.org, with added 'v'
@@ -96,31 +95,24 @@ export default async function keyboardBuild({
   }
 }
 
-async function run() {
-  const keyboardType = (await builder.getInput("keyboard-type", {
-    required: true,
-  })) as KeyboardType
-  const nightlyChannel = await builder.getInput("nightly-channel", {
-    required: true,
-  })
-  const override = await builder.getInput("bundle-path")
-  const bundlePath = await getBundle(override)
+// async function run() {
+//   const keyboardType = (await builder.getInput("keyboard-type", {
+//     required: true,
+//   })) as KeyboardType
+//   const nightlyChannel = await builder.getInput("nightly-channel", {
+//     required: true,
+//   })
+//   const override = await builder.getInput("bundle-path")
+//   const bundlePath = await getBundle(override)
 
-  const output = await keyboardBuild({
-    keyboardType,
-    nightlyChannel,
-    bundlePath,
-  })
+//   const output = await keyboardBuild({
+//     keyboardType,
+//     nightlyChannel,
+//     bundlePath,
+//   })
 
-  if (output.channel != null) {
-    await builder.setOutput("channel", output.channel)
-  }
-  await builder.setOutput("payload-path", output.payloadPath)
-}
-
-if (builder.isGHA) {
-  run().catch((err) => {
-    console.error(err.stack)
-    process.exit(1)
-  })
-}
+//   if (output.channel != null) {
+//     await builder.setOutput("channel", output.channel)
+//   }
+//   await builder.setOutput("payload-path", output.payloadPath)
+// }

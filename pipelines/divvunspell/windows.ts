@@ -1,3 +1,4 @@
+// deno-lint-ignore-file no-explicit-any ban-types
 import createTxz from "~/actions/create-txz/index.ts"
 import doDeploy, { PackageType } from "~/actions/deploy/index.ts"
 import pahkatInit from "~/actions/pahkat/init/index.ts"
@@ -37,7 +38,7 @@ const STEPS: Map<string, any> = new Map([
 function recurseDependsOn(
   input: Function,
 ) {
-  let out: Function[] = [input]
+  const out: Function[] = [input]
 
   function inner(
     input: Function,
@@ -48,6 +49,8 @@ function recurseDependsOn(
       inner(dep, out)
     }
   }
+
+  inner(input, out)
 
   out.reverse()
 

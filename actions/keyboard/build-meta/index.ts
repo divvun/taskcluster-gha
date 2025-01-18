@@ -1,4 +1,3 @@
-import process from "node:process"
 import * as builder from "~/builder.ts"
 import { Kbdgen } from "~/util/shared.ts"
 import { KeyboardType } from "../types.ts"
@@ -6,6 +5,10 @@ import { KeyboardType } from "../types.ts"
 export type Props = {
   keyboardType: KeyboardType
   bundlePath: string
+}
+
+export type Output = {
+  payloadPath: string
 }
 
 export default async function keyboardBuildMeta({
@@ -46,20 +49,15 @@ export default async function keyboardBuildMeta({
   // In general, this will be unused, because iOS and Android builds are
   // submitted directly to their respective app stores.
   // await builder.setOutput("payload-path", payloadPath)
+
+  return { payloadPath }
 }
 
-async function run() {
-  const keyboardType = (await builder.getInput("keyboard-type", {
-    required: true,
-  })) as KeyboardType
-  const bundlePath = await builder.getInput("bundle-path", { required: true })
+// async function run() {
+//   const keyboardType = (await builder.getInput("keyboard-type", {
+//     required: true,
+//   })) as KeyboardType
+//   const bundlePath = await builder.getInput("bundle-path", { required: true })
 
-  await keyboardBuildMeta({ keyboardType, bundlePath })
-}
-
-if (builder.isGHA) {
-  run().catch((err) => {
-    console.error(err.stack)
-    process.exit(1)
-  })
-}
+//   await keyboardBuildMeta({ keyboardType, bundlePath })
+// }

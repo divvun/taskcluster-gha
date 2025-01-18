@@ -2,17 +2,10 @@ import * as toml from "@std/toml"
 import fs from "node:fs"
 import path from "node:path"
 
-import process from "node:process"
 import { makeInstaller } from "~/actions/inno-setup/lib.ts"
 import * as builder from "~/builder.ts"
 import { InnoSetupBuilder } from "~/util/inno.ts"
-import {
-  DivvunBundler,
-  nonUndefinedProxy,
-  SpellerPaths,
-  Tar,
-  ThfstTools,
-} from "~/util/shared.ts"
+import { DivvunBundler, SpellerPaths, Tar, ThfstTools } from "~/util/shared.ts"
 import {
   deriveLangTag,
   derivePackageId,
@@ -159,34 +152,27 @@ export default async function spellerBundle({
   }
 }
 
-async function run() {
-  const version = await builder.getInput("version", { required: true })
-  const spellerType = (await builder.getInput("speller-type", {
-    required: true,
-  })) as SpellerType
-  const manifest = toml.parse(
-    fs.readFileSync(
-      await builder.getInput("speller-manifest-path", { required: true }),
-      "utf8",
-    ),
-  ) as SpellerManifest
-  const spellerPaths = nonUndefinedProxy(
-    JSON.parse(await builder.getInput("speller-paths", { required: true })),
-    true,
-  ) as SpellerPaths
+// async function run() {
+//   const version = await builder.getInput("version", { required: true })
+//   const spellerType = (await builder.getInput("speller-type", {
+//     required: true,
+//   })) as SpellerType
+//   const manifest = toml.parse(
+//     fs.readFileSync(
+//       await builder.getInput("speller-manifest-path", { required: true }),
+//       "utf8",
+//     ),
+//   ) as SpellerManifest
+//   const spellerPaths = nonUndefinedProxy(
+//     JSON.parse(await builder.getInput("speller-paths", { required: true })),
+//     true,
+//   ) as SpellerPaths
 
-  const { payloadPath } = await spellerBundle({
-    version,
-    spellerType,
-    manifest,
-    spellerPaths,
-  })
-  await builder.setOutput("payload-path", payloadPath)
-}
-
-if (builder.isGHA) {
-  run().catch((err) => {
-    console.error(err.stack)
-    process.exit(1)
-  })
-}
+//   const { payloadPath } = await spellerBundle({
+//     version,
+//     spellerType,
+//     manifest,
+//     spellerPaths,
+//   })
+//   await builder.setOutput("payload-path", payloadPath)
+// }

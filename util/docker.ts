@@ -1,8 +1,7 @@
-import { which } from "@david/which.ts"
-import { exists } from "@std/fs.ts"
+import { which } from "@david/which"
+import { exists } from "@std/fs"
 import os from "node:os"
 import path from "node:path"
-import process from "node:process"
 import { exec } from "~/builder.ts"
 import { Powershell } from "./shared.ts"
 
@@ -12,14 +11,14 @@ export default class Docker {
   )
 
   static async isInContainer() {
-    if (process.platform === "win32") {
+    if (Deno.build.os === "windows") {
       return await exists("C:\\actions") && await exists("C:\\workspace")
     }
     return await exists("/actions") && await exists("/workspace")
   }
 
   static async enterEnvironment(image: string, workingDir: string) {
-    if (process.platform === "win32") {
+    if (Deno.build.os === "windows") {
       const dockerPath = await which("docker.exe")
 
       if (dockerPath == null) {
@@ -77,7 +76,7 @@ export default class Docker {
     await Deno.mkdir(imagePath)
 
     console.log("Copying workspace...")
-    if (process.platform === "win32") {
+    if (Deno.build.os === "windows") {
       await Powershell.runScript(
         `Copy-Item -Path C:\\workspace\\* -Destination ${imagePath} -Recurse -Force`,
       )
@@ -86,7 +85,7 @@ export default class Docker {
     }
 
     console.log(`Entering virtual workspace (${imagePath})...`)
-    process.chdir(imagePath)
+    Deno.chdir(imagePath)
 
     return id
   }
@@ -97,7 +96,7 @@ export default class Docker {
     const imagePath = path.join(tmpDir, volName)
 
     console.log(`Exiting virtual workspace (${imagePath})...`)
-    process.chdir(os.homedir())
+    Deno.chdir(os.homedir())
 
     console.log("Removing workspace...")
     await Deno.remove(imagePath, { recursive: true })

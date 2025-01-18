@@ -1,3 +1,5 @@
+import type { Buffer } from "node:buffer"
+
 export type ExecListeners = {
   /** A call back for each buffer of stdout */
   stdout?: (data: Buffer) => void
@@ -41,10 +43,6 @@ export type CopyOptions = {
   force?: boolean
   /** Optional. Whether to copy the source directory along with all the files. Only takes effect when recursive=true and copying a directory. Default is true*/
   copySourceDirectory?: boolean
-}
-
-export function cp(source: string, dest: string, options?: CopyOptions) {
-  return actionsIo.cp(source, dest, options)
 }
 
 export type GlobOptions = {

@@ -1,46 +1,37 @@
-import fs from "node:fs"
-import path from "node:path"
+// deno-lint-ignore-file no-explicit-any
 
-import * as toml from "@std/toml"
-import process from "node:process"
-import { SpellerManifest } from "~/actions/speller/manifest.ts"
 import * as builder from "~/builder.ts"
-import {
-  Bash,
-  isMatchingTag,
-  nonUndefinedProxy,
-  versionAsNightly,
-} from "~/util/shared.ts"
+import { Bash, versionAsNightly } from "~/util/shared.ts"
 
-async function getCargoToml(cargo: string | null) {
-  if (cargo == null) {
-    return null
-  }
+// async function getCargoToml(cargo: string | null) {
+//   if (cargo == null) {
+//     return null
+//   }
 
-  if (cargo === "true") {
-    return nonUndefinedProxy(
-      toml.parse(fs.readFileSync("./Cargo.toml", "utf8")),
-    )
-  }
+//   if (cargo === "true") {
+//     return nonUndefinedProxy(
+//       toml.parse(fs.readFileSync("./Cargo.toml", "utf8")),
+//     )
+//   }
 
-  return nonUndefinedProxy(toml.parse(fs.readFileSync(cargo, "utf8")))
-}
+//   return nonUndefinedProxy(toml.parse(fs.readFileSync(cargo, "utf8")))
+// }
 
-async function getSpellerManifestToml(
-  manifest: string | null,
-): Promise<SpellerManifest | null> {
-  if (manifest == null) {
-    return null
-  }
+// async function getSpellerManifestToml(
+//   manifest: string | null,
+// ): Promise<SpellerManifest | null> {
+//   if (manifest == null) {
+//     return null
+//   }
 
-  if (manifest === "true") {
-    return nonUndefinedProxy(
-      toml.parse(fs.readFileSync("./manifest.toml", "utf8")),
-    )
-  }
+//   if (manifest === "true") {
+//     return nonUndefinedProxy(
+//       toml.parse(fs.readFileSync("./manifest.toml", "utf8")),
+//     )
+//   }
 
-  return nonUndefinedProxy(toml.parse(fs.readFileSync(manifest, "utf8")))
-}
+//   return nonUndefinedProxy(toml.parse(fs.readFileSync(manifest, "utf8")))
+// }
 
 async function getXcodeMarketingVersion(input: string | null) {
   let cwd
@@ -57,29 +48,29 @@ async function getXcodeMarketingVersion(input: string | null) {
 }
 
 // Taken straight from semver.org, with added 'v'
-const SEMVER_TAG_RE =
-  /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
+// const SEMVER_TAG_RE =
+//   /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
 
-function deriveNightly(): boolean {
-  return !isMatchingTag(SEMVER_TAG_RE)
-}
+// function deriveNightly(): boolean {
+//   return !isMatchingTag(SEMVER_TAG_RE)
+// }
 
-async function getPlistPath(plistPath: string | null) {
-  if (plistPath == null) {
-    return null
-  }
+// async function getPlistPath(plistPath: string | null) {
+//   if (plistPath == null) {
+//     return null
+//   }
 
-  return path.resolve(plistPath)
-}
+//   return path.resolve(plistPath)
+// }
 
-async function getVersionFromFile(filePath: string | null) {
-  if (filePath == null) {
-    return null
-  }
+// async function getVersionFromFile(filePath: string | null) {
+//   if (filePath == null) {
+//     return null
+//   }
 
-  const version = fs.readFileSync(path.resolve(filePath), "utf-8").trimEnd()
-  return version
-}
+//   const version = fs.readFileSync(path.resolve(filePath), "utf-8").trimEnd()
+//   return version
+// }
 
 export type Props = {
   isXcode?: string | null
@@ -94,40 +85,40 @@ export type Props = {
 
 const NIGHTLY_CHANNEL = "nightly"
 
-async function run() {
-  const isXcode = (await builder.getInput("xcode")) || null
-  const isNightly = deriveNightly()
-  const cargoToml = await getCargoToml(await builder.getInput("cargo"))
-  const spellerManifest = await getSpellerManifestToml(
-    await builder.getInput("speller-manifest"),
-  )
-  const plistPath = await getPlistPath(await builder.getInput("plist"))
-  const csharp = (await builder.getInput("csharp")) || null
-  const versionFromFile = await getVersionFromFile(
-    await builder.getInput("filepath"),
-  )
-  const instaStable = Boolean(await builder.getInput("insta-stable")) || false
-  // const nightlyChannel = await builder.getInput("nightly-channel", {
-  //   required: true,
-  // })
+// async function run() {
+//   const isXcode = (await builder.getInput("xcode")) || null
+//   const isNightly = deriveNightly()
+//   const cargoToml = await getCargoToml(await builder.getInput("cargo"))
+//   const spellerManifest = await getSpellerManifestToml(
+//     await builder.getInput("speller-manifest"),
+//   )
+//   const plistPath = await getPlistPath(await builder.getInput("plist"))
+//   const csharp = (await builder.getInput("csharp")) || null
+//   const versionFromFile = await getVersionFromFile(
+//     await builder.getInput("filepath"),
+//   )
+//   const instaStable = Boolean(await builder.getInput("insta-stable")) || false
+//   // const nightlyChannel = await builder.getInput("nightly-channel", {
+//   //   required: true,
+//   // })
 
-  const { channel, version: v } = await version({
-    isXcode,
-    isNightly,
-    cargoToml,
-    spellerManifest,
-    plistPath,
-    csharp,
-    versionFromFile,
-    instaStable,
-  })
+//   const { channel, version: v } = await version({
+//     isXcode,
+//     isNightly,
+//     cargoToml,
+//     spellerManifest,
+//     plistPath,
+//     csharp,
+//     versionFromFile,
+//     instaStable,
+//   })
 
-  if (channel != null) {
-    await builder.setOutput("channel", channel)
-  }
+//   if (channel != null) {
+//     await builder.setOutput("channel", channel)
+//   }
 
-  await builder.setOutput("version", v)
-}
+//   await builder.setOutput("version", v)
+// }
 
 export type Output = {
   version: string
@@ -206,11 +197,4 @@ export default async function version({
   // await builder.setOutput("version", version)
 
   return { channel, version }
-}
-
-if (builder.isGHA) {
-  run().catch((err) => {
-    console.error(err.stack)
-    process.exit(1)
-  })
 }

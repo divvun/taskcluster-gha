@@ -1,7 +1,7 @@
+// deno-lint-ignore-file no-explicit-any
 import * as toml from "@std/toml"
 import fs from "node:fs"
 import path from "node:path"
-import process from "node:process"
 import * as builder from "~/builder.ts"
 import {
   getArtifactSize,
@@ -207,37 +207,30 @@ export default async function spellerDeploy({
   }
 }
 
-async function run() {
-  const spellerType = (await builder.getInput("speller-type", {
-    required: true,
-  })) as SpellerType
-  const manifestPath = await builder.getInput("speller-manifest-path", {
-    required: true,
-  })
-  const payloadPath = await builder.getInput("payload-path", {
-    required: true,
-  })
-  const version = await builder.getInput("version", { required: true })
-  const channel = (await builder.getInput("channel")) || null
-  const nightlyChannel = await builder.getInput("nightly-channel", {
-    required: true,
-  })
-  const pahkatRepo = await builder.getInput("repo", { required: true })
+// async function run() {
+//   const spellerType = (await builder.getInput("speller-type", {
+//     required: true,
+//   })) as SpellerType
+//   const manifestPath = await builder.getInput("speller-manifest-path", {
+//     required: true,
+//   })
+//   const payloadPath = await builder.getInput("payload-path", {
+//     required: true,
+//   })
+//   const version = await builder.getInput("version", { required: true })
+//   const channel = (await builder.getInput("channel")) || null
+//   const nightlyChannel = await builder.getInput("nightly-channel", {
+//     required: true,
+//   })
+//   const pahkatRepo = await builder.getInput("repo", { required: true })
 
-  await spellerDeploy({
-    spellerType,
-    manifestPath,
-    payloadPath,
-    version,
-    channel,
-    nightlyChannel,
-    pahkatRepo,
-  })
-}
-
-if (builder.isGHA) {
-  run().catch((err) => {
-    console.error(err.stack)
-    process.exit(1)
-  })
-}
+//   await spellerDeploy({
+//     spellerType,
+//     manifestPath,
+//     payloadPath,
+//     version,
+//     channel,
+//     nightlyChannel,
+//     pahkatRepo,
+//   })
+// }

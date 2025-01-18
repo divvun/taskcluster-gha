@@ -1,38 +1,25 @@
-#!/usr/bin/env node
+// deno-lint-ignore-file no-explicit-any
 
 import { Command } from "commander"
-import PrettyError from "pretty-error"
 import * as builder from "~/builder.ts"
 // import { version } from "./package.json" with { "type": "json" };
 
-import process from "node:process"
 import divvunspellLinux from "./pipelines/divvunspell/linux.ts"
 import divvunspellMacos from "./pipelines/divvunspell/macos.ts"
 import divvunspellWindows from "./pipelines/divvunspell/windows.ts"
-import Docker from "./util/docker"
-import Tart from "./util/tart"
-
-const pe = new PrettyError()
-pe.skipNodeFiles()
-pe.skipPackage("commander")
-pe.skip((x) => {
-  return (
-    x.what === "Command.<anonymous>" ||
-    x.what.startsWith("node:") ||
-    x.what === "child_process"
-  )
-})
+import Docker from "./util/docker.ts"
+import Tart from "./util/tart.ts"
 
 function prettyPlatform() {
-  switch (process.platform) {
+  switch (Deno.build.os) {
     case "darwin":
       return "macos"
-    case "win32":
+    case "windows":
       return "windows"
     case "linux":
       return "linux"
     default:
-      return `unsupported: ${process.platform}`
+      return `unsupported: ${Deno.build.os}`
   }
 }
 
@@ -44,9 +31,9 @@ console.log(
 
 const program = new Command()
 
-globalThis.addEventListener("unhandledRejection", (err: Error) => {
-  console.error(pe.render(err))
-  process.exit(1)
+globalThis.addEventListener("unhandledRejection", (err) => {
+  console.error(err)
+  Deno.exit(1)
 })
 
 program
@@ -204,28 +191,32 @@ divvunspell
   .option("--divvun-key <key>", "Divvun key for authentication")
   .option("--skip-setup", "Skip setup step")
   .option("--ignore-dependencies", "Ignore step dependencies", false)
-  .action(async (options) => {
-    const { divvunKey, skipSetup, ignoreDependencies } = options
-    const platform = divvunspell.opts().platform.toLowerCase()
-    const props = { divvunKey, skipSetup, ignoreDependencies }
+  .action(
+    async (
+      options: { divvunKey: any; skipSetup: any; ignoreDependencies: any },
+    ) => {
+      const { divvunKey, skipSetup, ignoreDependencies } = options
+      const platform = divvunspell.opts().platform.toLowerCase()
+      const props = { divvunKey, skipSetup, ignoreDependencies }
 
-    await enterEnvironment(platform, async () => {
-      switch (platform) {
-        case "macos":
-          await divvunspellMacos("build", props)
-          break
-        case "linux":
-          await divvunspellLinux("build", props)
-          break
-        case "windows":
-          await divvunspellWindows("build", props)
-          break
-        default:
-          console.error("Unsupported platform. Use 'macos' or 'linux'")
-          process.exit(1)
-      }
-    })
-  })
+      await enterEnvironment(platform, async () => {
+        switch (platform) {
+          case "macos":
+            await divvunspellMacos("build", props)
+            break
+          case "linux":
+            await divvunspellLinux("build", props)
+            break
+          case "windows":
+            await divvunspellWindows("build", props)
+            break
+          default:
+            console.error("Unsupported platform. Use 'macos' or 'linux'")
+            Deno.exit(1)
+        }
+      })
+    },
+  )
 
 divvunspell
   .command("setup")
@@ -234,19 +225,28 @@ divvunspell
   .option("--skip-setup", "Skip setup step", false)
   .option("--skip-signing", "Skip signing step", false)
   .option("--ignore-dependencies", "Ignore step dependencies", false)
-  .action(async (options) => {
-    await divvunspellMacos(
-      "setup",
-      {
-        divvunKey: options.divvunKey,
-        skipSetup: options.skipSetup,
-        skipSigning: options.skipSigning,
+  .action(
+    async (
+      options: {
+        divvunKey: any
+        skipSetup: any
+        skipSigning: any
+        ignoreDependencies: any
       },
-      {
-        ignoreDependencies: options.ignoreDependencies,
-      },
-    )
-  })
+    ) => {
+      await divvunspellMacos(
+        "setup",
+        {
+          divvunKey: options.divvunKey,
+          skipSetup: options.skipSetup,
+          skipSigning: options.skipSigning,
+        },
+        {
+          ignoreDependencies: options.ignoreDependencies,
+        },
+      )
+    },
+  )
 
 divvunspell
   .command("codesign")
@@ -255,19 +255,28 @@ divvunspell
   .option("--skip-setup", "Skip setup step", false)
   .option("--skip-signing", "Skip signing step", false)
   .option("--ignore-dependencies", "Ignore step dependencies", false)
-  .action(async (options) => {
-    await divvunspellMacos(
-      "codesign",
-      {
-        divvunKey: options.divvunKey,
-        skipSetup: options.skipSetup,
-        skipSigning: options.skipSigning,
+  .action(
+    async (
+      options: {
+        divvunKey: any
+        skipSetup: any
+        skipSigning: any
+        ignoreDependencies: any
       },
-      {
-        ignoreDependencies: options.ignoreDependencies,
-      },
-    )
-  })
+    ) => {
+      await divvunspellMacos(
+        "codesign",
+        {
+          divvunKey: options.divvunKey,
+          skipSetup: options.skipSetup,
+          skipSigning: options.skipSigning,
+        },
+        {
+          ignoreDependencies: options.ignoreDependencies,
+        },
+      )
+    },
+  )
 
 divvunspell
   .command("tarball")
@@ -276,30 +285,39 @@ divvunspell
   .option("--skip-setup", "Skip setup step", false)
   .option("--skip-signing", "Skip signing step", false)
   .option("--ignore-dependencies", "Ignore step dependencies", false)
-  .action(async (options) => {
-    await divvunspellMacos(
-      "tarball",
-      {
-        divvunKey: options.divvunKey,
-        skipSetup: options.skipSetup,
-        skipSigning: options.skipSigning,
+  .action(
+    async (
+      options: {
+        divvunKey: any
+        skipSetup: any
+        skipSigning: any
+        ignoreDependencies: any
       },
-      {
-        ignoreDependencies: options.ignoreDependencies,
-      },
-    )
-  })
+    ) => {
+      await divvunspellMacos(
+        "tarball",
+        {
+          divvunKey: options.divvunKey,
+          skipSetup: options.skipSetup,
+          skipSigning: options.skipSigning,
+        },
+        {
+          ignoreDependencies: options.ignoreDependencies,
+        },
+      )
+    },
+  )
 
 async function enterEnvironment(
   platform: string,
   callback: () => Promise<void>,
 ) {
-  const workingDir = Deno.env.get("_DIVVUN_ACTIONS_PWD")
+  const workingDir = Deno.env.get("_DIVVUN_ACTIONS_PWD")!
   let id: string | undefined = undefined
 
   switch (platform) {
     case "macos": {
-      if (process.platform === "darwin") {
+      if (Deno.build.os === "darwin") {
         const isInVirtualMachine = Tart.isInVirtualMachine()
 
         if (!isInVirtualMachine) {
@@ -329,7 +347,7 @@ async function enterEnvironment(
     }
     default:
       console.error(`Unsupported platform: ${platform}`)
-      process.exit(1)
+      Deno.exit(1)
   }
 
   try {
@@ -357,11 +375,10 @@ async function enterEnvironment(
 
 async function localMain() {
   const realWorkingDir = Deno.env.get("_DIVVUN_ACTIONS_PWD")
-  let id: string | undefined = undefined
 
   if (realWorkingDir == null) {
     console.error("index.ts cannot be run directly.")
-    process.exit(1)
+    Deno.exit(1)
   }
 
   console.log(Deno.args)
@@ -380,8 +397,8 @@ async function main() {
 }
 
 main()
-  .then(() => process.exit(0))
+  .then(() => Deno.exit(0))
   .catch((e) => {
     console.error(e)
-    process.exit(1)
+    Deno.exit(1)
   })

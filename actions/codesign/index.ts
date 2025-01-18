@@ -1,7 +1,6 @@
 import fs from "node:fs"
 import path from "node:path"
 
-import process from "node:process"
 import * as builder from "~/builder.ts"
 import { Bash, secrets } from "~/util/shared.ts"
 
@@ -14,17 +13,17 @@ export type Output = {
   signedPath: string | null
 }
 
-async function run() {
-  const filePath = path.resolve(
-    await builder.getInput("path", { required: true }),
-  )
-  const isInstaller = Boolean(await builder.getInput("isInstaller")) || false
-  const { signedPath } = await codesign({ filePath, isInstaller })
+// async function run() {
+//   const filePath = path.resolve(
+//     await builder.getInput("path", { required: true }),
+//   )
+//   const isInstaller = Boolean(await builder.getInput("isInstaller")) || false
+//   const { signedPath } = await codesign({ filePath, isInstaller })
 
-  if (signedPath != null) {
-    await builder.setOutput("signed-path", signedPath)
-  }
-}
+//   if (signedPath != null) {
+//     await builder.setOutput("signed-path", signedPath)
+//   }
+// }
 
 export default async function codesign({
   filePath,
@@ -34,7 +33,7 @@ export default async function codesign({
 
   let signedPath: string | null = null
 
-  if (process.platform == "win32") {
+  if (Deno.build.os == "windows") {
     builder.debug("  Windows platform")
     // Call our internal API to sign the file
     // This overwrites the unsigned file
@@ -49,7 +48,7 @@ export default async function codesign({
       `${filePath}`,
     ])
     signedPath = filePath
-  } else if (process.platform === "darwin") {
+  } else if (Deno.build.os === "darwin") {
     const {
       developerAccount,
       appPassword,
@@ -108,11 +107,4 @@ xcrun notarytool submit -v \
   }
 
   return { signedPath }
-}
-
-if (builder.isGHA) {
-  run().catch((err) => {
-    console.error(err.stack)
-    process.exit(1)
-  })
 }

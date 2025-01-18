@@ -1,10 +1,10 @@
+// deno-lint-ignore-file no-explicit-any
 import * as fs from "node:fs"
 import path from "node:path"
 import * as builder from "~/builder.ts"
 import { downloadAppleDevIdCA, Security } from "~/util/security.ts"
 
 import { Buffer } from "node:buffer"
-import process from "node:process"
 import {
   Bash,
   divvunConfigDir,
@@ -124,7 +124,7 @@ export default async function setup({ divvunKey }: Props) {
 
     await cloneConfigRepo(divvunKey)
 
-    if (process.platform == "darwin") {
+    if (Deno.build.os == "darwin") {
       await setupMacOSKeychain()
     }
 
@@ -135,14 +135,7 @@ export default async function setup({ divvunKey }: Props) {
   }
 }
 
-async function run() {
-  const divvunKey = await builder.getInput("key", { required: true })
-  await setup({ divvunKey })
-}
-
-if (builder.isGHA) {
-  run().catch((err) => {
-    console.error(err.stack)
-    process.exit(1)
-  })
-}
+// async function run() {
+//   const divvunKey = await builder.getInput("key", { required: true })
+//   await setup({ divvunKey })
+// }

@@ -1,3 +1,4 @@
+// deno-lint-ignore-file require-await
 import fs from "node:fs"
 
 export enum KeyboardType {
