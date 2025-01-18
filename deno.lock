@@ -371,8 +371,7 @@
       "jsr:@std/fs@^1.0.9",
       "jsr:@std/toml@^1.0.2",
       "jsr:@std/uuid@^1.0.4",
-      "jsr:@std/yaml@^1.0.5",
-      "jsr:case@2.2.0"
+      "jsr:@std/yaml@^1.0.5"
     ]
   }
 }
