@@ -85,6 +85,10 @@ export async function exec(
   return status.code
 }
 
+export async function addPath() {
+  throw new Error("Add path is not available in Buildkite")
+}
+
 export async function downloadTool(
   _url: string,
   _dest?: string,

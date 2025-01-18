@@ -1,5 +1,5 @@
 import { which } from "@david/which"
-import { exists } from "@std/fs"
+import * as fs from "@std/fs"
 import * as path from "@std/path"
 import { exec } from "~/builder.ts"
 import { Powershell } from "./shared.ts"
@@ -11,9 +11,9 @@ export default class Docker {
 
   static async isInContainer() {
     if (Deno.build.os === "windows") {
-      return await exists("C:\\actions") && await exists("C:\\workspace")
+      return await fs.exists("C:\\actions") && await fs.exists("C:\\workspace")
     }
-    return await exists("/actions") && await exists("/workspace")
+    return await fs.exists("/actions") && await fs.exists("/workspace")
   }
 
   static async enterEnvironment(image: string, workingDir: string) {
@@ -91,11 +91,11 @@ export default class Docker {
 
   static async exitWorkspace(id: string) {
     const volName = `workspace-${id}`
-    const tmpDir = os.tmpdir()
+    const tmpDir = await Deno.makeTempDir()
     const imagePath = path.join(tmpDir, volName)
 
     console.log(`Exiting virtual workspace (${imagePath})...`)
-    Deno.chdir(os.homedir())
+    Deno.chdir(Deno.env.get("HOME")!)
 
     console.log("Removing workspace...")
     await Deno.remove(imagePath, { recursive: true })

@@ -1,4 +1,8 @@
 // deno-lint-ignore-file require-await no-explicit-any
+import { crypto } from "@std/crypto"
+import { encodeBase64 } from "@std/encoding/base64"
+import { encodeHex } from "@std/encoding/hex"
+import * as fs from "@std/fs"
 import * as path from "@std/path"
 import * as yaml from "@std/yaml"
 import * as builder from "~/builder.ts"
@@ -17,14 +21,12 @@ export function divvunConfigDir() {
   return path.resolve(tmpDir(), "divvun-ci-config")
 }
 
-// Generates a random string of 64 characters in length (48 bytes converted to base64)
 export function randomString64() {
-  // Replace slashes just in case bad things in the terminal
-  return crypto.randomBytes(48).toString("base64")
+  return encodeBase64(crypto.getRandomValues(new Uint8Array(48)))
 }
 
 export function randomHexBytes(count: number) {
-  return crypto.randomBytes(count).toString("hex")
+  return encodeHex(crypto.getRandomValues(new Uint8Array(count)))
 }
 
 export const DIVVUN_PFX =
@@ -306,9 +308,9 @@ export class PahkatPrefix {
     builder.addPath(binPath)
 
     // Init the repo
-    if (fs.existsSync(PahkatPrefix.path)) {
+    if (await fs.exists(PahkatPrefix.path)) {
       builder.debug(`${PahkatPrefix.path} exists; deleting first.`)
-      fs.rmdirSync(PahkatPrefix.path, { recursive: true })
+      await Deno.remove(PahkatPrefix.path, { recursive: true })
     }
     await DefaultShell.runScript(`pahkat-prefix init -c ${PahkatPrefix.path}`)
   }
@@ -406,7 +408,7 @@ export class PahkatUploader {
       return
     }
 
-    if (!fs.existsSync(releaseMetadataPath)) {
+    if (!await fs.exists(releaseMetadataPath)) {
       throw new Error(
         `Missing required payload manifest at path ${releaseMetadataPath}`,
       )
@@ -1195,7 +1197,7 @@ export function isMatchingTag(tagPattern: RegExp) {
 
 export function getArtifactSize(path: string): number {
   try {
-    const stats = fs.statSync(path)
+    const stats = Deno.statSync(path)
     return stats.size
   } catch (_) {
     return 0

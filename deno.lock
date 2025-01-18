@@ -5,6 +5,7 @@
     "jsr:@std/bytes@^1.0.2": "1.0.4",
     "jsr:@std/collections@^1.0.9": "1.0.9",
     "jsr:@std/crypto@^1.0.3": "1.0.3",
+    "jsr:@std/encoding@*": "1.0.6",
     "jsr:@std/encoding@^1.0.6": "1.0.6",
     "jsr:@std/fs@^1.0.9": "1.0.9",
     "jsr:@std/path@^1.0.8": "1.0.8",
@@ -372,6 +373,7 @@
   "workspace": {
     "dependencies": [
       "jsr:@david/which@~0.4.1",
+      "jsr:@std/crypto@^1.0.3",
       "jsr:@std/encoding@^1.0.6",
       "jsr:@std/fs@^1.0.9",
       "jsr:@std/path@^1.0.8",

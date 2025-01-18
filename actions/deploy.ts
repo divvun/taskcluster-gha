@@ -179,7 +179,7 @@ export default async function deploy({
       requiresReboot,
       targets,
     )
-    await Deno.writeTextFile("./metadata.toml", data, "utf8")
+    await Deno.writeTextFile("./metadata.toml", data)
   } else if (props.packageType === PackageType.WindowsExecutable) {
     const { productCode: rawProductCode, kind, requiresReboot } = props
 
@@ -208,7 +208,7 @@ export default async function deploy({
       productCode,
       requiresReboot,
     )
-    await Deno.writeTextFile("./metadata.toml", data, "utf8")
+    await Deno.writeTextFile("./metadata.toml", data)
   } else if (props.packageType === PackageType.TarballPackage) {
     const data = await PahkatUploader.release.tarballPackage(
       releaseReq,
@@ -216,7 +216,7 @@ export default async function deploy({
       1,
       artifactSize,
     )
-    await Deno.writeTextFile("./metadata.toml", data, "utf8")
+    await Deno.writeTextFile("./metadata.toml", data)
   } else {
     // deno-lint-ignore no-explicit-any
     throw new Error(`Unhandled package type: '${(props as any).packageType}'`)

@@ -12,10 +12,10 @@ import {
   validateProductCode,
   WindowsExecutableKind,
 } from "~/util/shared.ts"
-import { derivePackageId, SpellerManifest, SpellerType } from "../manifest.ts"
+import { derivePackageId, SpellerManifest, SpellerType } from "./manifest.ts"
 
 async function loadManifest(manifestPath: string): Promise<SpellerManifest> {
-  const manifestString = await Deno.readFile(manifestPath, "utf8")
+  const manifestString = await Deno.readTextFile(manifestPath)
   return nonUndefinedProxy(toml.parse(manifestString), true)
 }
 
@@ -62,7 +62,7 @@ export default async function spellerDeploy({
 }: Props) {
   try {
     const packageId = derivePackageId(spellerType)
-    const manifest = loadManifest(manifestPath)
+    const manifest = await loadManifest(manifestPath)
     const repoPackageUrl = `${pahkatRepo}packages/${packageId}`
 
     let payloadMetadata: string | null = null
@@ -175,7 +175,7 @@ export default async function spellerDeploy({
       throw new Error("Payload is null; this is a logic error.")
     }
 
-    await Deno.writeTextFile("./metadata.toml", payloadMetadata, "utf8")
+    await Deno.writeTextFile("./metadata.toml", payloadMetadata)
 
     if (platform == null) {
       throw new Error("Platform is null; this is a logic error.")
