@@ -293,11 +293,13 @@ async function enterEnvironment(
     }
     case "linux": {
       const isInContainer = await Docker.isInContainer()
-      console.log("isInContainer", isInContainer)
+      // console.log("isInContainer", isInContainer)
       if (!isInContainer) {
         console.log("Running divvun-actions...")
         await Docker.enterEnvironment("divvun-actions", workingDir)
         return
+      } else {
+        id = await Docker.enterWorkspace()
       }
       break
     }
@@ -306,10 +308,25 @@ async function enterEnvironment(
       process.exit(1)
   }
 
-  await callback()
+  try {
+    await callback()
+  } catch (e) {
+    console.error(e)
+  }
 
-  if (id) {
-    await Tart.exitWorkspace(id)
+  switch (platform) {
+    case "macos": {
+      if (id) {
+        await Tart.exitWorkspace(id)
+      }
+      break
+    }
+    case "linux": {
+      if (id) {
+        await Docker.exitWorkspace(id)
+      }
+      break
+    }
   }
 }
 
@@ -321,19 +338,6 @@ async function localMain() {
     console.error("index.ts cannot be run directly.")
     process.exit(1)
   }
-
-  // if (process.platform === "darwin") {
-  //   const isInVirtualMachine = Tart.isInVirtualMachine()
-
-  //   if (!isInVirtualMachine) {
-  //     await Tart.enterVirtualMachine(realWorkingDir)
-  //     return
-  //   }
-
-  //   id = await Tart.enterWorkspace()
-  // } else {
-  //   process.chdir(realWorkingDir)
-  // }
 
   await program.parseAsync()
 }

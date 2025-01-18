@@ -1,0 +1,28 @@
+FROM buildkite/agent:3-ubuntu-24.04
+
+SHELL ["bash", "-lic"]
+
+RUN dpkg --add-architecture arm64 && \
+    apt-get update && \
+    DEBIAN_FRONTEND=noninteractive \
+    apt-get install -y \
+    build-essential \
+    cmake \
+    libssl-dev \
+    libssl-dev:arm64 \
+    imagemagick \
+    pkg-config \
+    unzip \
+    rsync \
+    crossbuild-essential-arm64
+
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y \
+    --target aarch64-unknown-linux-gnu \
+    --target x86_64-unknown-linux-gnu
+RUN curl -fsSL https://fnm.vercel.app/install | bash
+RUN fnm install 22 && fnm default 22 && \
+    fnm use 22 && \
+    npm i -g pnpm && \
+    SHELL=bash pnpm setup
+
+ENTRYPOINT []

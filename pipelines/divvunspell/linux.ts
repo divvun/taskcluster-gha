@@ -6,7 +6,7 @@ import getVersion from "~/actions/version/index"
 import { exec } from "~/builder"
 import { Bash } from "~/util/shared"
 
-const TARGETS = ["x86_64-unknown-linux"]
+const TARGETS = ["aarch64-unknown-linux-gnu", "x86_64-unknown-linux-gnu"]
 
 export type Step = "setup" | "build" | "tarball" | "deploy"
 
@@ -94,8 +94,8 @@ async function build(_: DivvunSpellProps) {
       "build",
       "--release",
       "--lib",
-      "--features",
-      "compression,internal_ffi",
+    //   "--features",
+    //   "compression,internal_ffi",
       "--target",
       target,
     ])
@@ -104,8 +104,10 @@ async function build(_: DivvunSpellProps) {
 
 async function tarball(_: DivvunSpellProps) {
   await Bash.runScript([
+    "mkdir -p dist/lib/aarch64",
+    "mv target/aarch64-unknown-linux-gnu/release/libdivvunspell.so dist/lib/aarch64",
     "mkdir -p dist/lib/x86_64",
-    "mv target/x86_64-unknown-linux/release/libdivvunspell.so dist/lib/x86_64",
+    "mv target/x86_64-unknown-linux-gnu/release/libdivvunspell.so dist/lib/x86_64",
   ])
 
   // Derive version
