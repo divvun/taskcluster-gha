@@ -22,8 +22,8 @@ export async function generateKbdInnoFromBundle(
   bundlePath: string,
   buildDir: string,
 ): Promise<string> {
-  const bundle = Kbdgen.loadTarget(bundlePath, "windows")
-  const project = Kbdgen.loadProjectBundle(bundlePath)
+  const bundle = await Kbdgen.loadTarget(bundlePath, "windows")
+  const project = await Kbdgen.loadProjectBundle(bundlePath)
   const layouts = await Kbdgen.loadLayouts(bundlePath)
 
   const builder = new InnoSetupBuilder()

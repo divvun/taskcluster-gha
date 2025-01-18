@@ -79,7 +79,7 @@ export default async function keyboardDeploy({
   let artifactSize: number | null = null
 
   if (keyboardType === KeyboardType.MacOS) {
-    const target = Kbdgen.loadTarget(bundlePath, "macos")
+    const target = await Kbdgen.loadTarget(bundlePath, "macos")
     let pkgId = target.packageId
     const lang = builder.context.repo.split("keyboard-")[1]
     // On macos kbdgen does magic with the keyboard id to match this:
@@ -114,7 +114,7 @@ export default async function keyboardDeploy({
       [MacOSPackageTarget.System, MacOSPackageTarget.User],
     )
   } else if (keyboardType === KeyboardType.Windows) {
-    const target = Kbdgen.loadTarget(bundlePath, "windows")
+    const target = await Kbdgen.loadTarget(bundlePath, "windows")
     const productCode = validateProductCode(
       WindowsExecutableKind.Inno,
       target.uuid,
@@ -168,7 +168,7 @@ export default async function keyboardDeploy({
     throw new Error("artifact url is null; this is a logic error.")
   }
 
-  await Deno.writeTextFile("./metadata.toml", payloadMetadata, "utf8")
+  await Deno.writeTextFile("./metadata.toml", payloadMetadata)
 
   const metadataJsonPath = await writeMetadataJson(bundlePath)
 
@@ -208,13 +208,13 @@ export default async function keyboardDeploy({
 // Writes the name and description fields to a json file
 // Returns the path to the json file or null if unsuccessful
 async function writeMetadataJson(bundlePath: string): Promise<string | null> {
-  const project: any = Kbdgen.loadProjectBundleWithoutProxy(bundlePath)
+  const project: any = await Kbdgen.loadProjectBundleWithoutProxy(bundlePath)
   const locales = project.locales
   if (!locales) {
     return null
   }
   const localesJson = JSON.stringify(locales)
   const metadataJsonPath = "./metadata.json"
-  await Deno.writeTextFile(metadataJsonPath, localesJson, "utf8")
+  await Deno.writeTextFile(metadataJsonPath, localesJson)
   return metadataJsonPath
 }
