@@ -1,6 +1,5 @@
 // Local implementation of the builder interface
 
-import { which } from "@david/which"
 import { ChildProcess, spawn as doSpawn } from "node:child_process"
 import fs from "node:fs"
 import { cp as fsCp, mkdtemp, writeFile } from "node:fs/promises"
@@ -132,10 +131,6 @@ export async function spawn(
   args?: string[],
   options?: ExecOptions,
 ): Promise<ChildProcess> {
-  if (!await which(commandLine)) {
-    throw new Error(`Command not found: ${commandLine}`)
-  }
-
   return new Promise((resolve, reject) => {
     const stdio = options?.listeners?.stdout || options?.listeners?.stderr
       ? "pipe"

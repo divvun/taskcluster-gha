@@ -130,15 +130,14 @@ export function setFailed(message: string) {
 export async function spawn(
   commandLine: string,
   args?: string[],
-  options?: ExecOptions
+  options?: ExecOptions,
 ): Promise<ChildProcess> {
   return new Promise((resolve, reject) => {
-    const stdio =
-      options?.listeners?.stdout || options?.listeners?.stderr
-        ? "pipe"
-        : options?.silent
-        ? "ignore"
-        : "inherit"
+    const stdio = options?.listeners?.stdout || options?.listeners?.stderr
+      ? "pipe"
+      : options?.silent
+      ? "ignore"
+      : "inherit"
 
     // console.log("Exec: " + stdio)
     const proc = doSpawn(commandLine, args || [], {
@@ -171,7 +170,7 @@ export async function spawn(
 export async function exec(
   commandLine: string,
   args?: string[],
-  options?: ExecOptions
+  options?: ExecOptions,
 ): Promise<number> {
   const proc = await spawn(commandLine, args, options)
   return new Promise((resolve, reject) => {
@@ -203,7 +202,7 @@ export function addPath(path: string) {
 export async function downloadTool(
   url: string,
   dest?: string,
-  auth?: string
+  auth?: string,
 ): Promise<string> {
   const { default: fetch } = await import("node-fetch")
   const headers: { [key: string]: string } = {}
@@ -216,8 +215,8 @@ export async function downloadTool(
     throw new Error(`Failed to download from ${url}: ${response.statusText}`)
   }
 
-  const finalDest =
-    dest || join(tmpdir(), Math.random().toString(36).substring(7))
+  const finalDest = dest ||
+    join(tmpdir(), Math.random().toString(36).substring(7))
   const buffer = await response.buffer()
   await writeFile(finalDest, buffer)
   return finalDest
@@ -233,7 +232,7 @@ export async function extractZip(file: string, dest?: string): Promise<string> {
 export async function extractTar(
   file: string,
   dest?: string,
-  flags?: string | string[]
+  flags?: string | string[],
 ): Promise<string> {
   const finalDest = dest || (await mkdtemp(join(tmpdir(), "extract-")))
   const flagsArray = typeof flags === "string" ? [flags] : flags || ["-xf"]
@@ -251,7 +250,7 @@ export async function cp(source: string, dest: string, options?: CopyOptions) {
 
 export async function globber(
   pattern: string,
-  options?: GlobOptions
+  options?: GlobOptions,
 ): Promise<Globber> {
   const { glob } = await import("glob")
   const matches = (await glob(pattern, {
@@ -296,7 +295,7 @@ export async function setSecret(secret: string) {
 
 export async function getInput(
   variable: string,
-  options?: InputOptions
+  options?: InputOptions,
 ): Promise<string> {
   try {
     const value = await new Promise<string>((resolve, reject) => {

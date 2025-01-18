@@ -1,9 +1,10 @@
-import { exists } from "@std/fs";
-import os from "node:os";
-import path from "node:path";
-import process from "node:process";
-import { exec } from "~/builder.ts";
-import { Powershell } from "./shared.ts";
+import { which } from "@david/which"
+import { exists } from "@std/fs"
+import os from "node:os"
+import path from "node:path"
+import process from "node:process"
+import { exec } from "~/builder.ts"
+import { Powershell } from "./shared.ts"
 
 export default class Docker {
   static readonly DIVVUN_ACTIONS_PATH = path.resolve(
@@ -19,23 +20,27 @@ export default class Docker {
 
   static async enterEnvironment(image: string, workingDir: string) {
     if (process.platform === "win32") {
-      await exec("docker", [
-        "run",
-        "--rm",
-        "-it",
-        "-v",
-        `${workingDir}:C:\\workspace:ro`,
-        "-v",
-        `${Docker.DIVVUN_ACTIONS_PATH}:C:\\actions`,
-        "-e",
-        "_DIVVUN_ACTIONS_PLATFORM=windows",
-        "-e",
-        "_DIVVUN_ACTIONS_ENV=docker",
-        image + ":latest",
-        "pwsh.exe",
-        `C:\\actions\\bin\\divvun-actions.ps1`,
-        `${Deno.args.join(" ")}`,
-      ])
+      const dockerPath = await which("docker.exe")
+      await exec(
+        dockerPath,
+        [
+          "run",
+          "--rm",
+          "-it",
+          "-v",
+          `${workingDir}:C:\\workspace:ro`,
+          "-v",
+          `${Docker.DIVVUN_ACTIONS_PATH}:C:\\actions`,
+          "-e",
+          "_DIVVUN_ACTIONS_PLATFORM=windows",
+          "-e",
+          "_DIVVUN_ACTIONS_ENV=docker",
+          image + ":latest",
+          "pwsh.exe",
+          `C:\\actions\\bin\\divvun-actions.ps1`,
+          `${Deno.args.join(" ")}`,
+        ],
+      )
       return
     }
 
