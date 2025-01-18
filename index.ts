@@ -22,14 +22,27 @@ pe.skip((x) => {
   )
 })
 
-const program = new Command()
+function prettyPlatform() {
+  switch (process.platform) {
+    case "darwin":
+      return "macos"
+    case "win32":
+      return "windows"
+    case "linux":
+    default:
+      return `unsupported: ${process.platform}`
+  }
+}
 
-console.log("Environment: " + builder.mode)
+console.log(`Loading Divvun Actions [Environment: ${builder.mode}] [Platform: ${prettyPlatform()}]`)
+
+const program = new Command()
 
 process.on("unhandledRejection", (err: Error) => {
   console.error(pe.render(err))
   process.exit(1)
 })
+
 
 program
   .name("divvun-actions")
