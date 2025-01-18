@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
 
-$CWD = [Environment]::CurrentDirectory
+$CWD = Get-Location
 $SCRIPT_DIR = Split-Path -Parent $PSScriptRoot
 
 try {
@@ -14,6 +14,6 @@ try {
     $scriptArgs = if ($args.Count -eq 0) { @('-h') } else { $args }
     & deno run -A --unstable-sloppy-imports index.ts $scriptArgs
 } finally {
-    [Environment]::CurrentDirectory = $CWD
+    Set-Location -Path $CWD
 }
 
