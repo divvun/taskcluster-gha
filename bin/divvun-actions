@@ -6,9 +6,10 @@ cd "$SCRIPT_DIR";
 
 # Check if node_modules exists, otherwise pnpm install
 # if [ ! -d "$SCRIPT_DIR/node_modules" ]; then
-rm -rf "$SCRIPT_DIR/node_modules";
-pnpm install -s;
+# rm -rf "$SCRIPT_DIR/node_modules";
+# pnpm install -s;
 # fi
 
+export _DIVVUN_ACTIONS_ENV=${_DIVVUN_ACTIONS_ENV:-native}
 export _DIVVUN_ACTIONS_PWD=$CWD;
-pnpm tsx index.ts "$@"
+deno run -A --unstable-sloppy-imports index.ts "$@"

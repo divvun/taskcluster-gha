@@ -1,4 +1,4 @@
-import path from "path"
+import path from "node:path"
 import { v5 as uuidv5 } from "uuid"
 import { InnoSetupBuilder } from "~/util/inno"
 import { Kbdgen } from "~/util/shared"
@@ -19,7 +19,7 @@ function getKbdId(locale: string, layout: { [key: string]: any }) {
 
 export async function generateKbdInnoFromBundle(
   bundlePath: string,
-  buildDir: string
+  buildDir: string,
 ): Promise<string> {
   var bundle = Kbdgen.loadTarget(bundlePath, "windows")
   var project = Kbdgen.loadProjectBundle(bundlePath)
@@ -39,32 +39,32 @@ export async function generateKbdInnoFromBundle(
         `${buildDir}\\kbdi.exe`,
         "{app}",
         ["restartreplace", "uninsrestartdelete", "ignoreversion"],
-        "not Is64BitInstallMode"
+        "not Is64BitInstallMode",
       )
       builder.add(
         `${buildDir}\\kbdi-x64.exe`,
         "{app}",
         ["restartreplace", "uninsrestartdelete", "ignoreversion"],
         "Is64BitInstallMode",
-        "kbdi.exe"
+        "kbdi.exe",
       )
       builder.add(
         `${buildDir}\\i386\\*`,
         "{sys}",
         ["restartreplace", "uninsrestartdelete", "ignoreversion"],
-        "not Is64BitInstallMode"
+        "not Is64BitInstallMode",
       )
       builder.add(
         `${buildDir}\\amd64\\*`,
         "{sys}",
         ["restartreplace", "uninsrestartdelete", "ignoreversion"],
-        "Is64BitInstallMode"
+        "Is64BitInstallMode",
       )
       builder.add(
         `${buildDir}\\wow64\\*`,
         "{syswow64}",
         ["restartreplace", "uninsrestartdelete", "ignoreversion"],
-        "Is64BitInstallMode"
+        "Is64BitInstallMode",
       )
 
       return builder
@@ -84,7 +84,7 @@ export async function generateKbdInnoFromBundle(
 function addLayoutToInstaller(
   builder: InnoSetupBuilder,
   locale: string,
-  layout: { [key: string]: any }
+  layout: { [key: string]: any },
 ) {
   const target = layoutTarget(layout)
   const kbdId = getKbdId(locale, target)

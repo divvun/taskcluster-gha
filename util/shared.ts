@@ -1,12 +1,9 @@
-import crypto from "crypto"
-import fs from "fs"
-import path from "path"
-import * as taskcluster from "taskcluster-client"
-import * as tmp from "tmp"
-import YAML from "yaml"
-import { Security } from "./security"
-
-import * as builder from "~/builder"
+import crypto from "node:crypto"
+import fs from "node:fs"
+import path from "node:path"
+import * as YAML from "yaml"
+import * as builder from "~/builder.ts"
+import { Security } from "./security.ts"
 
 // export const WINDOWS_SIGNING_HASH_ALGORITHM = "sha256"
 export const RFC3161_URL = "http://ts.ssl.com"
@@ -31,7 +28,8 @@ export function randomHexBytes(count: number) {
   return crypto.randomBytes(count).toString("hex")
 }
 
-export const DIVVUN_PFX = `${divvunConfigDir()}\\enc\\creds\\windows\\divvun.pfx`
+export const DIVVUN_PFX =
+  `${divvunConfigDir()}\\enc\\creds\\windows\\divvun.pfx`
 
 function env() {
   let langs = {
@@ -45,7 +43,7 @@ function env() {
   }
 
   return {
-    ...process.env,
+    ...Deno.env.toObject(),
     ...langs,
     DEBIAN_FRONTEND: "noninteractive",
     DEBCONF_NONINTERACTIVE_SEEN: "true",
@@ -63,11 +61,13 @@ export class Apt {
   static async update(requiresSudo: boolean) {
     if (requiresSudo) {
       assertExit0(
-        await builder.exec("sudo", ["apt-get", "-qy", "update"], { env: env() })
+        await builder.exec("sudo", ["apt-get", "-qy", "update"], {
+          env: env(),
+        }),
       )
     } else {
       assertExit0(
-        await builder.exec("apt-get", ["-qy", "update"], { env: env() })
+        await builder.exec("apt-get", ["-qy", "update"], { env: env() }),
       )
     }
   }
@@ -78,14 +78,14 @@ export class Apt {
         await builder.exec(
           "sudo",
           ["apt-get", "install", "-qfy", ...packages],
-          { env: env() }
-        )
+          { env: env() },
+        ),
       )
     } else {
       assertExit0(
         await builder.exec("apt-get", ["install", "-qfy", ...packages], {
           env: env(),
-        })
+        }),
       )
     }
   }
@@ -96,9 +96,9 @@ export class Pip {
     assertExit0(
       await builder.exec("pip3", ["install", "--user", ...packages], {
         env: env(),
-      })
+      }),
     )
-    builder.addPath(path.join(process.env.HOME!, ".local", "bin"))
+    builder.addPath(path.join(Deno.env.get("HOME")!, ".local", "bin"))
   }
 }
 
@@ -109,7 +109,7 @@ export class Pipx {
 
   static async install(packages: string[]) {
     assertExit0(
-      await builder.exec("pipx", ["install", ...packages], { env: env() })
+      await builder.exec("pipx", ["install", ...packages], { env: env() }),
     )
   }
 }
@@ -120,7 +120,7 @@ export class Powershell {
     opts: {
       cwd?: string
       env?: { [key: string]: string }
-    } = {}
+    } = {},
   ) {
     const thisEnv = Object.assign({}, env(), opts.env)
 
@@ -141,7 +141,7 @@ export class Powershell {
         env: thisEnv,
         cwd: opts.cwd,
         listeners,
-      })
+      }),
     )
     return [out.join(""), err.join("")]
   }
@@ -154,7 +154,7 @@ export class DefaultShell {
       sudo?: boolean
       cwd?: string
       env?: { [key: string]: string }
-    } = {}
+    } = {},
   ) {
     if (process.platform === "win32") {
       return await Powershell.runScript(script, args)
@@ -171,9 +171,11 @@ export class Bash {
       sudo?: boolean
       cwd?: string
       env?: { [key: string]: string }
-    } = {}
+    } = {},
   ) {
-    const script = typeof scriptInput === "string" ? scriptInput : scriptInput.join(";\n")
+    const script = typeof scriptInput === "string"
+      ? scriptInput
+      : scriptInput.join(";\n")
     const thisEnv = Object.assign({}, env(), args.env)
 
     const out: string[] = []
@@ -194,7 +196,7 @@ export class Bash {
           env: thisEnv,
           cwd: args.cwd,
           listeners,
-        })
+        }),
       )
     } else {
       assertExit0(
@@ -202,7 +204,7 @@ export class Bash {
           env: thisEnv,
           cwd: args.cwd,
           listeners,
-        })
+        }),
       )
     }
 
@@ -247,7 +249,7 @@ export class Tar {
       builder.debug("Attempted to extract tarball")
       return await builder.extractTar(
         `${path.dirname(filePath)}\\${path.basename(filePath, ".txz")}.tar`,
-        outputDir || tmpDir()
+        outputDir || tmpDir(),
       )
     } else {
       throw new Error(`Unsupported platform: ${platform}`)
@@ -255,11 +257,11 @@ export class Tar {
   }
 
   static async createFlatTxz(paths: string[], outputPath: string) {
-    const tmpDir = tmp.dirSync()
-    const stagingDir = path.join(tmpDir.name, "staging")
+    const tmpDir = await Deno.makeTempDir()
+    const stagingDir = path.join(tmpDir, "staging")
     fs.mkdirSync(stagingDir)
 
-    builder.debug(`Created tmp dir: ${tmpDir.name}`)
+    builder.debug(`Created tmp dir: ${tmpDir}`)
 
     for (const p of paths) {
       builder.debug(`Copying ${p} into ${stagingDir}`)
@@ -273,7 +275,7 @@ export class Tar {
     await Bash.runScript(`xz -9 ../file.tar`, { cwd: stagingDir })
 
     builder.debug("Copying file.tar.xz to " + outputPath)
-    await builder.cp(path.join(tmpDir.name, "file.tar.xz"), outputPath)
+    await builder.cp(path.join(tmpDir, "file.tar.xz"), outputPath)
   }
 }
 
@@ -312,7 +314,7 @@ export class PahkatPrefix {
       // Now we can download things
       txz = await builder.downloadTool(
         PahkatPrefix.URL_WINDOWS,
-        path.join(tmpDir(), "pahkat-dl.txz")
+        path.join(tmpDir(), "pahkat-dl.txz"),
       )
     } else {
       throw new Error(`Unsupported platform: ${platform}`)
@@ -336,23 +338,23 @@ export class PahkatPrefix {
   static async addRepo(url: string, channel?: string) {
     if (channel != null) {
       await DefaultShell.runScript(
-        `pahkat-prefix config repo add -c ${PahkatPrefix.path} ${url} ${channel}`
+        `pahkat-prefix config repo add -c ${PahkatPrefix.path} ${url} ${channel}`,
       )
     } else {
       await DefaultShell.runScript(
-        `pahkat-prefix config repo add -c ${PahkatPrefix.path} ${url}`
+        `pahkat-prefix config repo add -c ${PahkatPrefix.path} ${url}`,
       )
     }
   }
 
   static async install(packages: string[]) {
     await DefaultShell.runScript(
-      `pahkat-prefix install ${packages.join(" ")} -c ${PahkatPrefix.path}`
+      `pahkat-prefix install ${packages.join(" ")} -c ${PahkatPrefix.path}`,
     )
 
     for (const pkg of packages) {
       builder.addPath(
-        path.join(PahkatPrefix.path, "pkg", pkg.split("@").shift()!, "bin")
+        path.join(PahkatPrefix.path, "pkg", pkg.split("@").shift()!, "bin"),
       )
     }
   }
@@ -378,7 +380,7 @@ export class PahkatUploader {
   static ARTIFACTS_URL: string = "https://pahkat.uit.no/artifacts/"
 
   private static async run(args: string[]): Promise<string> {
-    if (process.env["PAHKAT_NO_DEPLOY"] === "true") {
+    if (Deno.env.get("PAHKAT_NO_DEPLOY") === "true") {
       builder.debug("Skipping deploy because `PAHKAT_NO_DEPLOY` is true")
       return ""
     }
@@ -402,7 +404,7 @@ export class PahkatUploader {
             output += data.toString()
           },
         },
-      })
+      }),
     )
     return output
   }
@@ -414,13 +416,13 @@ export class PahkatUploader {
     repoUrl: string,
     metadataJsonPath: string | null = null,
     manifestTomlPath: string | null = null,
-    packageType: string | null = null
+    packageType: string | null = null,
   ) {
     const fileName = path.parse(artifactPath).base
 
-    if (process.env["PAHKAT_NO_DEPLOY"] === "true") {
+    if (Deno.env.get("PAHKAT_NO_DEPLOY") === "true") {
       builder.debug(
-        "Skipping upload because `PAHKAT_NO_DEPLOY` is true. Creating artifact instead"
+        "Skipping upload because `PAHKAT_NO_DEPLOY` is true. Creating artifact instead",
       )
       await builder.createArtifact(fileName, artifactPath)
       return
@@ -428,7 +430,7 @@ export class PahkatUploader {
 
     if (!fs.existsSync(releaseMetadataPath)) {
       throw new Error(
-        `Missing required payload manifest at path ${releaseMetadataPath}`
+        `Missing required payload manifest at path ${releaseMetadataPath}`,
       )
     }
 
@@ -436,7 +438,7 @@ export class PahkatUploader {
 
     console.log(`Uploading ${artifactPath} to S3`)
 
-    var retries = 0
+    let retries = 0
     await builder.exec("aws", [
       "configure",
       "set",
@@ -465,7 +467,7 @@ export class PahkatUploader {
               AWS_SECRET_ACCESS_KEY: sec.aws.secretAccessKey,
               AWS_DEFAULT_REGION: "ams3",
             }),
-          }
+          },
         )
         console.log("Upload successful")
         break
@@ -559,7 +561,7 @@ export class PahkatUploader {
       size: number,
       kind: WindowsExecutableKind | null,
       productCode: string,
-      requiresReboot: RebootSpec[]
+      requiresReboot: RebootSpec[],
     ): Promise<string> {
       const payloadArgs = [
         "windows-executable",
@@ -594,7 +596,7 @@ export class PahkatUploader {
       size: number,
       pkgId: string,
       requiresReboot: RebootSpec[],
-      targets: MacOSPackageTarget[]
+      targets: MacOSPackageTarget[],
     ): Promise<string> {
       const payloadArgs = [
         "macos-package",
@@ -626,7 +628,7 @@ export class PahkatUploader {
       release: ReleaseRequest,
       artifactUrl: string,
       installSize: number,
-      size: number
+      size: number,
     ): Promise<string> {
       const payloadArgs = [
         "tarball-package",
@@ -692,25 +694,25 @@ export class Kbdgen {
       YAML.parse(
         fs.readFileSync(
           path.resolve(bundlePath, "targets", `${target}.yaml`),
-          "utf8"
-        )
+          "utf8",
+        ),
       ),
-      true
+      true,
     )
   }
 
   static loadProjectBundle(bundlePath: string) {
     return nonUndefinedProxy(
       YAML.parse(
-        fs.readFileSync(path.resolve(bundlePath, "project.yaml"), "utf8")
+        fs.readFileSync(path.resolve(bundlePath, "project.yaml"), "utf8"),
       ),
-      true
+      true,
     )
   }
 
   static loadProjectBundleWithoutProxy(bundlePath: string) {
     return YAML.parse(
-      fs.readFileSync(path.resolve(bundlePath, "project.yaml"), "utf8")
+      fs.readFileSync(path.resolve(bundlePath, "project.yaml"), "utf8"),
     )
   }
 
@@ -719,7 +721,7 @@ export class Kbdgen {
       path.resolve(bundlePath, "layouts/*.yaml"),
       {
         followSymbolicLinks: false,
-      }
+      },
     )
     const layoutFiles = await globber.glob()
     var layouts: { [locale: string]: any } = {}
@@ -739,7 +741,7 @@ export class Kbdgen {
     fs.writeFileSync(
       path.resolve(bundlePath, "targets", `${target}.yaml`),
       YAML.stringify({ ...targetData }),
-      "utf8"
+      "utf8",
     )
 
     return targetData["version"]
@@ -748,14 +750,14 @@ export class Kbdgen {
   static async setBuildNumber(
     bundlePath: string,
     target: string,
-    start: number = 0
+    start: number = 0,
   ) {
     const targetData = Kbdgen.loadTarget(bundlePath, target)
 
     // Set to run number
     const versionNumber = parseInt(
       (await Bash.runScript("git rev-list --count HEAD"))[0],
-      10
+      10,
     )
     targetData["build"] = start + versionNumber
     builder.debug("Set build number to " + targetData["build"])
@@ -763,7 +765,7 @@ export class Kbdgen {
     fs.writeFileSync(
       path.resolve(bundlePath, "targets", `${target}.yaml`),
       YAML.stringify({ ...targetData }),
-      "utf8"
+      "utf8",
     )
 
     return targetData["build"]
@@ -787,7 +789,7 @@ export class Kbdgen {
       FASTLANE_PASSWORD: sec.ios.fastlanePassword,
       APP_STORE_KEY_JSON: path.join(
         divvunConfigDir(),
-        sec.macos.appStoreKeyJson
+        sec.macos.appStoreKeyJson,
       ),
       MATCH_KEYCHAIN_NAME: "login.keychain",
       MATCH_KEYCHAIN_PASSWORD: sec.macos.adminPassword,
@@ -821,13 +823,13 @@ export class Kbdgen {
       {
         cwd,
         env,
-      }
+      },
     )
     const globber = await builder.globber(
       path.resolve(abs, "../output/ipa/*.ipa"),
       {
         followSymbolicLinks: false,
-      }
+      },
     )
     const files = await globber.glob()
 
@@ -840,14 +842,14 @@ export class Kbdgen {
 
   static async buildAndroid(
     bundlePath: string,
-    githubRepo: string
+    githubRepo: string,
   ): Promise<string> {
     const abs = path.resolve(bundlePath)
     const cwd = path.dirname(abs)
     const sec = await secrets()
     // await Bash.runScript("brew install imagemagick")
 
-    builder.debug(`ANDROID_HOME: ${process.env.ANDROID_HOME}`)
+    builder.debug(`ANDROID_HOME: ${Deno.env.get("ANDROID_HOME")}`)
 
     await Bash.runScript(
       `kbdgen target --output-path output --bundle-path ${abs} android build`,
@@ -856,30 +858,30 @@ export class Kbdgen {
         env: {
           GITHUB_USERNAME: sec.github.username,
           GITHUB_TOKEN: sec.github.token,
-          NDK_HOME: process.env.ANDROID_NDK_HOME!,
+          NDK_HOME: Deno.env.get("ANDROID_NDK_HOME")!,
           ANDROID_KEYSTORE: path.join(
             divvunConfigDir(),
-            sec.android[githubRepo].keystore
+            sec.android[githubRepo].keystore,
           ),
           ANDROID_KEYALIAS: sec.android[githubRepo].keyalias,
           STORE_PW: sec.android[githubRepo].storePassword,
           KEY_PW: sec.android[githubRepo].keyPassword,
           PLAY_STORE_P12: path.join(
             divvunConfigDir(),
-            sec.android.playStoreP12
+            sec.android.playStoreP12,
           ),
           PLAY_STORE_ACCOUNT: sec.android.playStoreAccount,
           RUST_LOG: "debug",
         },
-      }
+      },
     )
 
     return await Kbdgen.resolveOutput(
       path.join(
         cwd,
         "output/repo/app/build/outputs/apk/release",
-        `*-release.apk`
-      )
+        `*-release.apk`,
+      ),
     )
   }
 
@@ -889,9 +891,9 @@ export class Kbdgen {
     const sec = await secrets()
 
     // Install imagemagick if we're not using the self-hosted runner
-    if (process.env["ImageOS"] != null) {
-      await Bash.runScript("brew install imagemagick")
-    }
+    // if (Deno.env.get(""ImageOS"] != null) {")
+    //   await Bash.runScript("brew install imagemagick")
+    // }
 
     await Bash.runScript(`kbdgen -V`)
     await Bash.runScript(
@@ -901,7 +903,7 @@ export class Kbdgen {
           DEVELOPER_PASSWORD_CHAIN_ITEM: sec.macos.passwordChainItem,
           DEVELOPER_ACCOUNT: sec.macos.developerAccount,
         },
-      }
+      },
     )
 
     await Bash.runScript(
@@ -911,7 +913,7 @@ export class Kbdgen {
           DEVELOPER_PASSWORD_CHAIN_ITEM: sec.macos.passwordChainItem,
           DEVELOPER_ACCOUNT: sec.macos.developerAccount,
         },
-      }
+      },
     )
 
     return await Kbdgen.resolveOutput(path.join(cwd, "output", `*.pkg`))
@@ -922,7 +924,7 @@ export class Kbdgen {
     const cwd = process.cwd()
 
     await Powershell.runScript(
-      `kbdgen target --output-path output --bundle-path ${abs} windows`
+      `kbdgen target --output-path output --bundle-path ${abs} windows`,
     )
 
     return `${cwd}/output`
@@ -945,20 +947,20 @@ export async function versionAsNightly(version: string): Promise<string> {
     throw new Error(`Provided version '${version}' is not semantic.`)
   }
 
-  const queueService = new taskcluster.Queue({
-    rootUrl: process.env.TASKCLUSTER_PROXY_URL,
-  })
+  // const queueService = new taskcluster.Queue({
+  //   rootUrl: Deno.env.get("TASKCLUSTER_PROXY_URL,")
+  // })
 
-  const task = await queueService.task(process.env.TASK_ID)
+  // const task = await queueService.task(Deno.env.get("TASK_ID)")
 
-  const nightlyTs = task.created.replace(/[-:\.]/g, "")
+  const nightlyTs = new Date().toISOString().replace(/[-:\.]/g, "")
 
   return `${verChunks.join(".")}-nightly.${nightlyTs}`
 }
 
 function deriveBundlerArgs(
   spellerPaths: SpellerPaths,
-  withZhfst: boolean = true
+  withZhfst: boolean = true,
 ) {
   const args = []
   for (const [langTag, zhfstPath] of Object.entries(spellerPaths.desktop)) {
@@ -984,7 +986,7 @@ export class DivvunBundler {
     version: string,
     packageId: string,
     langTag: string,
-    spellerPaths: SpellerPaths
+    spellerPaths: SpellerPaths,
   ): Promise<string> {
     const sec = await secrets()
 
@@ -1019,13 +1021,13 @@ export class DivvunBundler {
         env: Object.assign({}, env(), {
           RUST_LOG: "trace",
         }),
-      })
+      }),
     )
 
     // FIXME: workaround bundler issue creating invalid files
     await builder.cp(
       path.resolve(`output/${langTag}-${version}.pkg`),
-      path.resolve(`output/${packageId}-${version}.pkg`)
+      path.resolve(`output/${packageId}-${version}.pkg`),
     )
 
     const outputFile = path.resolve(`output/${packageId}-${version}.pkg`)
@@ -1088,21 +1090,29 @@ export function nonUndefinedProxy(obj: any, withNull: boolean = false): any {
       const v = Reflect.get(target, prop, receiver)
       if (v === undefined) {
         throw new Error(
-          `'${String(
-            prop
-          )}' was undefined and this is disallowed. Available keys: ${Object.keys(
-            obj
-          ).join(", ")}`
+          `'${
+            String(
+              prop,
+            )
+          }' was undefined and this is disallowed. Available keys: ${
+            Object.keys(
+              obj,
+            ).join(", ")
+          }`,
         )
       }
 
       if (withNull && v === null) {
         throw new Error(
-          `'${String(
-            prop
-          )}' was null and this is disallowed. Available keys: ${Object.keys(
-            obj
-          ).join(", ")}`
+          `'${
+            String(
+              prop,
+            )
+          }' was null and this is disallowed. Available keys: ${
+            Object.keys(
+              obj,
+            ).join(", ")
+          }`,
         )
       }
 
@@ -1117,7 +1127,7 @@ export function nonUndefinedProxy(obj: any, withNull: boolean = false): any {
 
 export function validateProductCode(
   kind: WindowsExecutableKind,
-  code: string
+  code: string,
 ): string {
   if (kind === null) {
     builder.debug("Found no kind, returning original code")
@@ -1134,7 +1144,7 @@ export function validateProductCode(
 
     if (!code.endsWith("}_is1") && !code.startsWith("{")) {
       builder.debug(
-        "Found plain UUID for Inno installer, wrapping in {...}_is1"
+        "Found plain UUID for Inno installer, wrapping in {...}_is1",
       )
       updatedCode = `{${code}}_is1`
     } else if (code.endsWith("}") && code.startsWith("{")) {

@@ -1,5 +1,5 @@
-import fs from "fs"
-import path from "path"
+import fs from "node:fs"
+import path from "node:path"
 
 import * as builder from "~/builder"
 import { Bash, secrets } from "~/util/shared"
@@ -15,7 +15,7 @@ export type Output = {
 
 async function run() {
   const filePath = path.resolve(
-    await builder.getInput("path", { required: true })
+    await builder.getInput("path", { required: true }),
   )
   const isInstaller = Boolean(await builder.getInput("isInstaller")) || false
   const { signedPath } = await codesign({ filePath, isInstaller })

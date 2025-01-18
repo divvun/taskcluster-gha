@@ -1,17 +1,20 @@
-import fs from "fs"
-import os from "os"
-import path from "path"
-import { exec } from "~/builder"
-import { Powershell } from "./shared"
+import { exists } from "@std/fs";
+import os from "node:os";
+import path from "node:path";
+import process from "node:process";
+import { exec } from "~/builder.ts";
+import { Powershell } from "./shared.ts";
 
 export default class Docker {
-  static readonly DIVVUN_ACTIONS_PATH = path.resolve(__dirname + "/..")
+  static readonly DIVVUN_ACTIONS_PATH = path.resolve(
+    import.meta.dirname + "/..",
+  )
 
   static async isInContainer() {
     if (process.platform === "win32") {
-      return fs.existsSync("C:\\actions") && fs.existsSync("C:\\workspace")
+      return await exists("C:\\actions") && await exists("C:\\workspace")
     }
-    return fs.existsSync("/actions") && fs.existsSync("/workspace")
+    return await exists("/actions") && await exists("/workspace")
   }
 
   static async enterEnvironment(image: string, workingDir: string) {
@@ -24,12 +27,14 @@ export default class Docker {
         `${workingDir}:C:\\workspace:ro`,
         "-v",
         `${Docker.DIVVUN_ACTIONS_PATH}:C:\\actions`,
-        "-e", "_DIVVUN_ACTIONS_PLATFORM=windows",
-        "-e", "_DIVVUN_ACTIONS_ENV=docker",
+        "-e",
+        "_DIVVUN_ACTIONS_PLATFORM=windows",
+        "-e",
+        "_DIVVUN_ACTIONS_ENV=docker",
         image + ":latest",
         "pwsh.exe",
         `C:\\actions\\bin\\divvun-actions.ps1`,
-        `${process.argv.slice(2).join(" ")}`,
+        `${Deno.args.join(" ")}`,
       ])
       return
     }
@@ -42,10 +47,14 @@ export default class Docker {
       `${workingDir}:/workspace:ro`,
       "-v",
       `${Docker.DIVVUN_ACTIONS_PATH}:/actions`,
+      "-e",
+      "_DIVVUN_ACTIONS_PLATFORM=linux",
+      "-e",
+      "_DIVVUN_ACTIONS_ENV=docker",
       image + ":latest",
       "bash",
       "-lic",
-      `"/actions/bin/divvun-actions" ${process.argv.slice(2).join(" ")}`,
+      `"/actions/bin/divvun-actions" ${Deno.args.join(" ")}`,
     ])
   }
 
@@ -55,11 +64,13 @@ export default class Docker {
     const tmpDir = os.tmpdir()
     const imagePath = path.join(tmpDir, volName)
 
-    fs.mkdirSync(imagePath)
+    await Deno.mkdir(imagePath)
 
     console.log("Copying workspace...")
     if (process.platform === "win32") {
-      await Powershell.runScript(`Copy-Item -Path C:\\workspace\\* -Destination ${imagePath} -Recurse -Force`)
+      await Powershell.runScript(
+        `Copy-Item -Path C:\\workspace\\* -Destination ${imagePath} -Recurse -Force`,
+      )
     } else {
       await exec("rsync", ["-ar", "/workspace/", imagePath])
     }
@@ -79,6 +90,6 @@ export default class Docker {
     process.chdir(os.homedir())
 
     console.log("Removing workspace...")
-    fs.rmSync(imagePath, { recursive: true, force: true })
+    await Deno.remove(imagePath, { recursive: true })
   }
 }

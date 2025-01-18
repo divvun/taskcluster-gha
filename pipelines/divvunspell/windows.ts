@@ -41,7 +41,7 @@ function recurseDependsOn(
 
   function inner(
     input: Function,
-    out: Function[] = []
+    out: Function[] = [],
   ) {
     for (const dep of DEPENDS_ON.get(input) ?? []) {
       out.push(dep)
@@ -59,7 +59,7 @@ export default async function run(
   inputs: Props,
   options: {
     ignoreDependencies?: boolean
-  } = {}
+  } = {},
 ) {
   let steps
   if (options.ignoreDependencies) {
@@ -94,12 +94,12 @@ async function build(_: DivvunSpellProps) {
       "build",
       "--release",
       "--lib",
-    //   "--features",
-    //   "compression,internal_ffi",
+      //   "--features",
+      //   "compression,internal_ffi",
       "--target",
       target,
     ])
-  } 
+  }
 }
 
 async function tarball(_: DivvunSpellProps) {

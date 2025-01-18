@@ -1,10 +1,11 @@
-// Buildkite implementation of the builder interface
+// Local implementation of the builder interface
 
-import { ChildProcess, spawn as doSpawn } from "child_process"
-import fs from "fs"
-import { cp as fsCp, mkdtemp, writeFile } from "fs/promises"
-import { tmpdir } from "os"
-import { dirname, join } from "path"
+import { which } from "@david/which"
+import { ChildProcess, spawn as doSpawn } from "node:child_process"
+import fs from "node:fs"
+import { cp as fsCp, mkdtemp, writeFile } from "node:fs/promises"
+import { tmpdir } from "node:os"
+import { dirname, join } from "node:path"
 
 export type ExecListeners = {
   /** A call back for each buffer of stdout */
@@ -129,20 +130,23 @@ export function setFailed(message: string) {
 export async function spawn(
   commandLine: string,
   args?: string[],
-  options?: ExecOptions
+  options?: ExecOptions,
 ): Promise<ChildProcess> {
+  if (!await which(commandLine)) {
+    throw new Error(`Command not found: ${commandLine}`)
+  }
+
   return new Promise((resolve, reject) => {
-    const stdio =
-      options?.listeners?.stdout || options?.listeners?.stderr
-        ? "pipe"
-        : options?.silent
-        ? "ignore"
-        : "inherit"
+    const stdio = options?.listeners?.stdout || options?.listeners?.stderr
+      ? "pipe"
+      : options?.silent
+      ? "ignore"
+      : "inherit"
 
     // console.log("Exec: " + stdio)
     const proc = doSpawn(commandLine, args || [], {
       cwd: options?.cwd,
-      env: options?.env || process.env,
+      env: options?.env || Deno.env.toObject(),
       stdio,
     })
 
@@ -170,7 +174,7 @@ export async function spawn(
 export async function exec(
   commandLine: string,
   args?: string[],
-  options?: ExecOptions
+  options?: ExecOptions,
 ): Promise<number> {
   const proc = await spawn(commandLine, args, options)
   return new Promise((resolve, reject) => {
@@ -191,15 +195,18 @@ export async function exec(
 }
 
 export function addPath(path: string) {
-  process.env.PATH = `${path}${process.platform === "win32" ? ";" : ":"}${
-    process.env.PATH
-  }`
+  const sep = process.platform === "win32" ? ";" : ":"
+  const p = Deno.env.get("PATH")
+  Deno.env.set(
+    "PATH",
+    `${path}${sep}${p}`,
+  )
 }
 
 export async function downloadTool(
   url: string,
   dest?: string,
-  auth?: string
+  auth?: string,
 ): Promise<string> {
   const { default: fetch } = await import("node-fetch")
   const headers: { [key: string]: string } = {}
@@ -212,8 +219,8 @@ export async function downloadTool(
     throw new Error(`Failed to download from ${url}: ${response.statusText}`)
   }
 
-  const finalDest =
-    dest || join(tmpdir(), Math.random().toString(36).substring(7))
+  const finalDest = dest ||
+    join(tmpdir(), Math.random().toString(36).substring(7))
   const buffer = await response.buffer()
   await writeFile(finalDest, buffer)
   return finalDest
@@ -229,7 +236,7 @@ export async function extractZip(file: string, dest?: string): Promise<string> {
 export async function extractTar(
   file: string,
   dest?: string,
-  flags?: string | string[]
+  flags?: string | string[],
 ): Promise<string> {
   const finalDest = dest || (await mkdtemp(join(tmpdir(), "extract-")))
   const flagsArray = typeof flags === "string" ? [flags] : flags || ["-xf"]
@@ -247,7 +254,7 @@ export async function cp(source: string, dest: string, options?: CopyOptions) {
 
 export async function globber(
   pattern: string,
-  options?: GlobOptions
+  options?: GlobOptions,
 ): Promise<Globber> {
   const { glob } = await import("glob")
   const matches = (await glob(pattern, {
@@ -292,7 +299,7 @@ export async function setSecret(secret: string) {
 
 export async function getInput(
   variable: string,
-  options?: InputOptions
+  options?: InputOptions,
 ): Promise<string> {
   try {
     const value = await new Promise<string>((resolve, reject) => {
@@ -341,14 +348,14 @@ export function error(message: string | Error) {
 }
 
 export function exportVariable(name: string, value: string) {
-  process.env[name] = value
+  Deno.env.set(name, value)
   console.log(`Setting environment variable ${name}=${value}`)
 }
 
 export const context: Context = {
-  ref: process.env.BUILDKITE_COMMIT || "",
-  workspace: process.env.BUILDKITE_BUILD_CHECKOUT_PATH || "",
-  repo: process.env.BUILDKITE_REPO || "",
+  ref: Deno.env.get("BUILDKITE_COMMIT"),
+  workspace: Deno.env.get("BUILDKITE_BUILD_CHECKOUT_PATH"),
+  repo: Deno.env.get("BUILDKITE_REPO"),
 }
 
 export function secrets() {

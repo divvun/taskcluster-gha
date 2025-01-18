@@ -1,4 +1,4 @@
-import path from "path"
+import path from "node:path"
 import * as builder from "~/builder"
 import { isMatchingTag, Kbdgen, PahkatPrefix } from "~/util/shared"
 import { makeInstaller } from "../../inno-setup/lib"
@@ -39,7 +39,7 @@ export default async function keyboardBuild({
     keyboardType === KeyboardType.Android
   ) {
     throw new Error(
-      `Unsupported keyboard type for non-meta build: ${keyboardType}`
+      `Unsupported keyboard type for non-meta build: ${keyboardType}`,
     )
   }
 
@@ -69,14 +69,14 @@ export default async function keyboardBuild({
       "pkg",
       "kbdi",
       "bin",
-      "kbdi.exe"
+      "kbdi.exe",
     )
     const kbdi_x64_path = path.join(
       PahkatPrefix.path,
       "pkg",
       "kbdi",
       "bin",
-      "kbdi-x64.exe"
+      "kbdi-x64.exe",
     )
 
     const outputPath = await Kbdgen.buildWindows(bundlePath)

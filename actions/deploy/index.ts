@@ -1,5 +1,5 @@
-import fs from "fs"
-import path from "path"
+import fs from "node:fs"
+import path from "node:path"
 import * as builder from "~/builder"
 
 import {
@@ -20,7 +20,7 @@ export enum PackageType {
 
 async function getPlatformAndType(
   platform: string | null,
-  givenType: string | null
+  givenType: string | null,
 ): Promise<{
   packageType: PackageType
   platform: string
@@ -60,7 +60,7 @@ async function getPlatformAndType(
         break
       case PackageType.TarballPackage:
         throw new Error(
-          "Cannot detect platform from only a package type of TarballPackage"
+          "Cannot detect platform from only a package type of TarballPackage",
         )
     }
   }
@@ -87,33 +87,35 @@ async function getDependencies(deps: string | null) {
   return JSON.parse(deps)
 }
 
-export type Props = {
-  packageId: string
-  // packageType: PackageType
-  platform: string
-  payloadPath: string
-  arch?: string | null
-  channel?: string | null
-  dependencies?: { [key: string]: string } | null
-  pahkatRepo: string
-  version: string
-} & (
-  | {
+export type Props =
+  & {
+    packageId: string
+    // packageType: PackageType
+    platform: string
+    payloadPath: string
+    arch?: string | null
+    channel?: string | null
+    dependencies?: { [key: string]: string } | null
+    pahkatRepo: string
+    version: string
+  }
+  & (
+    | {
       packageType: PackageType.MacOSPackage
       pkgId: string
       requiresReboot: RebootSpec[]
       targets: MacOSPackageTarget[]
     }
-  | {
+    | {
       packageType: PackageType.WindowsExecutable
       productCode: string
       kind: WindowsExecutableKind | null
       requiresReboot: RebootSpec[]
     }
-  | {
+    | {
       packageType: PackageType.TarballPackage
     }
-)
+  )
 
 export default async function deploy({
   packageId,
@@ -140,11 +142,13 @@ export default async function deploy({
 
   const artifactPath = path.join(
     path.dirname(payloadPath),
-    `${pathItems.join("_")}${ext}`
+    `${pathItems.join("_")}${ext}`,
   )
-  const artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${path.basename(
-    artifactPath
-  )}`
+  const artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${
+    path.basename(
+      artifactPath,
+    )
+  }`
   const artifactSize = getArtifactSize(payloadPath)
 
   const releaseReq: ReleaseRequest = {
@@ -174,7 +178,7 @@ export default async function deploy({
       artifactSize,
       pkgId,
       requiresReboot,
-      targets
+      targets,
     )
     fs.writeFileSync("./metadata.toml", data, "utf8")
   } else if (props.packageType === PackageType.WindowsExecutable) {
@@ -203,7 +207,7 @@ export default async function deploy({
       artifactSize,
       kind,
       productCode,
-      requiresReboot
+      requiresReboot,
     )
     fs.writeFileSync("./metadata.toml", data, "utf8")
   } else if (props.packageType === PackageType.TarballPackage) {
@@ -211,7 +215,7 @@ export default async function deploy({
       releaseReq,
       artifactUrl,
       1,
-      artifactSize
+      artifactSize,
     )
     fs.writeFileSync("./metadata.toml", data, "utf8")
   } else {
@@ -225,7 +229,7 @@ export default async function deploy({
     artifactPath,
     artifactUrl,
     "./metadata.toml",
-    repoPackageUrl
+    repoPackageUrl,
   )
 }
 
@@ -233,13 +237,13 @@ async function run() {
   const packageId = await builder.getInput("package-id", { required: true })
   const { packageType, platform } = await getPlatformAndType(
     await builder.getInput("platform"),
-    await builder.getInput("type")
+    await builder.getInput("type"),
   )
   const payloadPath = await builder.getInput("payload-path", { required: true })
   const arch = (await builder.getInput("arch")) || null
   const channel = (await builder.getInput("channel")) || null
   const dependencies = await getDependencies(
-    await builder.getInput("dependencies")
+    await builder.getInput("dependencies"),
   )
   const pahkatRepo = await builder.getInput("repo", { required: true })
   let version = await builder.getInput("version", { required: true })

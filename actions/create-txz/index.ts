@@ -1,6 +1,4 @@
-import path from "path"
-import tmp from "tmp"
-
+import path from "node:path"
 import * as builder from "~/builder"
 import { Tar } from "~/util/shared"
 
@@ -20,10 +18,8 @@ export default async function createTxz({ filesPath }: Props): Promise<Output> {
   const files = await globber.glob()
 
   await Tar.bootstrap()
-  const outputTxz = tmp.fileSync({
-    postfix: ".txz",
-    keep: true,
-    tries: 3,
+  const outputTxz = await Deno.makeTempFile({
+    suffix: ".txz",
   }).name
 
   await Tar.createFlatTxz(files, outputTxz)

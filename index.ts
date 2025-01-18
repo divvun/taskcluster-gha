@@ -2,12 +2,12 @@
 
 import { Command } from "commander"
 import PrettyError from "pretty-error"
-import * as builder from "~/builder"
-import { version } from "./package.json"
+import * as builder from "~/builder.ts"
+// import { version } from "./package.json" with { "type": "json" };
 
-import divvunspellLinux from "./pipelines/divvunspell/linux"
-import divvunspellMacos from "./pipelines/divvunspell/macos"
-import divvunspellWindows from "./pipelines/divvunspell/windows"
+import divvunspellLinux from "./pipelines/divvunspell/linux.ts"
+import divvunspellMacos from "./pipelines/divvunspell/macos.ts"
+import divvunspellWindows from "./pipelines/divvunspell/windows.ts"
 import Docker from "./util/docker"
 import Tart from "./util/tart"
 
@@ -29,25 +29,29 @@ function prettyPlatform() {
     case "win32":
       return "windows"
     case "linux":
+      return "linux"
     default:
       return `unsupported: ${process.platform}`
   }
 }
 
-console.log(`Loading Divvun Actions [Environment: ${builder.mode}] [Platform: ${prettyPlatform()}]`)
+console.log(
+  `Loading Divvun Actions [Mode: ${builder.mode}] [Env: ${
+    Deno.env.get("_DIVVUN_ACTIONS_ENV")
+  }] [Platform: ${prettyPlatform()}]`,
+)
 
 const program = new Command()
 
-process.on("unhandledRejection", (err: Error) => {
+globalThis.addEventListener("unhandledRejection", (err: Error) => {
   console.error(pe.render(err))
   process.exit(1)
 })
 
-
 program
   .name("divvun-actions")
   .description("CLI for Divvun Actions")
-  .version(version)
+// .version(version)
 
 // program
 //   .command("build")
@@ -238,7 +242,7 @@ divvunspell
       },
       {
         ignoreDependencies: options.ignoreDependencies,
-      }
+      },
     )
   })
 
@@ -259,7 +263,7 @@ divvunspell
       },
       {
         ignoreDependencies: options.ignoreDependencies,
-      }
+      },
     )
   })
 
@@ -280,15 +284,15 @@ divvunspell
       },
       {
         ignoreDependencies: options.ignoreDependencies,
-      }
+      },
     )
   })
 
 async function enterEnvironment(
   platform: string,
-  callback: () => Promise<void>
+  callback: () => Promise<void>,
 ) {
-  const workingDir = process.env._DIVVUN_ACTIONS_PWD!
+  const workingDir = Deno.env.get("_DIVVUN_ACTIONS_PWD")
   let id: string | undefined = undefined
 
   switch (platform) {
@@ -313,6 +317,7 @@ async function enterEnvironment(
 
       if (!isInContainer) {
         console.log("Running divvun-actions...")
+        console.log(`Working directory: ${workingDir}`)
         await Docker.enterEnvironment("divvun-actions", workingDir)
         return
       } else {
@@ -338,7 +343,7 @@ async function enterEnvironment(
       }
       break
     }
-    case "linux": 
+    case "linux":
     case "windows": {
       if (id) {
         await Docker.exitWorkspace(id)
@@ -349,7 +354,7 @@ async function enterEnvironment(
 }
 
 async function localMain() {
-  const realWorkingDir = process.env._DIVVUN_ACTIONS_PWD
+  const realWorkingDir = Deno.env.get("_DIVVUN_ACTIONS_PWD")
   let id: string | undefined = undefined
 
   if (realWorkingDir == null) {
@@ -357,7 +362,8 @@ async function localMain() {
     process.exit(1)
   }
 
-  await program.parseAsync()
+  console.log(Deno.args)
+  await program.parseAsync(Deno.args)
 }
 
 async function main() {

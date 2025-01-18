@@ -1,19 +1,19 @@
-import fs from "fs"
-import path from "path"
+import fs from "node:fs"
+import path from "node:path"
 import * as builder from "~/builder"
 
 import {
+  getArtifactSize,
   Kbdgen,
   MacOSPackageTarget,
   PahkatUploader,
   RebootSpec,
   ReleaseRequest,
-  WindowsExecutableKind,
-  getArtifactSize,
   validateProductCode,
+  WindowsExecutableKind,
 } from "~/util/shared"
 
-import { KeyboardType, getBundle } from "../types"
+import { getBundle, KeyboardType } from "../types"
 
 export function derivePackageId() {
   const repo = builder.context.repo
@@ -28,7 +28,7 @@ export function derivePackageId() {
 function releaseReq(
   version: string,
   platform: string,
-  channel: string | null
+  channel: string | null,
 ): ReleaseRequest {
   const req: ReleaseRequest = {
     version,
@@ -95,11 +95,13 @@ export default async function keyboardDeploy({
     const pathItems = [packageId, version, platform]
     artifactPath = path.join(
       path.dirname(payloadPath),
-      `${pathItems.join("_")}${ext}`
+      `${pathItems.join("_")}${ext}`,
     )
-    artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${path.basename(
-      artifactPath
-    )}`
+    artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${
+      path.basename(
+        artifactPath,
+      )
+    }`
     artifactSize = getArtifactSize(payloadPath)
 
     payloadMetadata = await PahkatUploader.release.macosPackage(
@@ -109,13 +111,13 @@ export default async function keyboardDeploy({
       artifactSize,
       pkgId,
       [RebootSpec.Install, RebootSpec.Uninstall],
-      [MacOSPackageTarget.System, MacOSPackageTarget.User]
+      [MacOSPackageTarget.System, MacOSPackageTarget.User],
     )
   } else if (keyboardType === KeyboardType.Windows) {
     const target = Kbdgen.loadTarget(bundlePath, "windows")
     const productCode = validateProductCode(
       WindowsExecutableKind.Inno,
-      target.uuid
+      target.uuid,
     )
     version = target.version as string
     platform = "windows"
@@ -124,11 +126,13 @@ export default async function keyboardDeploy({
     const pathItems = [packageId, version, platform]
     artifactPath = path.join(
       path.dirname(payloadPath),
-      `${pathItems.join("_")}${ext}`
+      `${pathItems.join("_")}${ext}`,
     )
-    artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${path.basename(
-      artifactPath
-    )}`
+    artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${
+      path.basename(
+        artifactPath,
+      )
+    }`
     artifactSize = getArtifactSize(payloadPath)
 
     payloadMetadata = await PahkatUploader.release.windowsExecutable(
@@ -138,7 +142,7 @@ export default async function keyboardDeploy({
       artifactSize,
       WindowsExecutableKind.Inno,
       productCode,
-      [RebootSpec.Install, RebootSpec.Uninstall]
+      [RebootSpec.Install, RebootSpec.Uninstall],
     )
   } else {
     throw new Error("Unhandled keyboard type: " + keyboardType)
@@ -176,7 +180,7 @@ export default async function keyboardDeploy({
     artifactUrl,
     "./metadata.toml",
     repoPackageUrl,
-    metadataJsonPath
+    metadataJsonPath,
   )
 }
 

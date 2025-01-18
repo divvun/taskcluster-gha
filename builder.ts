@@ -4,27 +4,27 @@ import type {
   CopyOptions,
   ExecListeners,
   ExecOptions,
-  GlobOptions,
   Globber,
+  GlobOptions,
   InputOptions,
 } from "./builder/gha"
 
-const isTaskcluster = process.env.TASKCLUSTER_ROOT_URL
-const isBuildkite = process.env.BUILDKITE
+const isTaskcluster = Deno.env.get("TASKCLUSTER_ROOT_URL")
+const isBuildkite = Deno.env.get("BUILDKITE")
 export let isGHA = !!isTaskcluster
 
 // Ensure we get the proper types from the implementations
-let selectedBuilder: typeof import("./builder/gha")
+let selectedBuilder: typeof import("~/builder/local.ts")
 export let mode: string
 
 if (isBuildkite) {
-  selectedBuilder = require("./builder/buildkite")
+  selectedBuilder = await import("~/builder/buildkite.ts")
   mode = "buildkite"
 } else if (isTaskcluster) {
-  selectedBuilder = require("./builder/gha")
+  selectedBuilder = await import("~/builder/gha.ts")
   mode = "taskcluster"
 } else {
-  selectedBuilder = require("./builder/local")
+  selectedBuilder = await import("~/builder/local.ts")
   mode = "local"
 }
 
@@ -60,8 +60,7 @@ export type {
   CopyOptions,
   ExecListeners,
   ExecOptions,
-  GlobOptions,
   Globber,
-  InputOptions
+  GlobOptions,
+  InputOptions,
 }
-

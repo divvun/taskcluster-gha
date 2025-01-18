@@ -1,8 +1,9 @@
 // Buildkite implementation of the builder interface
 
 import { ChildProcess, spawn as doSpawn } from "child_process"
-import fs from "fs"
 import { cp as fsCp, mkdtemp, writeFile } from "fs/promises"
+import fs from "node:fs"
+import process from "node:process"
 import { tmpdir } from "os"
 import { dirname, join } from "path"
 
@@ -142,7 +143,7 @@ export async function spawn(
     // console.log("Exec: " + stdio)
     const proc = doSpawn(commandLine, args || [], {
       cwd: options?.cwd,
-      env: options?.env || process.env,
+      env: options?.env || Deno.env.toObject(),
       stdio,
     })
 
@@ -191,9 +192,12 @@ export async function exec(
 }
 
 export function addPath(path: string) {
-  process.env.PATH = `${path}${process.platform === "win32" ? ";" : ":"}${
-    process.env.PATH
-  }`
+  const sep = process.platform === "win32" ? ";" : ":"
+  const p = Deno.env.get("PATH")
+  Deno.env.set(
+    "PATH",
+    `${path}${sep}${p}`,
+  )
 }
 
 export async function downloadTool(
@@ -341,14 +345,14 @@ export function error(message: string | Error) {
 }
 
 export function exportVariable(name: string, value: string) {
-  process.env[name] = value
+  Deno.env.set(name, value)
   console.log(`Setting environment variable ${name}=${value}`)
 }
 
 export const context: Context = {
-  ref: process.env.BUILDKITE_COMMIT || "",
-  workspace: process.env.BUILDKITE_BUILD_CHECKOUT_PATH || "",
-  repo: process.env.BUILDKITE_REPO || "",
+  ref: Deno.env.get("BUILDKITE_COMMIT")!,
+  workspace: Deno.env.get("BUILDKITE_BUILD_CHECKOUT_PATH")!,
+  repo: Deno.env.get("BUILDKITE_REPO")!,
 }
 
 export function secrets() {

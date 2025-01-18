@@ -1,18 +1,16 @@
-import path from "path"
-import tmp from "tmp"
+import path from "node:path"
 import * as builder from "~/builder"
 
 const ISCC_PATH = `"C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe"`
 
 export async function makeInstaller(
   issPath: string,
-  defines: string[] = []
+  defines: string[] = [],
 ): Promise<string> {
-  const installerOutput = tmp.dirSync({ keep: true }).name
+  const installerOutput = await Deno.makeTempDir()
 
   // Use our custom code signing service running on the CI machine
-  const signCmd =
-    `/S"signtool=curl -v ` +
+  const signCmd = `/S"signtool=curl -v ` +
     `-F file=@$f ` +
     `http://192.168.122.1:5000 ` +
     `-o $f"`

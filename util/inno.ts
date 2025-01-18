@@ -1,4 +1,4 @@
-import fs from "fs"
+import fs from "node:fs"
 
 type InnoFile = {
   Source: string
@@ -68,14 +68,14 @@ export class InnoSetupBuilder {
   }
 
   files(
-    callback: (builder: InnoSetupFilesBuilder) => InnoSetupFilesBuilder
+    callback: (builder: InnoSetupFilesBuilder) => InnoSetupFilesBuilder,
   ): InnoSetupBuilder {
     this.data.files = callback(new InnoSetupFilesBuilder())
     return this
   }
 
   code(
-    callback: (builder: InnoSetupCodeBuilder) => InnoSetupCodeBuilder
+    callback: (builder: InnoSetupCodeBuilder) => InnoSetupCodeBuilder,
   ): InnoSetupBuilder {
     this.data.code = callback(new InnoSetupCodeBuilder())
     return this
@@ -106,13 +106,15 @@ export class InnoSetupBuilder {
   }
 
   build(): string {
-    for (const key of [
-      "name",
-      "version",
-      "url",
-      "productCode",
-      "defaultDirName",
-    ]) {
+    for (
+      const key of [
+        "name",
+        "version",
+        "url",
+        "productCode",
+        "defaultDirName",
+      ]
+    ) {
       if (this.data[key] == null) {
         throw new Error(`Missing key "${key}" for Inno Setup builder`)
       }
@@ -317,10 +319,12 @@ begin
     Exec(ExpandConstant('${binary}'), ExpandConstant('${args}'), '', SW_HIDE, ewWaitUntilTerminated, iResultCode);
     if iResultCode <> 0 then
     begin
-        Result := '${errorMsg.replace(
-          /'/g,
-          "\\'"
-        )} (Error code: ' + IntToStr(iResultCode) + ')';
+        Result := '${
+    errorMsg.replace(
+      /'/g,
+      "\\'",
+    )
+  } (Error code: ' + IntToStr(iResultCode) + ')';
     end;
 end;
 `
@@ -365,7 +369,7 @@ class InnoSetupCodeBuilder {
   execPreInstall(
     binary: string,
     args: string,
-    errorMsg: string
+    errorMsg: string,
   ): InnoSetupCodeBuilder {
     this.preInstalls.push(generateExec(binary, args, errorMsg))
     return this
@@ -374,7 +378,7 @@ class InnoSetupCodeBuilder {
   execPostInstall(
     binary: string,
     args: string,
-    errorMsg: string
+    errorMsg: string,
   ): InnoSetupCodeBuilder {
     this.postInstalls.push(generateExec(binary, args, errorMsg))
     return this
@@ -383,7 +387,7 @@ class InnoSetupCodeBuilder {
   execPreUninstall(
     binary: string,
     args: string,
-    errorMsg: string
+    errorMsg: string,
   ): InnoSetupCodeBuilder {
     this.preUninstalls.push(generateExec(binary, args, errorMsg))
     return this
@@ -392,7 +396,7 @@ class InnoSetupCodeBuilder {
   execPostUninstall(
     binary: string,
     args: string,
-    errorMsg: string
+    errorMsg: string,
   ): InnoSetupCodeBuilder {
     this.postUninstalls.push(generateExec(binary, args, errorMsg))
     return this
@@ -467,7 +471,7 @@ class InnoSetupFilesBuilder {
     dest: string,
     flags?: string[],
     check?: string,
-    destName?: string
+    destName?: string,
   ): InnoSetupFilesBuilder {
     this.files.push({
       Source: source,

@@ -19,10 +19,12 @@ RUN dpkg --add-architecture arm64 && \
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y \
     --target aarch64-unknown-linux-gnu \
     --target x86_64-unknown-linux-gnu
-RUN curl -fsSL https://fnm.vercel.app/install | bash
-RUN fnm install 22 && fnm default 22 && \
-    fnm use 22 && \
-    npm i -g pnpm && \
-    SHELL=bash pnpm setup
+
+RUN curl -fsSL https://deno.land/install.sh | bash -s -- -y
+# RUN curl -fsSL https://fnm.vercel.app/install | bash
+# RUN fnm install 22 && fnm default 22 && \
+#     fnm use 22 && \
+#     npm i -g pnpm && \
+#     SHELL=bash pnpm setup
 
 ENTRYPOINT []

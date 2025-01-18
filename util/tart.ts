@@ -1,5 +1,5 @@
-import fs from "fs"
-import path from "path"
+import fs from "node:fs"
+import path from "node:path"
 import { exec, spawn } from "~/builder"
 
 type TartStatus = {
@@ -24,7 +24,7 @@ export default class Tart {
     }
 
     const dirsArg = Object.entries(dirs ?? {}).map(
-      ([key, value]) => `--dir=${key}:${value}`
+      ([key, value]) => `--dir=${key}:${value}`,
     )
 
     const args = ["tart", "run", "--no-graphics", vmName, ...dirsArg]
@@ -99,9 +99,11 @@ export default class Tart {
 
     console.log("Running divvun-actions...")
     const cmd = `
-      "${Tart.DIVVUN_ACTIONS_PATH}/bin/divvun-actions" ${process.argv
-      .slice(2)
-      .join(" ")}
+      "${Tart.DIVVUN_ACTIONS_PATH}/bin/divvun-actions" ${
+      process.argv
+        .slice(2)
+        .join(" ")
+    }
     `
 
     await Tart.exec("runner", cmd)

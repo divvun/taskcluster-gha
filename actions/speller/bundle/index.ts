@@ -1,22 +1,22 @@
 import toml from "@iarna/toml"
-import fs from "fs"
-import path from "path"
+import fs from "node:fs"
+import path from "node:path"
 
 import { makeInstaller } from "~/actions/inno-setup/lib"
 import * as builder from "~/builder"
 import { InnoSetupBuilder } from "~/util/inno"
 import {
-    DivvunBundler,
-    SpellerPaths,
-    Tar,
-    ThfstTools,
-    nonUndefinedProxy,
+  DivvunBundler,
+  nonUndefinedProxy,
+  SpellerPaths,
+  Tar,
+  ThfstTools,
 } from "~/util/shared"
 import {
-    SpellerManifest,
-    SpellerType,
-    deriveLangTag,
-    derivePackageId,
+  deriveLangTag,
+  derivePackageId,
+  SpellerManifest,
+  SpellerType,
 } from "../manifest"
 
 export type Props = {
@@ -56,7 +56,7 @@ export default async function spellerBundle({
 
     payloadPath = path.resolve(`./${packageId}_${version}_mobile.txz`)
     builder.debug(
-      `Creating txz from [${bhfstPaths.join(", ")}] at ${payloadPath}`
+      `Creating txz from [${bhfstPaths.join(", ")}] at ${payloadPath}`,
     )
     await Tar.createFlatTxz(bhfstPaths, payloadPath)
   } else if (spellerType == SpellerType.Windows) {
@@ -108,9 +108,11 @@ export default async function spellerBundle({
         }
 
         if (manifest.windows.extra_locales) {
-          for (const [tag, zhfstPrefix] of Object.entries(
-            manifest.windows.extra_locales
-          )) {
+          for (
+            const [tag, zhfstPrefix] of Object.entries(
+              manifest.windows.extra_locales,
+            )
+          ) {
             spellerToml.spellers[tag] = `${zhfstPrefix}.zhfst`
           }
         }
@@ -122,12 +124,12 @@ export default async function spellerBundle({
         code.execPostInstall(
           "{commonpf}\\WinDivvun\\i686\\spelli.exe",
           `refresh`,
-          `Could not refresh spellers. Is WinDivvun installed?`
+          `Could not refresh spellers. Is WinDivvun installed?`,
         )
         code.execPostUninstall(
           "{commonpf}\\WinDivvun\\i686\\spelli.exe",
           `refresh`,
-          `Could not refresh spellers. Is WinDivvun installed?`
+          `Could not refresh spellers. Is WinDivvun installed?`,
         )
 
         return code
@@ -145,7 +147,7 @@ export default async function spellerBundle({
       version,
       packageId,
       langTag,
-      spellerPaths
+      spellerPaths,
     )
   } else {
     throw new Error(`Unsupported speller type: ${spellerType}`)
@@ -164,12 +166,12 @@ async function run() {
   const manifest = toml.parse(
     fs.readFileSync(
       await builder.getInput("speller-manifest-path", { required: true }),
-      "utf8"
-    )
+      "utf8",
+    ),
   ) as SpellerManifest
   const spellerPaths = nonUndefinedProxy(
     JSON.parse(await builder.getInput("speller-paths", { required: true })),
-    true
+    true,
   ) as SpellerPaths
 
   const { payloadPath } = await spellerBundle({

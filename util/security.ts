@@ -4,11 +4,11 @@ import { Bash } from "./shared"
 export async function downloadAppleWWDRCA(version?: string) {
   if (version == undefined) {
     return await builder.downloadTool(
-      "https://developer.apple.com/certificationauthority/AppleWWDRCA.cer"
+      "https://developer.apple.com/certificationauthority/AppleWWDRCA.cer",
     )
   } else {
     return await builder.downloadTool(
-      `https://www.apple.com/certificateauthority/AppleWWDRCA${version}.cer`
+      `https://www.apple.com/certificateauthority/AppleWWDRCA${version}.cer`,
     )
   }
 }
@@ -16,11 +16,11 @@ export async function downloadAppleWWDRCA(version?: string) {
 export async function downloadAppleRootCA(version?: string) {
   if (version == undefined) {
     return await builder.downloadTool(
-      "https://www.apple.com/appleca/AppleIncRootCertificate.cer"
+      "https://www.apple.com/appleca/AppleIncRootCertificate.cer",
     )
   } else {
     return await builder.downloadTool(
-      `https://www.apple.com/certificateauthority/AppleRootCA-${version}.cer`
+      `https://www.apple.com/certificateauthority/AppleRootCA-${version}.cer`,
     )
   }
 }
@@ -28,11 +28,11 @@ export async function downloadAppleRootCA(version?: string) {
 export async function downloadAppleDevIdCA(version?: string) {
   if (version == undefined) {
     return await builder.downloadTool(
-      "https://www.apple.com/certificateauthority/DeveloperIDCA.cer"
+      "https://www.apple.com/certificateauthority/DeveloperIDCA.cer",
     )
   } else {
     return await builder.downloadTool(
-      `https://www.apple.com/certificateauthority/DeveloperID${version}CA.cer`
+      `https://www.apple.com/certificateauthority/DeveloperID${version}CA.cer`,
     )
   }
 }
@@ -90,7 +90,7 @@ export class Security {
   public static async import(
     keychainName: string,
     certOrKeyPath: string,
-    keyPassword?: string
+    keyPassword?: string,
   ) {
     if (keyPassword != null) {
       builder.setSecret(keyPassword)
@@ -121,7 +121,7 @@ export class Security {
   public static async setKeyPartitionList(
     keychainName: string,
     password: string,
-    partitionList: string[]
+    partitionList: string[],
   ) {
     builder.setSecret(password)
     return await Security.run("set-key-partition-list", [

@@ -1,20 +1,20 @@
-import fs from "fs"
-import path from "path"
+import fs from "node:fs"
+import path from "node:path"
 import toml from "toml"
 import * as builder from "~/builder"
 
 import {
+  getArtifactSize,
   MacOSPackageTarget,
+  nonUndefinedProxy,
   PahkatUploader,
   RebootSpec,
   ReleaseRequest,
-  WindowsExecutableKind,
-  getArtifactSize,
-  nonUndefinedProxy,
   validateProductCode,
+  WindowsExecutableKind,
 } from "~/util/shared"
 
-import { SpellerManifest, SpellerType, derivePackageId } from "../manifest"
+import { derivePackageId, SpellerManifest, SpellerType } from "../manifest"
 
 function loadManifest(manifestPath: string): SpellerManifest {
   const manifestString = fs.readFileSync(manifestPath, "utf8")
@@ -25,7 +25,7 @@ function releaseReq(
   version: string,
   platform: string,
   dependencies: any,
-  channel: string | null
+  channel: string | null,
 ): ReleaseRequest {
   const req: ReleaseRequest = {
     version,
@@ -78,24 +78,27 @@ export default async function spellerDeploy({
       platform = "windows"
       const productCode = validateProductCode(
         WindowsExecutableKind.Inno,
-        manifest.windows.system_product_code
+        manifest.windows.system_product_code,
       )
 
       const ext = path.extname(payloadPath)
       const pathItems = [packageId, version, platform]
       artifactPath = path.join(
         path.dirname(payloadPath),
-        `${pathItems.join("_")}${ext}`
+        `${pathItems.join("_")}${ext}`,
       )
-      artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${path.basename(
-        artifactPath
-      )}`
+      artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${
+        path.basename(
+          artifactPath,
+        )
+      }`
       artifactSize = getArtifactSize(payloadPath)
 
       // Make the nightly channel be used if any channel except for the default.
       let deps: any = { "https://pahkat.uit.no/tools/packages/windivvun": "*" }
       if (channel != null) {
-        const windivvun = `https://pahkat.uit.no/tools/packages/windivvun?channel=${nightlyChannel}`
+        const windivvun =
+          `https://pahkat.uit.no/tools/packages/windivvun?channel=${nightlyChannel}`
         deps = {}
         deps[windivvun] = "*"
       }
@@ -107,7 +110,7 @@ export default async function spellerDeploy({
         artifactSize,
         WindowsExecutableKind.Inno,
         productCode,
-        [RebootSpec.Install, RebootSpec.Uninstall]
+        [RebootSpec.Install, RebootSpec.Uninstall],
       )
     } else if (spellerType === SpellerType.MacOS) {
       platform = "macos"
@@ -117,17 +120,20 @@ export default async function spellerDeploy({
       const pathItems = [packageId, version, platform]
       artifactPath = path.join(
         path.dirname(payloadPath),
-        `${pathItems.join("_")}${ext}`
+        `${pathItems.join("_")}${ext}`,
       )
-      artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${path.basename(
-        artifactPath
-      )}`
+      artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${
+        path.basename(
+          artifactPath,
+        )
+      }`
       artifactSize = getArtifactSize(payloadPath)
 
       // Make the nightly channel be used if any channel except for the default.
       let deps: any = { "https://pahkat.uit.no/tools/packages/macdivvun": "*" }
       if (channel != null) {
-        const macdivvun = `https://pahkat.uit.no/tools/packages/macdivvun?channel=${nightlyChannel}`
+        const macdivvun =
+          `https://pahkat.uit.no/tools/packages/macdivvun?channel=${nightlyChannel}`
         deps = {}
         deps[macdivvun] = "*"
       }
@@ -139,7 +145,7 @@ export default async function spellerDeploy({
         artifactSize,
         pkgId,
         [RebootSpec.Install, RebootSpec.Uninstall],
-        [MacOSPackageTarget.System, MacOSPackageTarget.User]
+        [MacOSPackageTarget.System, MacOSPackageTarget.User],
       )
     } else if (spellerType === SpellerType.Mobile) {
       platform = "mobile"
@@ -148,18 +154,20 @@ export default async function spellerDeploy({
       const pathItems = [packageId, version, platform]
       artifactPath = path.join(
         path.dirname(payloadPath),
-        `${pathItems.join("_")}${ext}`
+        `${pathItems.join("_")}${ext}`,
       )
-      artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${path.basename(
-        artifactPath
-      )}`
+      artifactUrl = `${PahkatUploader.ARTIFACTS_URL}${
+        path.basename(
+          artifactPath,
+        )
+      }`
       artifactSize = getArtifactSize(payloadPath)
 
       payloadMetadata = await PahkatUploader.release.tarballPackage(
         releaseReq(version, platform, {}, channel),
         artifactUrl,
         1,
-        artifactSize
+        artifactSize,
       )
     } else {
       throw new Error(`Unsupported bundle type ${spellerType}`)
@@ -193,7 +201,7 @@ export default async function spellerDeploy({
       repoPackageUrl,
       null,
       manifestPath,
-      "speller"
+      "speller",
     )
   } catch (error: any) {
     builder.setFailed(error.message)

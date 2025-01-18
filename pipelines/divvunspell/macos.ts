@@ -1,11 +1,11 @@
-import doCodesign from "~/actions/codesign/index"
-import createTxz from "~/actions/create-txz/index"
-import doDeploy, { PackageType } from "~/actions/deploy/index"
-import pahkatInit from "~/actions/pahkat/init/index"
-import doSetup from "~/actions/setup/index"
-import getVersion from "~/actions/version/index"
-import { exec } from "~/builder"
-import { Bash } from "~/util/shared"
+import doCodesign from "~/actions/codesign/index.ts"
+import createTxz from "~/actions/create-txz/index.ts"
+import doDeploy, { PackageType } from "~/actions/deploy/index.ts"
+import pahkatInit from "~/actions/pahkat/init/index.ts"
+import doSetup from "~/actions/setup/index.ts"
+import getVersion from "~/actions/version/index.ts"
+import { exec } from "~/builder.ts"
+import { Bash } from "~/util/shared.ts"
 
 const TARGETS = ["x86_64-apple-darwin", "aarch64-apple-darwin"]
 
@@ -44,7 +44,7 @@ function recurseDependsOn(
 
   function inner(
     input: Function,
-    out: Function[] = []
+    out: Function[] = [],
   ) {
     for (const dep of DEPENDS_ON.get(input) ?? []) {
       out.push(dep)
@@ -62,7 +62,7 @@ export default async function run(
   inputs: Props,
   options: {
     ignoreDependencies?: boolean
-  } = {}
+  } = {},
 ) {
   let steps
   if (options.ignoreDependencies) {

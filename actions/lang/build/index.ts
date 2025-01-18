@@ -203,7 +203,7 @@ export default async function langBuild({
       path.join(githubWorkspace, "lang/build/tools/spellcheckers/*.zhfst"),
       {
         followSymbolicLinks: false,
-      }
+      },
     )
     const files = await globber.glob()
 
@@ -229,7 +229,7 @@ export default async function langBuild({
 
     if (requiresDesktopAsMobileWorkaround) {
       builder.warning(
-        "WORKAROUND: FORCING DESKTOP SPELLERS AS MOBILE SPELLERS."
+        "WORKAROUND: FORCING DESKTOP SPELLERS AS MOBILE SPELLERS.",
       )
       for (const [key, value] of Object.entries(out.desktop)) {
         if (out.mobile[key] == null) {
@@ -255,7 +255,7 @@ export default async function langBuild({
 
 async function run() {
   const requiresDesktopAsMobileWorkaround = Boolean(
-    await builder.getInput("force-desktop-spellers-as-mobile")
+    await builder.getInput("force-desktop-spellers-as-mobile"),
   )
 
   const config = await deriveInputs([

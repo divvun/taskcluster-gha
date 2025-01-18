@@ -1,5 +1,5 @@
-import fs from "fs"
-import path from "path"
+import fs from "node:fs"
+import path from "node:path"
 
 import toml from "toml"
 import { SpellerManifest } from "~/actions/speller/manifest"
@@ -18,7 +18,7 @@ async function getCargoToml(cargo: string | null) {
 
   if (cargo === "true") {
     return nonUndefinedProxy(
-      toml.parse(fs.readFileSync("./Cargo.toml", "utf8"))
+      toml.parse(fs.readFileSync("./Cargo.toml", "utf8")),
     )
   }
 
@@ -26,7 +26,7 @@ async function getCargoToml(cargo: string | null) {
 }
 
 async function getSpellerManifestToml(
-  manifest: string | null
+  manifest: string | null,
 ): Promise<SpellerManifest | null> {
   if (manifest == null) {
     return null
@@ -34,7 +34,7 @@ async function getSpellerManifestToml(
 
   if (manifest === "true") {
     return nonUndefinedProxy(
-      toml.parse(fs.readFileSync("./manifest.toml", "utf8"))
+      toml.parse(fs.readFileSync("./manifest.toml", "utf8")),
     )
   }
 
@@ -50,7 +50,7 @@ async function getXcodeMarketingVersion(input: string | null) {
   // Xcode is the worst and I want out of this dastardly life.
   const [out] = await Bash.runScript(
     `xcodebuild -showBuildSettings | grep -i 'MARKETING_VERSION' | sed 's/[ ]*MARKETING_VERSION = //'`,
-    { cwd }
+    { cwd },
   )
   return out.trim()
 }
@@ -98,12 +98,12 @@ async function run() {
   const isNightly = deriveNightly()
   const cargoToml = await getCargoToml(await builder.getInput("cargo"))
   const spellerManifest = await getSpellerManifestToml(
-    await builder.getInput("speller-manifest")
+    await builder.getInput("speller-manifest"),
   )
   const plistPath = await getPlistPath(await builder.getInput("plist"))
   const csharp = (await builder.getInput("csharp")) || null
   const versionFromFile = await getVersionFromFile(
-    await builder.getInput("filepath")
+    await builder.getInput("filepath"),
   )
   const instaStable = Boolean(await builder.getInput("insta-stable")) || false
   const nightlyChannel = await builder.getInput("nightly-channel", {
@@ -152,7 +152,7 @@ export default async function version({
     version = cargoToml.package.version
   } else if (csharp != null) {
     builder.debug("Getting version from GitVersioning C#")
-    version = process.env.GitBuildVersionSimple
+    version = Deno.env.get("GitBuildVersionSimple")
   } else if (spellerManifest != null) {
     builder.debug("Getting version from speller manifest")
     builder.debug(`spellerversion: ${spellerManifest.spellerversion}`)
@@ -161,7 +161,7 @@ export default async function version({
     builder.debug("Getting version from plist")
     const result = (
       await Bash.runScript(
-        `/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "${plistPath}"`
+        `/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "${plistPath}"`,
       )
     )
       .join("")
