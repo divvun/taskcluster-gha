@@ -12,4 +12,4 @@ cd "$SCRIPT_DIR";
 
 export _DIVVUN_ACTIONS_ENV=${_DIVVUN_ACTIONS_ENV:-native}
 export _DIVVUN_ACTIONS_PWD=$CWD;
-deno run -A --unstable-sloppy-imports main.ts "$@"
+deno -q run -A main.ts "$@" 2>&1 | deno -q run -A "./util/redactor.ts"

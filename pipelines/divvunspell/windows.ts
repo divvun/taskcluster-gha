@@ -2,7 +2,6 @@
 import createTxz from "~/actions/create-txz.ts"
 import doDeploy, { PackageType } from "~/actions/deploy.ts"
 import pahkatInit from "~/actions/pahkat/init.ts"
-import doSetup from "~/actions/setup.ts"
 import getVersion from "~/actions/version.ts"
 import { exec } from "~/builder.ts"
 import { Bash } from "~/util/shared.ts"
@@ -94,6 +93,8 @@ async function build(_: DivvunSpellProps) {
   // Build
   for (const target of TARGETS) {
     await exec("cargo", [
+      "--color",
+      "always",
       "build",
       "--release",
       "--lib",

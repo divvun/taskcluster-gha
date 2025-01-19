@@ -51,7 +51,7 @@ export class Security {
   }
 
   public static async createKeychain(name: string, password: string) {
-    builder.setSecret(password)
+    builder.redactSecret(password)
     return await Security.run("create-keychain", [
       "-p",
       `"${password}"`,
@@ -69,7 +69,7 @@ export class Security {
   }
 
   public static async unlockKeychain(name: string, password: string) {
-    builder.setSecret(password)
+    builder.redactSecret(password)
     return await Security.run("unlock-keychain", [
       "-p",
       `"${password}"`,
@@ -93,7 +93,7 @@ export class Security {
     keyPassword?: string,
   ) {
     if (keyPassword != null) {
-      builder.setSecret(keyPassword)
+      builder.redactSecret(keyPassword)
       return await Security.run("import", [
         certOrKeyPath,
         "-k",
@@ -123,7 +123,7 @@ export class Security {
     password: string,
     partitionList: string[],
   ) {
-    builder.setSecret(password)
+    builder.redactSecret(password)
     return await Security.run("set-key-partition-list", [
       "-S",
       partitionList.join(","),

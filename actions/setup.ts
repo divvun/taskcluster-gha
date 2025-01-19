@@ -1,5 +1,4 @@
 // deno-lint-ignore-file no-explicit-any
-import * as path from "@std/path"
 import { decodeBase64 } from "jsr:@std/encoding/base64"
 import * as builder from "~/builder.ts"
 import { downloadAppleDevIdCA, Security } from "~/util/security.ts"
@@ -9,8 +8,6 @@ import {
   divvunConfigDir,
   randomString64,
   secrets,
-  Tar,
-  tmpDir,
 } from "~/util/shared.ts"
 
 function debug(input: string[]) {
@@ -93,45 +90,6 @@ async function setupMacOSKeychain() {
   )
 
   debug(await Bash.runScript(`bash ${divvunConfigDir()}/enc/install.sh`))
-}
-
-async function cloneConfigRepo(password: string) {
-  builder.setSecret(password)
-
-  const dir = tmpDir()
-  await Bash.runScript(
-    "git clone --depth=1 https://github.com/divvun/divvun-ci-config.git",
-    { cwd: dir },
-  )
-
-  const repoDir = divvunConfigDir()
-  await Bash.runScript(
-    `openssl aes-256-cbc -d -in ./config.txz.enc -pass pass:${password} -out config.txz -md md5`,
-    { cwd: repoDir },
-  )
-  await Tar.extractTxz(path.resolve(repoDir, "config.txz"), repoDir)
-}
-
-export type Props = {
-  divvunKey: string
-}
-
-export default async function setup({ divvunKey }: Props) {
-  try {
-    builder.setSecret(divvunKey)
-    console.log("Setting up environment")
-
-    await cloneConfigRepo(divvunKey)
-
-    if (Deno.build.os == "darwin") {
-      await setupMacOSKeychain()
-    }
-
-    builder.exportVariable("DIVVUN_CI_CONFIG", divvunConfigDir())
-    builder.debug(divvunConfigDir())
-  } catch (error: any) {
-    builder.setFailed(error.message)
-  }
 }
 
 // async function run() {

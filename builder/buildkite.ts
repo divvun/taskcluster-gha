@@ -113,7 +113,10 @@ export async function downloadTool(
   throw new Error("Download tool is not available in Buildkite")
 }
 
-export async function extractZip(_file: string, _dest?: string): Promise<string> {
+export async function extractZip(
+  _file: string,
+  _dest?: string,
+): Promise<string> {
   throw new Error("Extract zip is not available in Buildkite")
 }
 
@@ -125,7 +128,11 @@ export async function extractTar(
   throw new Error("Extract tar is not available in Buildkite")
 }
 
-export async function cp(_source: string, _dest: string, _options?: CopyOptions) {
+export async function cp(
+  _source: string,
+  _dest: string,
+  _options?: CopyOptions,
+) {
   throw new Error("Copy is not available in Buildkite")
 }
 

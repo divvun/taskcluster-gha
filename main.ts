@@ -385,7 +385,31 @@ async function localMain() {
   await program.parseAsync(Deno.args)
 }
 
+function delay(timeout: number) {
+  return new Promise((resolve) => setTimeout(resolve, timeout))
+}
+
 async function main() {
+  // builder.startGroup("hello")
+  // const secrets = await builder.secrets()
+  // console.log(secrets)
+  // builder.error("oh my")
+  // await delay(500)
+  // builder.warning("less oh my")
+  // console.log("1")
+  // console.log("2")
+  // console.log("3")
+  // await delay(500)
+  // console.log("4")
+  // console.log("5")
+  // await delay(1000)
+  // console.log("example ends in 2 seconds")
+  // await delay(2000)
+  // builder.endGroup()
+
+  // await delay(500)
+  // console.log("Group is now closed!")
+
   switch (builder.mode) {
     case "local": {
       await localMain()

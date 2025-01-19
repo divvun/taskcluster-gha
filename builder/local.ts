@@ -9,6 +9,8 @@ import type {
   GlobOptions,
   InputOptions,
 } from "~/builder/types.ts"
+import * as command from "~/util/command.ts"
+import Infisical from "~/util/infisical.ts"
 
 export function debug(message: string) {
   console.debug(message)
@@ -116,7 +118,10 @@ export async function downloadTool(
   throw new Error("Download tool is not available in Buildkite")
 }
 
-export async function extractZip(_file: string, _dest?: string): Promise<string> {
+export async function extractZip(
+  _file: string,
+  _dest?: string,
+): Promise<string> {
   throw new Error("Extract zip is not available in Buildkite")
 }
 
@@ -128,7 +133,11 @@ export async function extractTar(
   throw new Error("Extract tar is not available in Buildkite")
 }
 
-export async function cp(_source: string, _dest: string, _options?: CopyOptions) {
+export async function cp(
+  _source: string,
+  _dest: string,
+  _options?: CopyOptions,
+) {
   throw new Error("Copy is not available in Buildkite")
 }
 
@@ -158,25 +167,8 @@ export async function globber(
   throw new Error("Glob is not available in Buildkite")
 }
 
-export async function setSecret(_secret: string) {
-  // return new Promise<void>((resolve, reject) => {
-  //   const echo = doSpawn("echo", [secret])
-  //   const redactor = doSpawn("buildkite-agent", ["redactor", "add"])
-
-  //   echo.stdout.pipe(redactor.stdin)
-
-  //   redactor.on("error", reject)
-  //   redactor.on("close", (code) => {
-  //     if (code === 0) {
-  //       resolve()
-  //     } else {
-  //       reject(new Error(`Failed to add secret to redactor: exit code ${code}`))
-  //     }
-  //   })
-
-  //   echo.on("error", reject)
-  // })
-  throw new Error("Secrets are not available in Buildkite")
+export async function redactSecret(value: string) {
+  console.log(await command.stringify({ name: "redact", value }))
 }
 
 export async function getInput(
@@ -214,20 +206,31 @@ export async function setOutput(name: string, value: any) {
 }
 
 export function startGroup(name: string) {
-  console.log(`--- ${name}`)
+  console.log(command.stringify({ name: "start-group", value: name }))
 }
 
 export function endGroup() {
-  console.log("^^^")
+  console.log(command.stringify({ name: "end-group" }))
 }
 
 export function warning(message: string) {
-  console.warn(`⚠️  ${message}`)
+  console.log(
+    command.stringify({
+      name: "log",
+      data: { level: "warning" },
+      value: message,
+    }),
+  )
 }
 
 export function error(message: string | Error) {
-  const errorMessage = message instanceof Error ? message.message : message
-  console.error(`❌ ${errorMessage}`)
+  console.log(
+    command.stringify({
+      name: "log",
+      data: { level: "error" },
+      value: message instanceof Error ? message.message : message,
+    }),
+  )
 }
 
 export function exportVariable(name: string, value: string) {
@@ -241,9 +244,30 @@ export const context: Context = {
   repo: Deno.env.get("BUILDKITE_REPO")!,
 }
 
-export function secrets(): any {
-  // throw new Error("Secrets are not available in local")
-  return {}
+let redactedSecrets: Record<string, string> | undefined
+
+export async function secrets(): Promise<Record<string, string>> {
+  if (redactedSecrets != null) {
+    return redactedSecrets
+  }
+
+  const vaultKey = Deno.env.get("DIVVUN_ACTIONS_VAULT_KEY")
+
+  if (vaultKey == null) {
+    throw new Error("DIVVUN_ACTIONS_VAULT_KEY is not defined")
+  }
+
+  const vault = await Infisical.fromKey(vaultKey)
+  const raw = await vault.secrets()
+
+  for (const value of Object.values(raw)) {
+    await redactSecret(value)
+  }
+
+  Object.freeze(raw)
+  redactedSecrets = raw
+
+  return redactedSecrets
 }
 
 export function tempDir() {

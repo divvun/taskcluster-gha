@@ -36,7 +36,7 @@ export const {
   extractTar,
   cp,
   globber,
-  setSecret,
+  redactSecret,
   getInput,
   setOutput,
   startGroup,
