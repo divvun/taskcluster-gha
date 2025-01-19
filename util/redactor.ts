@@ -10,19 +10,78 @@ const ESC = "\x1b"
 const SAVE_CURSOR = `${ESC}7`
 const RESTORE_CURSOR = `${ESC}8`
 const CLEAR_TO_END = `${ESC}[J`
-const MAX_VISIBLE_LINES = 10
+const CLEAR_SCREEN = `${ESC}[2J`
+const CURSOR_UP = (n: number) => `${ESC}[${n}A`
+const CURSOR_TO_START = `${ESC}[H`
 
-type Config = {
-  maxVisibleLines: number
+// Platform-specific implementations
+const isWindows = Deno.build.os === "windows"
+
+interface TerminalController {
+  startGroup(name: string): string
+  endGroup(name: string, close: boolean): string
+  updateGroup(
+    name: string,
+    lines: string[],
+    total: number,
+    maxLines: number,
+  ): string
 }
+
+// Unix implementation with ANSI escape sequences
+const UnixTerminal: TerminalController = {
+  startGroup(name: string) {
+    return `${SAVE_CURSOR}--- ${name}\n`
+  },
+  endGroup(name: string, close: boolean) {
+    if (close) {
+      return `^^^\n${RESTORE_CURSOR}${CLEAR_TO_END}~~~ ${name}\n`
+    }
+    return "^^^\n"
+  },
+  updateGroup(name: string, lines: string[], total: number, maxLines: number) {
+    if (maxLines === Number.MAX_SAFE_INTEGER) {
+      // For unlimited lines, don't do any cursor manipulation
+      return lines[lines.length - 1]
+    }
+    return `${RESTORE_CURSOR}${CLEAR_TO_END}--- ${name} (${total} lines)\n${
+      lines.slice(-maxLines).join("")
+    }`
+  },
+}
+
+// Windows implementation using VT100 sequences
+const WindowsTerminal: TerminalController = {
+  startGroup(name: string) {
+    return `${CURSOR_TO_START}${CLEAR_SCREEN}--- ${name}\n`
+  },
+  endGroup(name: string, close: boolean) {
+    if (close) {
+      return `^^^\n${CURSOR_TO_START}${CLEAR_SCREEN}~~~ ${name}\n`
+    }
+    return "^^^\n"
+  },
+  updateGroup(name: string, lines: string[], total: number, maxLines: number) {
+    if (maxLines === Number.MAX_SAFE_INTEGER) {
+      // For unlimited lines, don't do any cursor manipulation
+      return lines[lines.length - 1]
+    }
+    const visibleLines = lines.slice(-maxLines)
+    return `${CURSOR_UP(visibleLines.length + 1)}${CLEAR_SCREEN}--- ${name} (${total} lines)\n${
+      visibleLines.join("")
+    }`
+  },
+}
+
+const terminal = isWindows ? WindowsTerminal : UnixTerminal
 
 export function startListener() {
   const redactions: Set<string> = new Set()
   const decoder = new TextDecoder()
   const encoder = new TextEncoder()
   let buffer = new Uint8Array(0)
-  let config: Config = {
-    maxVisibleLines: MAX_VISIBLE_LINES,
+  let config: { maxVisibleLines: number } = {
+    maxVisibleLines: 10,
   }
 
   // Group state
@@ -60,13 +119,11 @@ export function startListener() {
 
               switch (cmd?.command) {
                 case "config":
-                  if (cmd.data) {
-                    if (cmd.data.maxVisibleLines) {
-                      if (cmd.data.maxVisibleLines <= 0) {
-                        config.maxVisibleLines = Number.MAX_SAFE_INTEGER
-                      } else {
-                        config.maxVisibleLines = cmd.data.maxVisibleLines
-                      }
+                  if (cmd.data?.maxVisibleLines) {
+                    if (cmd.data.maxVisibleLines <= 0) {
+                      config.maxVisibleLines = Number.MAX_SAFE_INTEGER
+                    } else {
+                      config.maxVisibleLines = cmd.data.maxVisibleLines
                     }
                   }
                   break
@@ -80,22 +137,16 @@ export function startListener() {
                   groupLines = []
                   groupName = cmd.value ?? ""
                   controller.enqueue(
-                    encoder.encode(`${SAVE_CURSOR}--- ${groupName}\n`),
+                    encoder.encode(terminal.startGroup(groupName)),
                   )
                   break
                 case "end-group":
                   if (inGroup) {
-                    if (cmd.data?.close) {
-                      controller.enqueue(
-                        encoder.encode(
-                          `^^^\n${RESTORE_CURSOR}${CLEAR_TO_END}~~~ ${groupName}\n`,
-                        ),
-                      )
-                    } else {
-                      controller.enqueue(
-                        encoder.encode(`^^^\n`),
-                      )
-                    }
+                    controller.enqueue(
+                      encoder.encode(
+                        terminal.endGroup(groupName, cmd.data?.close ?? false),
+                      ),
+                    )
                     inGroup = false
                     groupLines = []
                   }
@@ -107,11 +158,7 @@ export function startListener() {
                       : cmd.data?.level === "error"
                       ? "ERROR: "
                       : ""
-                    outputLine(
-                      `${prefix}${cmd.value}\n`,
-                      controller,
-                      config.maxVisibleLines,
-                    )
+                    outputLine(`${prefix}${cmd.value}\n`, controller)
                   }
                   break
               }
@@ -150,16 +197,21 @@ export function startListener() {
   function outputLine(
     line: string,
     controller: TransformStreamDefaultController<Uint8Array>,
-    maxLines: number,
   ) {
     if (inGroup) {
       groupLines.push(line)
-      if (groupLines.length > maxLines) {
-        // Clear previous output and show last N lines
-        const output =
-          `${RESTORE_CURSOR}${CLEAR_TO_END}--- ${groupName} (${groupLines.length} lines)\n` +
-          groupLines.slice(-maxLines).join("")
-        controller.enqueue(encoder.encode(output))
+      if (config.maxVisibleLines === Number.MAX_SAFE_INTEGER) {
+        // When showing all lines, just print directly
+        controller.enqueue(encoder.encode(line))
+      } else if (groupLines.length > config.maxVisibleLines) {
+        controller.enqueue(encoder.encode(
+          terminal.updateGroup(
+            groupName,
+            groupLines,
+            groupLines.length,
+            config.maxVisibleLines,
+          ),
+        ))
       } else {
         controller.enqueue(encoder.encode(line))
       }
