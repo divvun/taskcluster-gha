@@ -7,7 +7,7 @@ import * as builder from "~/builder.ts"
 import { exec } from "~/builder.ts"
 import { Bash } from "~/util/shared.ts"
 
-const TARGETS = ["aarch64-unknown-linux-gnu", "x86_64-unknown-linux-gnu"]
+const TARGETS = ["aarch64-unknown-linux-gnu"] //, "x86_64-unknown-linux-gnu"]
 
 export type Step = "build" | "tarball" | "deploy"
 
@@ -33,15 +33,10 @@ const STEPS: Map<string, any> = new Map([
   ["deploy", deploy],
 ])
 
-function recurseDependsOn(
-  input: Function,
-) {
+function recurseDependsOn(input: Function) {
   const out: Function[] = [input]
 
-  function inner(
-    input: Function,
-    out: Function[] = [],
-  ) {
+  function inner(input: Function, out: Function[] = []) {
     for (const dep of DEPENDS_ON.get(input) ?? []) {
       out.push(dep)
       inner(dep, out)
@@ -62,15 +57,12 @@ export default async function run(
     ignoreDependencies?: boolean
   } = {},
 ) {
-  console.log(step, inputs, options)
   let steps
   if (options.ignoreDependencies) {
     steps = [STEPS.get(step)!]
   } else {
     steps = recurseDependsOn(STEPS.get(step)!)
   }
-
-  console.log(steps)
 
   let output: any | undefined = inputs
   for (const step of steps) {
@@ -85,36 +77,45 @@ export default async function run(
 async function build(_: DivvunSpellProps) {
   // Build
   for (const target of TARGETS) {
-    builder.startGroup(`Building ${target}`)
-    await exec("cargo", [
-      "--color",
-      "always",
-      "build",
-      "--release",
-      "--lib",
-      //   "--features",
-      //   "compression,internal_ffi",
-      "--target",
-      target,
-    ])
-    builder.endGroup()
+    await builder.group(`Building ${target}`, async () => {
+      await exec("cargo", [
+        "--color",
+        "always",
+        "build",
+        "--release",
+        "--lib",
+        //   "--features",
+        //   "compression,internal_ffi",
+        "--target",
+        target,
+      ])
+    })
   }
 }
 
 async function tarball(_: DivvunSpellProps) {
-  await Bash.runScript([
-    "mkdir -p dist/lib/aarch64",
-    "mv target/aarch64-unknown-linux-gnu/release/libdivvunspell.so dist/lib/aarch64",
-    "mkdir -p dist/lib/x86_64",
-    "mv target/x86_64-unknown-linux-gnu/release/libdivvunspell.so dist/lib/x86_64",
-  ])
-
-  // Derive version
-  const { txzPath } = await createTxz({
-    filesPath: "dist",
-  })
-
-  return { txzPath }
+  for (const target of TARGETS) {
+    await builder.group(`Tarballing ${target}`, async () => {
+      if (target.startsWith("aarch64")) {
+        await Bash.runScript([
+          "mkdir -p dist/lib/aarch64",
+          "mv target/aarch64-unknown-linux-gnu/release/libdivvunspell.so dist/lib/aarch64",
+        ])
+        // Derive version
+        await createTxz({
+          filesPath: "dist/lib/aarch64",
+        })
+      } else {
+        await Bash.runScript([
+          "mkdir -p dist/lib/x86_64",
+          "mv target/x86_64-unknown-linux-gnu/release/libdivvunspell.so dist/lib/x86_64",
+        ])
+        await createTxz({
+          filesPath: "dist/lib/x86_64",
+        })
+      }
+    })
+  }
 }
 
 async function deploy({

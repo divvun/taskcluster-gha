@@ -1,5 +1,5 @@
+import * as fs from "@std/fs"
 import * as path from "@std/path"
-import * as builder from "~/builder.ts"
 import { Tar } from "~/util/shared.ts"
 
 export type Props = {
@@ -11,17 +11,23 @@ export type Output = {
 }
 
 export default async function createTxz({ filesPath }: Props): Promise<Output> {
-  const globber = await builder.globber(path.join(filesPath, "*"), {
-    followSymbolicLinks: false,
-    implicitDescendants: false,
+  console.log("Files path: " + filesPath)
+  const files = await fs.expandGlob(path.join(filesPath, "*"), {
+    followSymlinks: false,
+    includeDirs: true,
   })
-  const files = await globber.glob()
 
   const outputTxz = await Deno.makeTempFile({
     suffix: ".txz",
   })
 
-  await Tar.createFlatTxz(files, outputTxz)
+  const input = []
+  for await (const file of files) {
+    input.push(file.path)
+  }
+  console.log(input)
+
+  await Tar.createFlatTxz(input, outputTxz)
   return { txzPath: outputTxz }
 }
 

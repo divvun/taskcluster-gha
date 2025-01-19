@@ -9,7 +9,7 @@ import { Bash } from "~/util/shared.ts"
 
 const TARGETS = ["x86_64-apple-darwin", "aarch64-apple-darwin"]
 
-export type Step = "setup" | "build" | "codesign" | "tarball" | "deploy"
+export type Step = "build" | "codesign" | "tarball" | "deploy"
 
 type Context = {}
 type Props = { divvunKey: string; skipSetup?: boolean; skipSigning?: boolean }
@@ -22,16 +22,14 @@ type PipelineProps<T> = {
 }
 
 const DEPENDS_ON: Map<Function, Function[]> = new Map([
-  [setup as any, []],
-  [build, [setup]],
+  [build as any, []],
   [codesign, [build]],
   [tarball, [codesign]],
   [deploy, [tarball]],
 ])
 
 const STEPS: Map<string, any> = new Map([
-  ["setup", setup as any],
-  ["build", build],
+  ["build", build as any],
   ["codesign", codesign],
   ["tarball", tarball],
   ["deploy", deploy],
@@ -81,15 +79,6 @@ export default async function run(
       inputs: { ...inputs, ...output },
     })
   }
-}
-
-async function setup({ inputs: { divvunKey, skipSetup } }: DivvunSpellProps) {
-  if (skipSetup) {
-    return
-  }
-
-  // Setup environment
-  await doSetup({ divvunKey })
 }
 
 async function build(_: DivvunSpellProps) {

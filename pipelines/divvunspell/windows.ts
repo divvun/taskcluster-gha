@@ -3,12 +3,12 @@ import createTxz from "~/actions/create-txz.ts"
 import doDeploy, { PackageType } from "~/actions/deploy.ts"
 import pahkatInit from "~/actions/pahkat/init.ts"
 import getVersion from "~/actions/version.ts"
-import { exec } from "~/builder.ts"
+import * as builder from "~/builder.ts"
 import { Bash } from "~/util/shared.ts"
 
 const TARGETS = ["x86_64-pc-windows-msvc"]
 
-export type Step = "setup" | "build" | "tarball" | "deploy"
+export type Step = "build" | "tarball" | "deploy"
 
 type Context = {}
 type Props = { divvunKey: string; skipSetup?: boolean }
@@ -21,15 +21,13 @@ type PipelineProps<T> = {
 }
 
 const DEPENDS_ON: Map<Function, Function[]> = new Map([
-  [setup as any, []],
-  [build, [setup]],
+  [build as any, []],
   [tarball, [build]],
   [deploy, [tarball]],
 ])
 
 const STEPS: Map<string, any> = new Map([
-  ["setup", setup as any],
-  ["build", build],
+  ["build", build as any],
   ["tarball", tarball],
   ["deploy", deploy],
 ])
@@ -80,29 +78,22 @@ export default async function run(
   }
 }
 
-async function setup({ inputs: { divvunKey, skipSetup } }: DivvunSpellProps) {
-  if (skipSetup) {
-    return
-  }
-
-  // Setup environment
-  await doSetup({ divvunKey })
-}
-
 async function build(_: DivvunSpellProps) {
   // Build
   for (const target of TARGETS) {
-    await exec("cargo", [
-      "--color",
-      "always",
-      "build",
-      "--release",
-      "--lib",
-      //   "--features",
-      //   "compression,internal_ffi",
-      "--target",
-      target,
-    ])
+    await builder.group(`Building ${target}`, async () => {
+      await builder.exec("cargo", [
+        "--color",
+        "always",
+        "build",
+        "--release",
+        "--lib",
+        //   "--features",
+        //   "compression,internal_ffi",
+        "--target",
+        target,
+      ])
+    })
   }
 }
 

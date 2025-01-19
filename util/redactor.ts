@@ -12,11 +12,18 @@ const RESTORE_CURSOR = `${ESC}8`
 const CLEAR_TO_END = `${ESC}[J`
 const MAX_VISIBLE_LINES = 10
 
+type Config = {
+  maxVisibleLines: number
+}
+
 export function startListener() {
   const redactions: Set<string> = new Set()
   const decoder = new TextDecoder()
   const encoder = new TextEncoder()
   let buffer = new Uint8Array(0)
+  let config: Config = {
+    maxVisibleLines: MAX_VISIBLE_LINES,
+  }
 
   // Group state
   let inGroup = false
@@ -52,6 +59,17 @@ export function startListener() {
               const cmd = command.parse(cmdStr)
 
               switch (cmd?.command) {
+                case "config":
+                  if (cmd.data) {
+                    if (cmd.data.maxVisibleLines) {
+                      if (cmd.data.maxVisibleLines <= 0) {
+                        config.maxVisibleLines = Number.MAX_SAFE_INTEGER
+                      } else {
+                        config.maxVisibleLines = cmd.data.maxVisibleLines
+                      }
+                    }
+                  }
+                  break
                 case "redact":
                   if (cmd.value != null) {
                     redactions.add(cmd.value)
@@ -67,11 +85,17 @@ export function startListener() {
                   break
                 case "end-group":
                   if (inGroup) {
-                    controller.enqueue(
-                      encoder.encode(
-                        `^^^\n${RESTORE_CURSOR}${CLEAR_TO_END}~~~ ${groupName}\n`,
-                      ),
-                    )
+                    if (cmd.data?.close) {
+                      controller.enqueue(
+                        encoder.encode(
+                          `^^^\n${RESTORE_CURSOR}${CLEAR_TO_END}~~~ ${groupName}\n`,
+                        ),
+                      )
+                    } else {
+                      controller.enqueue(
+                        encoder.encode(`^^^\n`),
+                      )
+                    }
                     inGroup = false
                     groupLines = []
                   }
@@ -83,7 +107,11 @@ export function startListener() {
                       : cmd.data?.level === "error"
                       ? "ERROR: "
                       : ""
-                    outputLine(`${prefix}${cmd.value}\n`, controller)
+                    outputLine(
+                      `${prefix}${cmd.value}\n`,
+                      controller,
+                      config.maxVisibleLines,
+                    )
                   }
                   break
               }
@@ -122,14 +150,15 @@ export function startListener() {
   function outputLine(
     line: string,
     controller: TransformStreamDefaultController<Uint8Array>,
+    maxLines: number,
   ) {
     if (inGroup) {
       groupLines.push(line)
-      if (groupLines.length > MAX_VISIBLE_LINES) {
+      if (groupLines.length > maxLines) {
         // Clear previous output and show last N lines
         const output =
           `${RESTORE_CURSOR}${CLEAR_TO_END}--- ${groupName} (${groupLines.length} lines)\n` +
-          groupLines.slice(-MAX_VISIBLE_LINES).join("")
+          groupLines.slice(-maxLines).join("")
         controller.enqueue(encoder.encode(output))
       } else {
         controller.enqueue(encoder.encode(line))

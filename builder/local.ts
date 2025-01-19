@@ -209,8 +209,8 @@ export function startGroup(name: string) {
   console.log(command.stringify({ name: "start-group", value: name }))
 }
 
-export function endGroup() {
-  console.log(command.stringify({ name: "end-group" }))
+export function endGroup(close: boolean = true) {
+  console.log(command.stringify({ name: "end-group", data: { close } }))
 }
 
 export function warning(message: string) {
@@ -276,4 +276,27 @@ export function tempDir() {
 
 export function createArtifact(_fileName: string, _artifactPath: string) {
   throw new Error("Artifacts are not available in local")
+}
+
+export function setMaxLines(lines: number) {
+  console.log(
+    command.stringify({ name: "config", data: { "maxVisibleLines": lines } }),
+  )
+}
+
+export async function group(name: string, callback: () => Promise<void>) {
+  startGroup(name)
+  try {
+    await callback()
+    endGroup(true)
+  } catch (error) {
+    console.log(
+      command.stringify({
+        name: "log",
+        data: { level: "error" },
+        value: error instanceof Error ? error.message : error,
+      }),
+    )
+    endGroup(false)
+  }
 }

@@ -202,8 +202,8 @@ divvunspell
             })
             break
           case "linux":
-            await divvunspellLinux("build", props, {
-              ignoreDependencies,
+            await divvunspellLinux("tarball", props, {
+              // ignoreDependencies,
             })
             break
           case "windows":
@@ -409,6 +409,8 @@ async function main() {
 
   // await delay(500)
   // console.log("Group is now closed!")
+
+  builder.setMaxLines(-1)
 
   switch (builder.mode) {
     case "local": {

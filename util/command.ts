@@ -13,7 +13,12 @@ export type Command = {
   value?: string
 }
 
-export type CommandName = "redact" | "start-group" | "end-group" | "log"
+export type CommandName =
+  | "redact"
+  | "start-group"
+  | "end-group"
+  | "log"
+  | "config"
 
 export function stringify({ name, data, value }: Command): string {
   let str = `${SOH}${name}`

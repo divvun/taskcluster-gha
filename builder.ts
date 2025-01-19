@@ -47,6 +47,8 @@ export const {
   secrets,
   tempDir,
   createArtifact,
+  setMaxLines,
+  group,
 } = selectedBuilder
 
 // Re-export types
