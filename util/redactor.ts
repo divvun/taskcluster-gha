@@ -80,7 +80,7 @@ export function startListener() {
   const decoder = new TextDecoder()
   const encoder = new TextEncoder()
   let buffer = new Uint8Array(0)
-  let config: { maxVisibleLines: number } = {
+  const config: { maxVisibleLines: number } = {
     maxVisibleLines: 10,
   }
 
