@@ -35,7 +35,7 @@ async function run() {
 
     const devPackages = ["foma", "hfst", "libhfst-dev", "cg3-dev", "divvun-gramcheck", "python3-corpustools", "python3-lxml", "python3-yaml", "python3.10-venv", "hfst-ospell"]
     const pipPackages = ["pipx"]
-    const pipxPackages = ["git+https://github.com/divvun/giellaltgramtools"]
+    const pipxPackages = ["git+https://github.com/divvun/giellaltgramtools", "uv"]
 
     if (requiresApertium) {
         devPackages.push("apertium")
