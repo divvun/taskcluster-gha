@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateKbdInnoFromBundle = void 0;
+exports.generateKbdInnoFromBundle = generateKbdInnoFromBundle;
 const path_1 = __importDefault(require("path"));
 const inno_1 = require("../../inno");
 const shared_1 = require("../../shared");
@@ -48,7 +48,6 @@ async function generateKbdInnoFromBundle(bundlePath, buildDir) {
     builder.write(fileName);
     return fileName;
 }
-exports.generateKbdInnoFromBundle = generateKbdInnoFromBundle;
 function addLayoutToInstaller(builder, locale, layout) {
     const target = layoutTarget(layout);
     const kbdId = getKbdId(locale, target);
